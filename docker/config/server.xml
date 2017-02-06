@@ -1,0 +1,45 @@
+<server>
+    <applicationMonitor updateTrigger="polled" pollingRate="500ms" dropins="dropins" dropinsEnabled="true"/>
+    <config updateTrigger="polled" monitorInterval="500ms"/>    
+    <featureManager>
+        <feature>javaee-7.0</feature>
+        <feature>servlet-3.1</feature>
+        <feature>appSecurity-2.0</feature>
+        <feature>wsSecurity-1.1</feature>
+    </featureManager>
+
+    <basicRegistry id="basic" realm="BasicRealm"/>
+    <httpEndpoint host="*" httpPort="__HTTP_PORT__" id="defaultHttpEndpoint">
+        <tcpOptions soReuseAddr="true"/>
+    </httpEndpoint>
+
+    <library id="MySQLLib">
+        <fileset dir="${shared.resource.dir}/mysql" includes="*.jar"/>
+    </library>
+
+    <dataSource id="DefaultDataSource" jndiName="jdbc/mydbdatasource" transactional="true" type="javax.sql.ConnectionPoolDataSource">
+        <jdbcDriver libraryRef="MySQLLib"/>
+        <properties databaseName="__DB_NAME__" createDatabase="create" serverName="__DB_IP__" portNumber="__DB_PORT__" user="__DB_USER__" password="__DB_PASSWD__" />
+        <connectionManager id="mysql-mysql-OrdersDBService-conMgr" maxPoolSize="100"/>
+    </dataSource>
+
+    <library id="kafkaLoginLib">
+        <fileset dir="${shared.resource.dir}" includes="kafka-clients-*.jar"/>
+    </library>
+
+    <jaasLoginModule id="KafkaClient"
+                className="org.apache.kafka.common.security.plain.PlainLoginModule"
+                controlFlag="REQUIRED" libraryRef="kafkaLoginLib">
+                
+        <options serviceName="kafka" username="__KAFKA_USERNAME__" password="__KAFKA_PASSWORD__" />
+    </jaasLoginModule>
+    
+    <jaasLoginContextEntry id="KafkaClient" name="KafkaClient" loginModuleRef="KafkaClient" />
+
+    <cdi12 enableImplicitBeanArchives="false"/>
+    <webContainer extractHostHeaderPort="true" trustHostHeaderPort="true"/>
+    <httpDispatcher enableWelcomePage="false"/>
+    <executor name="Default Executor"/>
+
+    <application name="JavaOrdersAPI" context-root="/"  location="JavaOrdersAPI.war" type="war"/>
+</server>

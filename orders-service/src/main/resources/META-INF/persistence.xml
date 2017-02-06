@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://java.sun.com/xml/ns/persistence"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="2.0"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/persistence http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd">
+	<persistence-unit name="openjpa-order">
+		<!-- The cloudAutowiring-1.0 Liberty feature will resolve this to whatever 
+			the database service name is -->
+		<!-- When running locally without this feature, create a datasource with 
+			the JNDI name "jdbc/mydbdatasource" in server.xml -->
+		<!-- If using MySQL locally then use the "url" property and append "?relaxAutoCommit=true", for example: 
+			<dataSource id='mysql-datasource' jdbcDriverRef='mysql-driver' jndiName='jdbc/mydbdatasource'> 
+				<properties user='root' password='password' url="jdbc:mysql://localhost:3306/db?relaxAutoCommit=true"/> 
+			</dataSource> -->
+		<jta-data-source>java:comp/env/jdbc/mydbdatasource</jta-data-source>
+		<class>com.ibm.ws.msdemo.rest.pojo.Order</class>
+		<properties>
+			<!-- allow table definitions/creation on-the-fly jpa-2.0 feature -->
+			<property name="openjpa.jdbc.SynchronizeMappings" value="buildSchema(ForeignKeys=true)" />
+			<!-- allow table definitions/creation on-the-fly jpa-2.1 feature -->
+			<property name="eclipselink.ddl-generation" value="create-tables"/>
+		</properties>
+	</persistence-unit>
+</persistence>

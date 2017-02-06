@@ -1,0 +1,20 @@
+
+
+
+task docker {
+    doLast {
+        copy {
+            from 'orders-service/JavaOrdersAPI.war'
+            into 'docker/config/apps'
+        }
+        copy {
+            from 'spring-sidecar/build/libs/spring-orders-sidecar-0.0.1.jar'
+            into 'docker/'
+        }
+
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '2.3'
+}

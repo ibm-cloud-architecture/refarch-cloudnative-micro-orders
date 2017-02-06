@@ -1,0 +1,17 @@
+spring:
+    application:
+       name: order-microservice
+
+eureka:
+    instance:
+       preferIpAddress: true
+    client:
+       serviceUrl:
+           defaultZone: http://microservices-refapp-eureka-chrisking.mybluemix.net/eureka/
+
+sidecar:
+    enabled: true
+    port: 9080
+    health-uri: http://localhost:9080/micro/health
+    home-page-uri: http://localhost:9080
+
