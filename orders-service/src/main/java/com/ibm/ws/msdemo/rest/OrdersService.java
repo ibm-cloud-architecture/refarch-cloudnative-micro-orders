@@ -31,6 +31,7 @@ import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ibm.ws.msdemo.rest.pojo.Order;
 
@@ -88,12 +89,26 @@ public class OrdersService {
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
 	public Response get(@HeaderParam("ibm-app-user") String user) {
+		if (user == null) {
+			// if caller header is not set, it's a bad request
+			return Response.status(Status.BAD_REQUEST).build();
+		}
+	
+		System.out.println("get order as " + user);
 		// scope orders by customerId
 		final List<Order> list = em.createQuery("SELECT t FROM Order t where t.customerId=:custId", Order.class)
 				.setParameter("custId", user)
 				.getResultList();
-		final String json = list.toString();
-		return Response.ok(json).build();
+		
+		final ObjectMapper mapper = new ObjectMapper();
+		try {
+			final String orderJSON = mapper.writeValueAsString(list);
+			System.out.println(orderJSON);
+			return Response.ok(orderJSON).build();
+		} catch (JsonProcessingException e) {
+			logger.log(Level.SEVERE, e.getMessage(), e);
+			return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+		}
 	}
 	
 	/**
@@ -110,25 +125,31 @@ public class OrdersService {
 			return Response.status(Status.BAD_REQUEST).build();
 		}
 		
-		System.out.println("Searching for id : " + id);
+		System.out.println("Searching for id : " + id + " as user " + user);
 		Order order = null;
 		try {
-			utx.begin();
 			order = em.find(Order.class, id);
 			
 			if (order != null && !order.getCustomerId().equals(user)) {
 				// the caller doesn't own the order, return HTTP 401
 				return Response.status(Status.UNAUTHORIZED).build();
 			}
-			
-			utx.commit();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR).build();
 		} 
 		
 		if (order != null) {
-			return Response.ok(order.toString()).build();
+        	try {
+				final ObjectMapper mapper = new ObjectMapper();
+				final String orderJSON = mapper.writeValueAsString(order);
+
+				System.out.println(orderJSON);
+				return Response.ok(orderJSON).build();
+			} catch (JsonProcessingException e) {
+				logger.log(Level.SEVERE, e.getMessage(), e);
+				return Response.status(Status.INTERNAL_SERVER_ERROR).build();
+			}
 		} else {
 			return Response.status(Status.NOT_FOUND).build();
 		}
@@ -157,7 +178,7 @@ public class OrdersService {
 			utx.commit();
 			
 			//Notify Order information to the Shipping app to proceed. 
-			notifyShipping(order.toString());
+			notifyShipping(order);
 			
 			return Response.status(201).entity(String.valueOf(order.getId())).build();
 		} catch (Exception e) {
@@ -224,7 +245,7 @@ public class OrdersService {
 	 * Sending order information to the Shipping app
 	 * @param order
 	 */
-    private void notifyShipping(String order) {
+    private void notifyShipping(Order order) {
         logger.log(Level.INFO,"Publishing order to shipping app: " + order);
 
         String fieldName = "order";

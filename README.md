@@ -66,7 +66,7 @@ Install MySQL instance.  Here are two options:
       mysql> create table if not exists orders (
           ->     orderId bigint not null auto_increment primary key,
           ->     itemId int not null,
-          ->     customerId bigint not null,
+          ->     customerId varchar(64) not null,
           ->     count int not null
           -> );
       Query OK, 0 rows affected (0.11 sec)
@@ -221,19 +221,23 @@ Retrieve the Zuul URL associated with the Spring Cloud Framework.
    
 ### Create an order
 
+The caller must pass a header, ```IBM-App-User```, to the API, which is passed by API Connect to identify the caller.
+
 ```
-# curl -H "Content-Type: application/json" -X POST -d '{"itemId":13401, "customerId":1, "count":1}' https://<Zuul URL>/orders-microservice/api/orders
+# curl -H "Content-Type: application/json" -H "IBM-App-User: abcdefg" -X POST -d '{"itemId":13401, "count":1}' https://<Zuul URL>/orders-microservice/api/orders
 ```
 
 In the Kafka console application terminal, you should see some messages being consumed on MessageHub, e.g.:
 
 ```
-[2017-01-27 15:45:25,552] INFO Message consumed: ConsumerRecord(topic = orders, partition = 0, offset = 1, CreateTime = 1485548828784, checksum = 4229253196, serialized key size = 5, serialized value size = 47, key = order, value = "{id = 1, itemId=13401, customerId=1, count=1}") (com.messagehub.samples.ConsumerRunnable)
+[2017-01-27 15:45:25,552] INFO Message consumed: ConsumerRecord(topic = orders, partition = 0, offset = 1, CreateTime = 1485548828784, checksum = 4229253196, serialized key size = 5, serialized value size = 47, key = order, value = "{id = 1, itemId=13401, customerId=abcdefg, count=1}") (com.messagehub.samples.ConsumerRunnable)
 ```
 
 ### Get all orders
 
+The caller must pass a header, ```IBM-App-User```, to the API, which is passed by API Connect to identify the caller.
+
 ```
-# curl https://<Zuul URL>/orders-microservice/api/orders
-[{id = 1, itemId=13401, customerId=1, count=1}, {id = 2, itemId=13401, customerId=1, count=1}]
+# curl -H "IBM-App-User: abcdefg" https://<Zuul URL>/orders-microservice/api/orders
+[{id = 1, itemId=13401, customerId=abcdefg, count=1}, {id = 2, itemId=13401, customerId=abcdefg, count=1}]
 ```
