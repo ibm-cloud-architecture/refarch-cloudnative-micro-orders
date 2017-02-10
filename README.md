@@ -19,7 +19,7 @@ This project is built to demonstrate how to build a Microservices application im
 
 - Orders Microservice persists orders in a MySQL database.  
 - When a new order is placed, a record is saved in the database and a message is posted on MessageHub to notify interested subscribers
-- In BlueCompute case, the Inventory Microservice consumes the Order message to update the available stock of the item.
+  - In BlueCompute case, the Inventory Microservice consumes the Order message to update the available stock of the item.
 - When retrieving orders, return only orders belonging to the user identity passed from API Connect in the header `IBM-App-User`.  See the [BlueCompute Security architecture](https://github.com/ibm-cloud-architecture/refarch-cloudnative/blob/master/static/security.md) and [Authentication microservice](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth) for more information.
 
 ## Pre-requisites
