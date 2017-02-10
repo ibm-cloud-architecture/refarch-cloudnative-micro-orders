@@ -11,11 +11,21 @@ This project is built to demonstrate how to build a Microservices application im
  - Deploy the Orders microservices to containers on the [IBM Bluemix Container Service](https://console.ng.bluemix.net/docs/containers/container_index.html).
  - Persist order data to the MySQL database
  - Integrate with the [Spring Cloud Netflix Eureka](https://cloud.spring.io/spring-cloud-netflix/) framework using a Spring Boot Sidecar application
- - Produce messages on [IBM Message Hub](https://console.ng.bluemix.net/docs/services/MessageHub/index.html#messagehub) service on Bluemix for asynchronous communications between microservices
+ - Produce messages on [IBM Message Hub](https://console.ng.bluemix.net/docs/services/MessageHub/index.html#messagehub) service on Bluemix for asynchronous communication with [Inventory Microservice](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory).
+ 
+## Use Case
+ 
+![Orders Microservice](orders_microservice.png)
+
+- Orders Microservice persists orders in a MySQL database.  
+- When a new order is placed, a record is saved in the database and a message is posted on MessageHub to notify interested subscribers
+- In BlueCompute case, the Inventory Microservice consumes the Order message to update the available stock of the item.
 
 ## Pre-requisites
 
 ### Create an IBM MessageHub Service Instance
+
+*Note that two components use MessageHub in BlueCompute, this Orders microservice and the [Inventory microservice](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory).  If deploying both services, the two components must share the same MessageHub instance.*
 
 1. Login to your Bluemix console
 2. Open browser to create a Message Hub service using this link: [https://console.ng.bluemix.net/catalog/services/message-hub/](https://console.ng.bluemix.net/catalog/services/message-hub/)
@@ -45,12 +55,18 @@ This project is built to demonstrate how to build a Microservices application im
 
 Install [Docker](https://www.docker.com)
 
+### Install Cloud Foundry CLI and IBM Containers plugin
+
+Install the [Cloud Foundry CLI](https://console.ng.bluemix.net/docs/starters/install_cli.html) and the [IBM Containers Plugin](https://console.ng.bluemix.net/docs/cli/plugins/containers/index.html)
+
 ### Create a MySQL database instance
+
+*Note that two components in BlueCompute use MySQL databases, this service and the [Inventory microservice](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory).  If deploying both services, it is possible to have the data reside in the same MySQL instance, but in production deployments it is recommended that each microservice has its own separate database.*
 
 Install MySQL instance.  Here are two options:
 
 1. On IBM Bluemix, you can create one using [Compose for MySQL](https://console.ng.bluemix.net/catalog/services/compose-for-mysql/).
-   1. Once it is ready, on the `Service Credentials, note the `uri` and `uri_cli` property.  Run this command:
+   1. Once it is ready, on the `Service Credentials, note the `uri` and `uri_cli` property.  Run the `url_cli` command in a console:
    
       ```
       # mysql -u admin -p --host bluemix-sandbox-dal-9-portal.0.dblayer.com --port xxxxx --ssl-mode=REQUIRED
@@ -138,6 +154,8 @@ You can use the following button to deploy the Orders microservice to Bluemix, o
 
 [![Create BlueCompute Deployment Toolchain](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy?repository=https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git)
 
+The deployment creates a topic in IBM Message Hub called `orders` and deploys the orders microservice in a container group on the IBM Bluemix Container Service.
+
 ## Create a Topic in IBM Message Hub
 
 In the Bluemix console, under `Services`, locate the Message Hub service under `Application Services`.  Click on the instance to be taken to the management portal.
@@ -169,23 +187,47 @@ Click on the `+` icon to create a topic.  Name the topic `orders`, with 1 partit
 Execute the following to run the Docker container locally.  Make sure to update the `Eureka URL`, `MySQL JDBC URL`, `MySQL DB Username`, `MySQL DB Password`, `MessageHub Username`, and `MessageHub Password`.
 
 ```
-# docker run -d --name orders-microservice -P -e eureka.client.fetchRegistry=true -e eureka.client.registerWithEureka=true -e spring.application.name=orders-microservice -e eureka.client.serviceUrl.defaultZone=<Eureka URL> -e spring.application.name=orders-microservice -e JDBC_URL=<MySQL jdbc url> -e DB_USER=<MySQL DB username> -e DB_PASSWD=<MySQL DB password> -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 -e KAFKA_USERNAME=<MessageHub Username> -e KAFKA_PASSWORD=<MessageHub Password> orders-microservice
+# docker run -d --name orders-microservice -P -e eureka.client.fetchRegistry=true -e eureka.client.registerWithEureka=true -e spring.application.name=orders-microservice -e eureka.client.serviceUrl.defaultZone=<Eureka URL> -e JDBC_URL=<MySQL jdbc url> -e DB_USER=<MySQL DB username> -e DB_PASSWD=<MySQL DB password> -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 -e KAFKA_USERNAME=<MessageHub Username> -e KAFKA_PASSWORD=<MessageHub Password> orders-microservice
 ```
+
 
 ## Run the Docker container on Bluemix
 
-1. Tag and push the docker image to the Bluemix private registry:
+1. Log into the Cloud Foundry CLI
+   ```
+   # cf login
+   ```
+   
+   Be sure to set the correct target space where Cloudant instance was provisioned.
+   
+2. Initialize the Bluemix Containers plugin
+   
+   ```
+   # cf ic init
+   ```
+   
+   Ensure that the container namespace is set:
+   ```
+   # cf ic namespace get
+   ```
+   
+   If it is not set, use the following command to set it:
+   ```
+   # cf ic namespace set <namespace>
+   ```
+   
+3. Tag and push the docker image to the Bluemix private registry:
 
    ```
    # docker tag orders-microservice registry.ng.bluemix.net/$(cf ic namespace get)/orders-microservice
    # docker push registry.ng.bluemix.net/$(cf ic namespace get)/orders-microservice
    ```
 
-Execute the following to run the Docker container on Bluemix Container Service.  Make sure to replace the Make sure to update the `Eureka URL`, `MySQL JDBC URL`, `MySQL DB Username`, `MySQL DB Password`, `MessageHub Username`, and `MessageHub Password`.
+4. Execute the following to run the Docker container on Bluemix Container Service.  Make sure to replace the Make sure to update the `Eureka URL`, `MySQL JDBC URL`, `MySQL DB Username`, `MySQL DB Password`, `MessageHub Username`, and `MessageHub Password`.
 
-```
-# cf ic run -d --name orders-microservice --publish 9080 --publish 8080 --memory 256 -m 256 -e eureka.client.fetchRegistry=true -e eureka.client.registerWithEureka=true -e spring.application.name=orders-microservice -e server.context-path= -e eureka.client.serviceUrl.defaultZone=<Eureka URL> -e JDBC_URL=<MySQL jdbc url> -e DB_USER=<MySQL DB username> -e DB_PASSWD=<MySQL DB password> -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 -e KAFKA_USERNAME=<MessageHub Username> -e KAFKA_PASSWORD=<MessageHub Password> registry.ng.bluemix.net/$(cf ic namespace get)/orders-microservice
-```
+   ```
+   # cf ic run -d --name orders-microservice --publish 9080 --publish 8080 --memory 256 -m 256 -e eureka.client.fetchRegistry=true -e eureka.client.registerWithEureka=true -e spring.application.name=orders-microservice -e server.context-path= -e eureka.client.serviceUrl.defaultZone=<Eureka URL> -e JDBC_URL=<MySQL jdbc url> -e DB_USER=<MySQL DB username> -e DB_PASSWD=<MySQL DB password> -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 -e KAFKA_USERNAME=<MessageHub Username> -e KAFKA_PASSWORD=<MessageHub Password> registry.ng.bluemix.net/$(cf ic namespace get)/orders-microservice
+   ```
 
 ## Validate the Orders microservice
 
