@@ -155,7 +155,7 @@ You can use the following button to deploy the Orders microservice to Bluemix, o
 
 [![Create BlueCompute Deployment Toolchain](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy?repository=https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git)
 
-The deployment creates a topic in IBM Message Hub called `orders` and deploys the orders microservice in a container group on the IBM Bluemix Container Service.
+The deployment creates a topic named `orders` in an existing IBM Message Hub instance and deploys the orders microservice in a container group on the IBM Bluemix Container Service.
 
 ## Create a Topic in IBM Message Hub
 
@@ -199,7 +199,7 @@ Execute the following to run the Docker container locally.  Make sure to update 
    # cf login
    ```
    
-   Be sure to set the correct target space where Cloudant instance was provisioned.
+   Be sure to set the correct target space where the MessageHub instance was provisioned.
    
 2. Initialize the Bluemix Containers plugin
    
