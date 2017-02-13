@@ -70,7 +70,7 @@ Install MySQL instance.  Here are two options:
    1. Once it is ready, on the `Service Credentials, note the `uri` and `uri_cli` property.  Run the `url_cli` command in a console:
    
       ```
-      # mysql -u admin -p --host bluemix-sandbox-dal-9-portal.0.dblayer.com --port xxxxx --ssl-mode=REQUIRED
+     # mysql -u admin -p --host bluemix-sandbox-dal-9-portal.0.dblayer.com --port xxxxx --ssl-mode=REQUIRED
       ```
       
       The password is embedded in the `uri` property after `admin`.
@@ -80,12 +80,7 @@ Install MySQL instance.  Here are two options:
       ```
       mysql> use compose;
       Database changed
-      mysql> create table if not exists orders (
-          ->     orderId bigint not null auto_increment primary key,
-          ->     itemId int not null,
-          ->     customerId varchar(64) not null,
-          ->     count int not null
-          -> );
+      mysql> source mysql/create_orders_table.sql
       Query OK, 0 rows affected (0.11 sec)
       ```
    
@@ -134,6 +129,7 @@ Install MySQL instance.  Here are two options:
    7. Copy the script `mysql/create_orders_db.sh` to the container.  You may note the parameters at the top of the script and change them if you do not want to use the defaults:
       
       ```
+      # cf ic cp mysql/create_orders_table.sql mysql-orders:/root/create_orders_table.sql
       # cf ic cp mysql/create_orders_db.sh mysql-orders:/root/create_orders_db.sh
       ```
       
