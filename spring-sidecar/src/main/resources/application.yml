@@ -1,6 +1,6 @@
 spring:
     application:
-       name: order-microservice
+       name: orders-microservice
 
 eureka:
     instance:
