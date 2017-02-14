@@ -118,12 +118,6 @@ stages:
   - name: MYSQL_PASSWORD
     type: secure
     value: ${MYSQL_PASSWORD}
-  - name: APP_NAME
-    value: ${APP_NAME}
-    type: text
-  - name: MEMORY
-    value: ${MEMORY}
-    type: text
   - name: CONTAINER_SIZE
     value: ${MEMORY}
     type: text
@@ -148,7 +142,7 @@ stages:
       organization: ${ORG}
       space: ${SPACE}
     PORT: 9080,8080
-    OPTIONAL_ARGS: -m ${MEMORY}
+    OPTIONAL_ARGS: 
     CONTAINER_NAME: ${NAME}
     DEPLOY_TYPE: red_black
     COMMAND: |-
@@ -166,18 +160,17 @@ stages:
           fi
       fi
 
-      messagehub_svc=`cf services | grep messagehub | sed -e 's/\s*messagehub.*$//' | sed -e 's/ *$//g'`
-      messagehub_cred_name=`cf service-keys "${messagehub_svc}" | tail -1 | sed -e 's/ *$//g'`
+      messagehub_svc=`cf services | grep messagehub | sed -e 's/[ ][ ]messagehub.*$//' | sed -e 's/[ ]*$//g'`
+      messagehub_cred_name=`cf service-keys "${messagehub_svc}" | tail -1 | sed -e 's/[ ]*$//g'`
       messagehub_creds=`cf service-key "${messagehub_svc}" "${messagehub_cred_name}" | grep -v "Getting key "`
 
       kafka_username=`echo ${messagehub_creds} | ./jq '.user' | sed -e 's/"//g'`
       kafka_password=`echo ${messagehub_creds} | ./jq '.password' | sed -e 's/"//g'`
       kafka_brokerlist=`echo ${messagehub_creds} | ./jq '.kafka_brokers_sasl | join(",")' | sed -e 's/"//g'`
 
-# create the topic "orders"
       kafka_apikey=`echo ${messagehub_creds} | ./jq '.api_key' | sed -e 's/"//g'`
       kafka_adminurl=`echo ${messagehub_creds} | ./jq '.kafka_admin_url' | sed -e 's/"//g'`
-  
+
       topicexists=`curl -I -H "X-Auth-Token: ${kafka_apikey}" ${kafka_adminurl}/topics/orders | grep HTTP | grep 404`
       if [ ! -z "${topicexists}" ]; then
           echo "creating \"orders\" topic on messagehub ..."
@@ -193,12 +186,9 @@ stages:
       git_retry clone https://github.com/ssibm/deployscripts.git deployscripts
 
       OPTIONAL_ARGS="${OPTIONAL_ARGS} \
-      -e CG_NAME=${ROUTE_HOSTNAME} \
       -e NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY} \
       -e eureka.client.fetchRegistry=true \
       -e eureka.client.registerWithEureka=true \
-      -e "spring.application.name=${APP_NAME}" \
-      -e "server.context-path=${CTXPATH}" \
       -e "eureka.client.serviceUrl.defaultZone=${EUREKA_REGISTRY_URL}" \
       -e "JDBC_URL=${JDBC_URL}" \
       -e "DB_USER=${MYSQL_USER}" \
