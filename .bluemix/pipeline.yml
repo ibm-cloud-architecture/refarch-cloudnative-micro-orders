@@ -187,15 +187,23 @@ stages:
 
       OPTIONAL_ARGS="${OPTIONAL_ARGS} \
       -e NEW_RELIC_LICENSE_KEY=${NEW_RELIC_LICENSE_KEY} \
-      -e eureka.client.fetchRegistry=true \
-      -e eureka.client.registerWithEureka=true \
-      -e "eureka.client.serviceUrl.defaultZone=${EUREKA_REGISTRY_URL}" \
       -e "JDBC_URL=${JDBC_URL}" \
       -e "DB_USER=${MYSQL_USER}" \
       -e "DB_PASSWD=${MYSQL_PASSWORD}" \
       -e "KAFKA_BROKER_LIST=${kafka_brokerlist}" \
       -e "KAFKA_USERNAME=${kafka_username}" \
       -e "KAFKA_PASSWORD=${kafka_password}""
+
+      if [ ! -z "${EUREKA_REGISTRY_URL}" ]; then
+          OPTIONAL_ARGS="${OPTIONAL_ARGS} \
+              -e eureka.client.fetchRegistry=true \
+              -e eureka.client.registerWithEureka=true \
+              -e eureka.client.serviceUrl.defaultZone=${EUREKA_REGISTRY_URL}"
+      else
+          OPTIONAL_ARGS="${OPTIONAL_ARGS} \
+              -e eureka.client.fetchRegistry=false \
+              -e eureka.client.registerWithEureka=false"
+      fi
 
       log_and_echo "Optional Args: ${OPTIONAL_ARGS}"
 
