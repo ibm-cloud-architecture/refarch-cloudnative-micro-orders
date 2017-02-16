@@ -22,6 +22,27 @@ This project is built to demonstrate how to build a Microservices application im
   - In BlueCompute case, the Inventory Microservice consumes the Order message to update the available stock of the item.
 - When retrieving orders, return only orders belonging to the user identity passed from API Connect in the header `IBM-App-User`.  See the [BlueCompute Security architecture](https://github.com/ibm-cloud-architecture/refarch-cloudnative/blob/master/static/security.md) and [Authentication microservice](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth) for more details on how identity is propagated.
 
+## REST API
+
+The Orders Microservice REST API is behind the Zuul Proxy, which validates the caller using signed JWT tokens.  As such, only API exposed by API Connect are considered public API.  All Public REST API are OAuth 2.0 protected by the API Connect OAuth provider.  
+
+- `GET /micro/orders` (public)
+  - Returns all orders.  The caller of this API must pass API Connect a valid OAuth token.  API Connect will pass down the customer ID in the `IBM-App-User` header.  A JSON object array is returned consisting of only orders created by the customer ID.
+
+- `GET /micro/orders/{id}` (public)
+  - Return order by ID.  The caller of this API must pass API Connect a valid OAuth token.  API Connect will pass down the customer ID in the `IBM-App-User` header.  If the `id` of the order is owned by the customer passed in the `IBM-App-User` header, it is returned as a JSON object in the response; otherwise `HTTP 401` is returned.
+
+- `POST /micro/orders` (public)
+  - Create an order.  The caller of this API must pass API Connect a valid OAuth token.  API Connect will pass down the customer ID in the `IBM-App-User` header.  The Order object must be passed as JSON object in the request body with the following format:
+    ```
+    {
+      "itemId": <item id>,
+      "count": <number of items in order>,
+    }
+    ```
+
+    On success, `HTTP 201` is returned with the ID of the created order in the `Location` response header.
+
 ## Pre-requisites
 
 ### Create an IBM MessageHub Service Instance
@@ -144,14 +165,16 @@ Install MySQL instance.  Here are two options:
       ```
       jdbc:mysql://<public_ip>:3306/ordersdb
       ```
-   
+
+Note that in the BlueCompute production deployment a highly available MySQL Cluster instance is created on-premise following the instructions [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-resiliency).
+
 ## Deploy to BlueMix
 
 You can use the following button to deploy the Orders microservice to Bluemix, or you can follow the instructions manually below.
 
-[![Create BlueCompute Deployment Toolchain](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy?repository=https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git)
-
 The deployment creates a topic named `orders` in an existing IBM Message Hub instance and deploys the orders microservice in a container group on the IBM Bluemix Container Service.
+
+[![Create BlueCompute Deployment Toolchain](https://console.ng.bluemix.net/devops/graphics/create_toolchain_button.png)](https://console.ng.bluemix.net/devops/setup/deploy?repository=https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git)
 
 ## Create a Topic in IBM Message Hub
 
@@ -184,7 +207,17 @@ Click on the `+` icon to create a topic.  Name the topic `orders`, with 1 partit
 Execute the following to run the Docker container locally.  Make sure to update the `Eureka URL`, `MySQL JDBC URL`, `MySQL DB Username`, `MySQL DB Password`, `MessageHub Username`, and `MessageHub Password`.
 
 ```
-# docker run -d --name orders-microservice -P -e eureka.client.fetchRegistry=true -e eureka.client.registerWithEureka=true -e spring.application.name=orders-microservice -e eureka.client.serviceUrl.defaultZone=<Eureka URL> -e JDBC_URL=<MySQL jdbc url> -e DB_USER=<MySQL DB username> -e DB_PASSWD=<MySQL DB password> -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 -e KAFKA_USERNAME=<MessageHub Username> -e KAFKA_PASSWORD=<MessageHub Password> orders-microservice
+# docker run -d --name orders-microservice -P \
+  -e eureka.client.fetchRegistry=true \
+  -e eureka.client.registerWithEureka=true \
+  -e eureka.client.serviceUrl.defaultZone=<Eureka URL> \
+  -e JDBC_URL=<MySQL jdbc url> \
+  -e DB_USER=<MySQL DB username> \
+  -e DB_PASSWD=<MySQL DB password> \
+  -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 \
+  -e KAFKA_USERNAME=<MessageHub Username> \
+  -e KAFKA_PASSWORD=<MessageHub Password> \
+  orders-microservice
 ```
 
 
@@ -223,12 +256,28 @@ Execute the following to run the Docker container locally.  Make sure to update 
 4. Execute the following to run the Docker container on Bluemix Container Service.  Make sure to replace the Make sure to update the `Eureka URL`, `MySQL JDBC URL`, `MySQL DB Username`, `MySQL DB Password`, `MessageHub Username`, and `MessageHub Password`.
 
    ```
-   # cf ic run -d --name orders-microservice --publish 9080 --publish 8080 --memory 256 -m 256 -e eureka.client.fetchRegistry=true -e eureka.client.registerWithEureka=true -e spring.application.name=orders-microservice -e server.context-path= -e eureka.client.serviceUrl.defaultZone=<Eureka URL> -e JDBC_URL=<MySQL jdbc url> -e DB_USER=<MySQL DB username> -e DB_PASSWD=<MySQL DB password> -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 -e KAFKA_USERNAME=<MessageHub Username> -e KAFKA_PASSWORD=<MessageHub Password> registry.ng.bluemix.net/$(cf ic namespace get)/orders-microservice
+   # cf ic group create --name orders-microservice \
+     --publish 9080 --publish 8080 \
+     --memory 256 \
+     -e eureka.client.fetchRegistry=true \
+     -e eureka.client.registerWithEureka=true \
+     -e eureka.client.serviceUrl.defaultZone=<Eureka URL> \
+     -e JDBC_URL=<MySQL jdbc url> \
+     -e DB_USER=<MySQL DB username> \
+     -e DB_PASSWD=<MySQL DB password> \
+     -e KAFKA_BROKER_LIST=kafka01-prod01.messagehub.services.us-south.bluemix.net:9093,kafka02-prod01.messagehub.services.us-south.bluemix.net:9093,kafka03-prod01.messagehub.services.us-south.bluemix.net:9093,kafka04-prod01.messagehub.services.us-south.bluemix.net:9093,kafka05-prod01.messagehub.services.us-south.bluemix.net:9093 \
+     -e KAFKA_USERNAME=<MessageHub Username> \
+     -e KAFKA_PASSWORD=<MessageHub Password> \
+     registry.ng.bluemix.net/$(cf ic namespace get)/orders-microservice
    ```
 
 ## Validate the Orders microservice
 
-Retrieve the Zuul URL associated with the Spring Cloud Framework.
+Zuul performs authorization using signed JWT tokens generated by API Connect.  As such, to call the REST API directly from Bluemix, you must temporarily map a route to the container group which bypasses Zuul.
+
+```
+# cf ic route map -n <temp-routename> -d mybluemix.net orders-microservice 
+```
 
 ### Set up Kafka Console sample to read messages from Bluemix:
 
@@ -263,7 +312,7 @@ Retrieve the Zuul URL associated with the Spring Cloud Framework.
 The caller must pass a header, ```IBM-App-User```, to the API, which is passed by API Connect to identify the caller.
 
 ```
-# curl -H "Content-Type: application/json" -H "IBM-App-User: abcdefg" -X POST -d '{"itemId":13401, "count":1}' https://<Zuul URL>/orders-microservice/api/orders
+# curl -H "Content-Type: application/json" -H "IBM-App-User: abcdefg" -X POST -d '{"itemId":13401, "count":1}' https://<temp-routename>/micro/orders
 ```
 
 In the Kafka console application terminal, you should see some messages being consumed on MessageHub, e.g.:
@@ -274,9 +323,23 @@ In the Kafka console application terminal, you should see some messages being co
 
 ### Get all orders
 
-The caller must pass a header, ```IBM-App-User```, to the API, which is passed by API Connect to identify the caller.
+The caller must pass a header, `IBM-App-User`, to the API, which is passed by API Connect to identify the caller.
 
 ```
-# curl -H "IBM-App-User: abcdefg" https://<Zuul URL>/orders-microservice/api/orders
+# curl -H "IBM-App-User: abcdefg" https://temp-routename/micro/orders
 [{id = 1, itemId=13401, customerId=abcdefg, count=1}, {id = 2, itemId=13401, customerId=abcdefg, count=1}]
+```
+
+### Unmap the temporary route
+
+When verification is complete, unmap the route so that the only access to the orders microservice is through Zuul.  
+
+```
+# cf ic route unmap -n <temp-routename> -d mybluemix.net orders-microservice 
+```
+
+Delete the temporary route.
+
+```
+# cf delete-route -n <temp-routename> mybluemix.net
 ```

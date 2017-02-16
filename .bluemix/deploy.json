@@ -32,12 +32,19 @@
         "new-relic-lic-key": {
             "description": "New Relic License Key",
             "type": "string"
+        },
+        "eureka-url": {
+            "description": "Eureka Registry URL",
+            "type": "string"
         }
     },
     "required": [
         "deploy-region",
         "deploy-org",
-        "deploy-space"
+        "deploy-space",
+        "jdbc-url",
+        "mysql-dbuser",
+        "mysql-dbpass"
     ],
     "form": [
         {
@@ -61,6 +68,12 @@
             "readonly": false,
             "title": "Database Password",
             "key": "mysql-dbpass"
+        },
+        {
+            "type": "text",
+            "readonly": false,
+            "title": "Eureka Registry URL",
+            "key": "eureka-url"
         },
         {
             "type": "text",
