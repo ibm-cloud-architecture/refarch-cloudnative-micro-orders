@@ -24,6 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -180,7 +181,10 @@ public class OrdersService {
 			//Notify Order information to the Shipping app to proceed. 
 			notifyShipping(order);
 			
-			return Response.status(201).entity(String.valueOf(order.getId())).build();
+			final UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+			builder.path(Long.toString(order.getId()));
+			
+			return Response.status(Response.Status.CREATED).entity(builder.build()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR).build();
