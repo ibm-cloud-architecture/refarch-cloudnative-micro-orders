@@ -163,6 +163,7 @@ public class OrdersService {
      */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response create(@HeaderParam("ibm-app-user") String user, Order order) {
 		if (user == null) {
 			// if caller header is not set, it's a bad request
