@@ -184,7 +184,7 @@ public class OrdersService {
 			final UriBuilder builder = uriInfo.getAbsolutePathBuilder();
 			builder.path(Long.toString(order.getId()));
 			
-			return Response.status(Response.Status.CREATED).entity(builder.build()).build();
+			return Response.created(builder.build()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR).build();
