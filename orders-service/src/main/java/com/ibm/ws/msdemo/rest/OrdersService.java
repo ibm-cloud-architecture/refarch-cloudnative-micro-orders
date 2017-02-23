@@ -24,6 +24,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.kafka.clients.producer.KafkaProducer;
@@ -162,6 +163,7 @@ public class OrdersService {
      */
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response create(@HeaderParam("ibm-app-user") String user, Order order) {
 		if (user == null) {
 			// if caller header is not set, it's a bad request
@@ -180,7 +182,10 @@ public class OrdersService {
 			//Notify Order information to the Shipping app to proceed. 
 			notifyShipping(order);
 			
-			return Response.status(201).entity(String.valueOf(order.getId())).build();
+			final UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+			builder.path(Long.toString(order.getId()));
+			
+			return Response.created(builder.build()).build();
 		} catch (Exception e) {
 			e.printStackTrace();
 			return Response.status(javax.ws.rs.core.Response.Status.INTERNAL_SERVER_ERROR).build();
