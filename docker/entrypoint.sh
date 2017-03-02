@@ -27,6 +27,10 @@ sed -i -e 's/__KAFKA_USERNAME__/'${KAFKA_USERNAME}'/g' /config/server.xml
 sed -i -e 's/__KAFKA_PASSWORD__/'${KAFKA_PASSWORD}'/g' /config/server.xml
 sed -i -e 's/__KAFKA_BROKERS__/'${KAFKA_BROKER_LIST}'/g' /config/producer.properties
 
+# newrelic properties
+sed -i -e 's/app_name: My Application/app_name: '${CG_NAME}'/g' /agents/newrelic/newrelic.yaml
+sed -i -e "s/license_key: 'YOUR_LICENSE_KEY'/license_key: '${NEW_RELIC_LICENSE_KEY}'/g" /agents/newrelic/newrelic.yaml
+
 # start the sidecar -- note if the container dies i have to re-run a new instance
 # as the sidecar doesnt' get restarted with the container (we don't use an init system)
 java -jar /spring-orders-sidecar-0.0.1.jar &
@@ -38,6 +42,3 @@ pids="${pids} $!"
 
 # wait for all jobs to finish, or get the above signals
 wait
-
-# Load newrelic agent support
-source ./agents/newrelic.sh
