@@ -39,5 +39,5 @@ pids="${pids} $!"
 # wait for all jobs to finish, or get the above signals
 wait
 
-
-
+# Load newrelic agent support
+source ./agents/newrelic.sh
