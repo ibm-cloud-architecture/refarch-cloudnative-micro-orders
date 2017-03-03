@@ -39,6 +39,9 @@ ADD spring-orders-sidecar-0.0.1.jar /spring-orders-sidecar-0.0.1.jar
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
 
+# Copy agent files
+COPY agents/ /agents/
+
 # Add the new relic agent
 RUN wget https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip -O /tmp/newrelic.zip \
   && unzip -u -d /agents /tmp/newrelic.zip newrelic/newrelic.jar \
