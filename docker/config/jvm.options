@@ -1,0 +1,1 @@
+-javaagent:/agents/newrelic/newrelic.jar -Dnewrelic.config.file=/agents/newrelic/newrelic.yaml -Dnewrelic.bootstrap_classpath=true"

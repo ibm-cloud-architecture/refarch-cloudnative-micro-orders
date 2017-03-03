@@ -18,7 +18,7 @@ ENV HTTP_PORT=9080
 ENV SIDECAR_APP_PORT=8080
 
 # install mysql jdbc driver
-RUN apt-get install libmysql-java 
+RUN apt-get install libmysql-java
 RUN mkdir -p /opt/ibm/wlp/usr/shared/resources/mysql
 RUN chmod 777 /opt/ibm/wlp/usr/shared/resources/mysql
 RUN cp /usr/share/java/mysql-connector-java-5.1.38.jar /opt/ibm/wlp/usr/shared/resources/mysql/
@@ -39,8 +39,15 @@ ADD spring-orders-sidecar-0.0.1.jar /spring-orders-sidecar-0.0.1.jar
 ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
 
+# Copy agent files
+COPY agents/ /agents/
+
+# Add the new relic agent
+RUN wget https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip -O /tmp/newrelic.zip \
+  && unzip -u -d /agents /tmp/newrelic.zip newrelic/newrelic.jar \
+  && rm /tmp/newrelic.zip
+
 #CMD ["/opt/ibm/docker/docker-server", "run", "defaultServer"]
 
-ENTRYPOINT [ "/entrypoint.sh" ]                                                       
+ENTRYPOINT [ "/entrypoint.sh" ]
 CMD [""]
-
