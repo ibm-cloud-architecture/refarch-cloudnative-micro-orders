@@ -1,4 +1,4 @@
-package com.ibm.ws.msdemo.rest.pojo;
+package orders.model;
 
 import javax.persistence.Basic;
 import javax.persistence.Column;

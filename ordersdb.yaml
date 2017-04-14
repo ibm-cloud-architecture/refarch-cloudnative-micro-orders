@@ -1,0 +1,52 @@
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+    name: ordersdb-disk
+    annotations:
+      volume.beta.kubernetes.io/storage-class: "ibmc-file-silver"
+spec:
+    accessModes:
+    - ReadWriteOnce
+    resources:
+      requests:
+        storage: 20Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: ordersdb-deployment
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: ordersdb
+    spec:
+      containers:
+        - name: ordersdb
+          image: mysql:latest
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: ordersdb-disk
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "true"
+      volumes:
+        - name: ordersdb-disk
+          persistentVolumeClaim:
+            claimName: ordersdb-disk
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: ordersdb
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: ordersdb
+...

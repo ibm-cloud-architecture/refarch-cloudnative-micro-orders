@@ -1,4 +1,4 @@
-FROM registry.ng.bluemix.net/ibmliberty
+FROM openjdk:8
 
 ARG db_name=ordersdb
 ARG db_ip
