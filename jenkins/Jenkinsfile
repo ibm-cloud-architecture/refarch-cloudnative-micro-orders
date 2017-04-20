@@ -106,9 +106,8 @@ podTemplate(label: 'mypod',
                 sh """
                 #!/bin/bash
 
-                COMPOSE_MYSQL_SVC_NAME=`bx service list | grep compose-for-mysql | sed -e 's/[ ]*compose-for-mysql.*\$//'`
-
-                MESSAGEHUB_SVC_NAME=`bx service list | grep messagehub | sed -e 's/[ ]*messagehub.*\$//'`
+                COMPOSE_MYSQL_SVC_NAME=`bx service list | grep compose-for-mysql | sed -e 's/[ ][ ]*compose-for-mysql.*\$//'`
+                MESSAGEHUB_SVC_NAME=`bx service list | grep messagehub | sed -e 's/[ ][ ]*messagehub.*\$//'`
                 # TODO: get the secret name from the service name?
                 COMPOSE_MYSQL_SECRET_NAME="binding-\${COMPOSE_MYSQL_SVC_NAME}"
                 MESSAGEHUB_SECRET_NAME="binding-\${MESSAGEHUB_SVC_NAME}"
