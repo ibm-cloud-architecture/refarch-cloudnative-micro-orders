@@ -81,7 +81,7 @@ podTemplate(label: 'mypod',
                 bx cs cluster-service-bind \${KUBE_CLUSTER_NAME} default \${COMPOSE_MYSQL_SVC_NAME}
 
                 # find messagehub service
-                MESSAGEHUB_SVC_NAME=`bx service list | grep messagehub | sed -e 's/[ ]*messagehub.*\$//'`
+                MESSAGEHUB_SVC_NAME=`bx service list | grep messagehub | sed -e 's/[ ][ ]*messagehub.*\$//'`
 
                 if [ -z "\${MESSAGEHUB_SVC_NAME}" ]; then
                   echo "No MessageHub service found!"
