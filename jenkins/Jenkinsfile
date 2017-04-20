@@ -175,6 +175,7 @@ podTemplate(label: 'mypod',
                     image_name=registry.ng.bluemix.net/\${REGISTRY_NAMESPACE}/micro-orders:${env.BUILD_NUMBER}
 
                     bx cr image-rm \${image_name}
+                    """
                 }
             }
 
