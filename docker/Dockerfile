@@ -4,7 +4,7 @@ ENV HTTP_PORT=8080
 
 # install mysql jdbc driver
 RUN apt-get update
-RUN apt-get install libmysql-java
+RUN apt-get install libmysql-java jq
 
 EXPOSE ${HTTP_PORT}
 
