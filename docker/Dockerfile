@@ -9,6 +9,8 @@ RUN apt-get install libmysql-java jq
 EXPOSE ${HTTP_PORT}
 
 ADD entrypoint.sh /entrypoint.sh
+ADD app.jar /app.jar
+
 RUN chmod 755 /entrypoint.sh
 
 # Copy agent files
@@ -18,5 +20,6 @@ COPY agents/ /agents/
 RUN wget https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip -O /tmp/newrelic.zip \
   && unzip -u -d /agents /tmp/newrelic.zip newrelic/newrelic.jar \
   && rm /tmp/newrelic.zip
+
 
 ENTRYPOINT [ "/entrypoint.sh" ]
