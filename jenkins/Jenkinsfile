@@ -69,7 +69,7 @@ podTemplate(label: 'mypod',
                 bx cs init
 
                 # find compose for mysql service
-                COMPOSE_MYSQL_SVC_NAME=`bx service list | grep compose-for-mysql | sed -e 's/[ ]*compose-for-mysql.*\$//'`
+                COMPOSE_MYSQL_SVC_NAME=`bx service list | grep compose-for-mysql | sed -e 's/[ ][ ]*compose-for-mysql.*\$//'`
 
                 if [ -z "\${COMPOSE_MYSQL_SVC_NAME}" ]; then
                   echo "No Compose for MySQL service found!"
