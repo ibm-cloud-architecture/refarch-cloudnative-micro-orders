@@ -100,8 +100,6 @@ podTemplate(label: 'mypod',
                     kubectl --token=\${KUBE_TOKEN} create secret generic hs256-key --from-literal=key=`cat /dev/urandom | env LC_CTYPE=C tr -dc 'a-zA-Z0-9' | fold -w 256 | head -n 1 | xargs echo -n`
                 fi
 
-                exit 1
-
                 """
             }
             stage ('Deploy pod to Kubernetes') {
@@ -164,19 +162,6 @@ podTemplate(label: 'mypod',
                 # TODO: delete old images 
 
                 """
-            }
-            post {
-                failure {
-                    sh """
-                    #!/bin/bash
-
-                    # delete the broken image
-
-                    image_name=registry.ng.bluemix.net/\${REGISTRY_NAMESPACE}/micro-orders:${env.BUILD_NUMBER}
-
-                    bx cr image-rm \${image_name}
-                    """
-                }
             }
 
         }
