@@ -125,16 +125,14 @@ podTemplate(label: 'mypod',
                     yaml w - spec.template.spec.containers[0].volumeMounts[0].name binding-refarch-compose-mysql | \
                     yaml w - spec.template.spec.volumes[0].name binding-refarch-compose-mysql | \
                     yaml w - spec.template.spec.volumes[0].secret.defaultMode 420 | \
-                    yaml w - spec.template.spec.volumes[0].secret.secretName \${COMPOSE_MYSQL_SECRET_NAME} \
+                    yaml w - spec.template.spec.volumes[0].secret.secretName \${COMPOSE_MYSQL_SECRET_NAME} | \
                     yaml w - spec.template.spec.containers[0].volumeMounts[1].mountPath /var/run/secrets/binding-refarch-messagehub | \
                     yaml w - spec.template.spec.containers[0].volumeMounts[1].name binding-refarch-messagehub | \
                     yaml w - spec.template.spec.volumes[1].name binding-refarch-messagehub | \
                     yaml w - spec.template.spec.volumes[1].secret.defaultMode 420 | \
-                    yaml w - spec.template.spec.volumes[1].secret.secretName \${MESSAGEHUB_SECRET_NAME} \
-
+                    yaml w - spec.template.spec.volumes[1].secret.secretName \${MESSAGEHUB_SECRET_NAME} | \
                     yaml w - spec.template.spec.containers[0].volumeMounts[2].mountPath /var/run/secrets/hs256-key | \
-                    yaml w - spec.template.spec.containers[0].volumeMounts[2].name hs256-key| \
-
+                    yaml w - spec.template.spec.containers[0].volumeMounts[2].name hs256-key | \
                     yaml w - spec.template.spec.volumes[2].name hs256-key | \
                     yaml w - spec.template.spec.volumes[2].secret.defaultMode 420 | \
                     yaml w - spec.template.spec.volumes[2].secret.secretName hs256-key \
