@@ -29,9 +29,9 @@ JAVA_OPTS="${JAVA_OPTS} \
     -Dspring.datasource.port=${mysql_port}"
 
 messagehub_creds=`cat /var/run/secrets/binding-refarch-messagehub/binding`
-kafka_username=`echo ${messagehub_creds} | ./jq '.user' | sed -e 's/"//g'`
-kafka_password=`echo ${messagehub_creds} | ./jq '.password' | sed -e 's/"//g'`
-kafka_brokerlist=`echo ${messagehub_creds} | ./jq '.kafka_brokers_sasl | join(" ")' | sed -e 's/"//g'`
+kafka_username=`echo ${messagehub_creds} | jq '.user' | sed -e 's/"//g'`
+kafka_password=`echo ${messagehub_creds} | jq '.password' | sed -e 's/"//g'`
+kafka_brokerlist=`echo ${messagehub_creds} | jq '.kafka_brokers_sasl | join(" ")' | sed -e 's/"//g'`
 
 JAVA_OPTS="${JAVA_OPTS} \
     -Dspring.application.messagehub.user=${kafka_username} \
@@ -43,8 +43,8 @@ for broker in ${kafka_brokerlist}; do
     count=$((count + 1))
 done
 
-kafka_apikey=`echo ${messagehub_creds} | ./jq '.api_key' | sed -e 's/"//g'`
-kafka_adminurl=`echo ${messagehub_creds} | ./jq '.kafka_admin_url' | sed -e 's/"//g'`
+kafka_apikey=`echo ${messagehub_creds} | jq '.api_key' | sed -e 's/"//g'`
+kafka_adminurl=`echo ${messagehub_creds} | jq '.kafka_admin_url' | sed -e 's/"//g'`
 
 # disable eureka
 JAVA_OPTS="${JAVA_OPTS} -Deureka.client.enabled=false -Deureka.client.registerWithEureka=false -Deureka.fetchRegistry=false"
