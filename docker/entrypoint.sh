@@ -28,7 +28,7 @@ JAVA_OPTS="${JAVA_OPTS} \
     -Dspring.datasource.password=${mysql_password} \
     -Dspring.datasource.port=${mysql_port}"
 
-messagehub_creds=`cat /var/run/secret/binding-refarch-messagehub`
+messagehub_creds=`cat /var/run/secrets/binding-refarch-messagehub`
 kafka_username=`echo ${messagehub_creds} | ./jq '.user' | sed -e 's/"//g'`
 kafka_password=`echo ${messagehub_creds} | ./jq '.password' | sed -e 's/"//g'`
 kafka_brokerlist=`echo ${messagehub_creds} | ./jq '.kafka_brokers_sasl | join(" ")' | sed -e 's/"//g'`
