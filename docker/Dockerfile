@@ -6,8 +6,6 @@ ENV HTTP_PORT=8080
 RUN apt-get update
 RUN apt-get install libmysql-java
 
-RUN wget http://repo1.maven.org/maven2/org/apache/kafka/kafka-clients/0.10.0.1/kafka-clients-0.10.0.1.jar -O /opt/ibm/wlp/usr/shared/resources/kafka-clients-0.10.0.1.jar
-
 EXPOSE ${HTTP_PORT}
 
 ADD entrypoint.sh /entrypoint.sh
