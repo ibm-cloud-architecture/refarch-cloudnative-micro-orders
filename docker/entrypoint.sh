@@ -1,44 +1,55 @@
 #!/bin/bash
 
-_term() {
-    for pid in ${pids}; do
-        kill -TERM "${pid}" 2>/dev/null
-    done
-}
+set -e
 
-trap _term SIGINT SIGTERM
+# Set basic java options
+export JAVA_OPTS="-Djava.security.egd=file:/dev/./urandom"
 
-if [ ! -z ${JDBC_URL} ]; then
-    # parse out these params from the JDBC URL
-    DB_IP=`echo ${JDBC_URL} | sed -e 's/jdbc:mysql:\/\///' | sed -e 's/:.*//g'`
-    DB_PORT=`echo ${JDBC_URL} | sed -e 's/jdbc:mysql:\/\///' | sed -e 's/.*:\([^\/]*\)\/.*$/\1/g'`
-    DB_NAME=`echo ${JDBC_URL} | sed -e 's/jdbc:mysql:\/\///' | sed -e 's/.*\///'`
-fi
+# Load agent support if required
+source ./agents/newrelic.sh
 
-sed -i -e 's/__HTTP_PORT__/'${HTTP_PORT}'/g' /config/server.xml
-sed -i -e 's/__DB_IP__/'${DB_IP}'/g' /config/server.xml
-sed -i -e 's/__DB_PORT__/'${DB_PORT}'/g' /config/server.xml
-sed -i -e 's/__DB_NAME__/'${DB_NAME}'/g' /config/server.xml
-sed -i -e 's/__DB_USER__/'${DB_USER}'/g' /config/server.xml
-sed -i -e 's/__DB_PASSWD__/'${DB_PASSWD}'/g' /config/server.xml
+# open the secrets
+hs256_key=`cat /var/run/secrets/hs256-key/key`
+JAVA_OPTS="${JAVA_OPTS} \
+    -Djwt.sharedSecret=${hs256_key}"
 
-# kafka properties
-sed -i -e 's/__KAFKA_USERNAME__/'${KAFKA_USERNAME}'/g' /config/server.xml
-sed -i -e 's/__KAFKA_PASSWORD__/'${KAFKA_PASSWORD}'/g' /config/server.xml
-sed -i -e 's/__KAFKA_BROKERS__/'${KAFKA_BROKER_LIST}'/g' /config/producer.properties
+mysql_uri=`cat /var/run/secrets/binding-refarch-compose-mysql/binding | jq '.uri' | sed -e 's/"//g'`
 
-# newrelic properties
-sed -i -e 's/app_name: My Application/app_name: '${CG_NAME}'/g' /agents/newrelic/newrelic.yaml
-sed -i -e "s/license_key: 'YOUR_LICENSE_KEY'/license_key: '${NEW_RELIC_LICENSE_KEY}'/g" /agents/newrelic/newrelic.yaml
+# rip apart the uri, the format is mysql://<user>:<password>@<host>:<port>/<db_name>
+mysql_user=`echo ${mysql_uri} | sed -e 's|mysql://\([^:]*\):.*|\1|'`
+mysql_password=`echo ${mysql_uri} | sed -e 's|mysql://[^:]*:\([^@]*\)@.*|\1|'`
+mysql_host=`echo ${mysql_uri} | sed -e 's|mysql://[^:]*:[^@]*@\([^:]*\):.*|\1|'`
+mysql_port=`echo ${mysql_uri} | sed -e 's|mysql://[^:]*:[^@]*@[^:]*:\([^/]*\)/.*|\1|'`
+mysql_db=`echo ${mysql_uri} | sed -e 's|mysql://[^:]*:[^@]*@[^:]*:[^/]*/\(.*\)|\1|'`
 
-# start the sidecar -- note if the container dies i have to re-run a new instance
-# as the sidecar doesnt' get restarted with the container (we don't use an init system)
-java -jar /spring-orders-sidecar-0.0.1.jar &
-pids="${pids} $!"
+JAVA_OPTS="${JAVA_OPTS} \
+    -Dspring.datasource.url=jdbc:mysql://${mysql_host}/${mysql_db} \
+    -Dspring.datasource.username=${mysql_username} \
+    -Dspring.datasource.password=${mysql_password} \
+    -Dspring.datasource.port=${mysql_port}"
 
-# start wlp
-/opt/ibm/docker/docker-server "run" "defaultServer" &
-pids="${pids} $!"
+messagehub_creds=`cat /var/run/secret/binding-refarch-messagehub`
+kafka_username=`echo ${messagehub_creds} | ./jq '.user' | sed -e 's/"//g'`
+kafka_password=`echo ${messagehub_creds} | ./jq '.password' | sed -e 's/"//g'`
+kafka_brokerlist=`echo ${messagehub_creds} | ./jq '.kafka_brokers_sasl | join(" ")' | sed -e 's/"//g'`
 
-# wait for all jobs to finish, or get the above signals
-wait
+JAVA_OPTS="${JAVA_OPTS} \
+    -Dspring.application.messagehub.user=${kafka_username} \
+    -Dspring.application.messagehub.password=${kafka_password}"
+
+count=0
+for broker in ${kafka_brokerlist}; do
+    JAVA_OPTS="${JAVA_OPTS} -Dspring.application.messagehub.kafka_brokers_sasl[${count}]=${broker}"
+    count=$((count + 1))
+done
+
+kafka_apikey=`echo ${messagehub_creds} | ./jq '.api_key' | sed -e 's/"//g'`
+kafka_adminurl=`echo ${messagehub_creds} | ./jq '.kafka_admin_url' | sed -e 's/"//g'`
+
+# disable eureka
+JAVA_OPTS="${JAVA_OPTS} -Deureka.client.enabled=false -Deureka.client.registerWithEureka=false -Deureka.fetchRegistry=false"
+
+echo "Starting with Java Options ${JAVA_OPTS}"
+
+# Start the application
+exec java ${JAVA_OPTS} -jar /app.jar

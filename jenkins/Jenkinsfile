@@ -80,6 +80,20 @@ podTemplate(label: 'mypod',
                 echo "Binding compose for mysql service \${COMPOSE_MYSQL_SVC_NAME} to cluster \${KUBE_CLUSTER_NAME}"
                 bx cs cluster-service-bind \${KUBE_CLUSTER_NAME} default \${COMPOSE_MYSQL_SVC_NAME}
 
+                # find messagehub service
+                MESSAGEHUB_SVC_NAME=`bx service list | grep messagehub | sed -e 's/[ ]*messagehub.*\$//'`
+
+                if [ -z "\${MESSAGEHUB_SVC_NAME}" ]; then
+                  echo "No MessageHub service found!"
+                  exit 1
+                fi
+
+                # bind it to kube secret
+                echo "Binding MessageHub service \${MESSAGEHUB_SVC_NAME} to cluster \${KUBE_CLUSTER_NAME}"
+                bx cs cluster-service-bind \${KUBE_CLUSTER_NAME} default \${MESSAGEHUB_SVC_NAME}
+
+
+                # check if hs256 shared secret is bound
                 hs256_key=`kubectl --token=\${KUBE_TOKEN} get secrets | grep "hs256-key" | awk '{print \$1}'`
                 if [ -z "\${hs256_key}" ]; then
                     echo "Creating HS256 shared secret ..."
@@ -94,8 +108,10 @@ podTemplate(label: 'mypod',
 
                 COMPOSE_MYSQL_SVC_NAME=`bx service list | grep compose-for-mysql | sed -e 's/[ ]*compose-for-mysql.*\$//'`
 
+                MESSAGEHUB_SVC_NAME=`bx service list | grep messagehub | sed -e 's/[ ]*messagehub.*\$//'`
                 # TODO: get the secret name from the service name?
                 COMPOSE_MYSQL_SECRET_NAME="binding-\${COMPOSE_MYSQL_SVC_NAME}"
+                MESSAGEHUB_SECRET_NAME="binding-\${MESSAGEHUB_SVC_NAME}"
                 REGISTRY_NAMESPACE=chrisking
                 token=`cat /var/run/secrets/kubernetes.io/serviceaccount/token`
                 image_name=registry.ng.bluemix.net/\${REGISTRY_NAMESPACE}/micro-orders:${env.BUILD_NUMBER}
@@ -110,12 +126,18 @@ podTemplate(label: 'mypod',
                     yaml w - spec.template.spec.volumes[0].name binding-refarch-compose-mysql | \
                     yaml w - spec.template.spec.volumes[0].secret.defaultMode 420 | \
                     yaml w - spec.template.spec.volumes[0].secret.secretName \${COMPOSE_MYSQL_SECRET_NAME} \
-                    yaml w - spec.template.spec.containers[0].volumeMounts[1].mountPath /var/run/secrets/hs256-key | \
-                    yaml w - spec.template.spec.containers[0].volumeMounts[1].name hs256-key| \
-
-                    yaml w - spec.template.spec.volumes[1].name hs256-key | \
+                    yaml w - spec.template.spec.containers[0].volumeMounts[1].mountPath /var/run/secrets/binding-refarch-messagehub | \
+                    yaml w - spec.template.spec.containers[0].volumeMounts[1].name binding-refarch-messagehub | \
+                    yaml w - spec.template.spec.volumes[1].name binding-refarch-messagehub | \
                     yaml w - spec.template.spec.volumes[1].secret.defaultMode 420 | \
-                    yaml w - spec.template.spec.volumes[1].secret.secretName hs256-key \
+                    yaml w - spec.template.spec.volumes[1].secret.secretName \${MESSAGEHUB_SECRET_NAME} \
+
+                    yaml w - spec.template.spec.containers[0].volumeMounts[2].mountPath /var/run/secrets/hs256-key | \
+                    yaml w - spec.template.spec.containers[0].volumeMounts[2].name hs256-key| \
+
+                    yaml w - spec.template.spec.volumes[2].name hs256-key | \
+                    yaml w - spec.template.spec.volumes[2].secret.defaultMode 420 | \
+                    yaml w - spec.template.spec.volumes[2].secret.secretName hs256-key \
                     > deployment.yml
     
                     kubectl --token=\${token} create -f deployment.yml
