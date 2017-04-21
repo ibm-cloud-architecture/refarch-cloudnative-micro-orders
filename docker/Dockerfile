@@ -8,9 +8,9 @@ RUN apt-get install libmysql-java jq
 
 EXPOSE ${HTTP_PORT}
 
-ADD entrypoint.sh /entrypoint.sh
 ADD app.jar /app.jar
 
+ADD entrypoint.sh /entrypoint.sh
 RUN chmod 755 /entrypoint.sh
 
 # Copy agent files
