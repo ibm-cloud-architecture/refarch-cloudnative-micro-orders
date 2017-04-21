@@ -24,7 +24,7 @@ mysql_db=`echo ${mysql_uri} | sed -e 's|mysql://[^:]*:[^@]*@[^:]*:[^/]*/\(.*\)|\
 
 JAVA_OPTS="${JAVA_OPTS} \
     -Dspring.datasource.url=jdbc:mysql://${mysql_host}/${mysql_db} \
-    -Dspring.datasource.username=${mysql_username} \
+    -Dspring.datasource.username=${mysql_user} \
     -Dspring.datasource.password=${mysql_password} \
     -Dspring.datasource.port=${mysql_port}"
 
