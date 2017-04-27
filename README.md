@@ -414,12 +414,12 @@ spec:
 Deploy the pods.
    
 ```
-# kubectl create -f kubernetes/customer.yaml
+# kubectl create -f kubernetes/orders.yaml
 ```
 
 Also deploy the service
    
 ```
-# kubectl create -f kubernetes/customer-service.yaml
+# kubectl create -f kubernetes/orders-service.yaml
 ```
 
