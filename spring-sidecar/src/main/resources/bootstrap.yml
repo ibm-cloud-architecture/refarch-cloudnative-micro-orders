@@ -1,6 +1,0 @@
-# Spring properties
-spring:
-  application:
-     name: order-microservice
-
-
