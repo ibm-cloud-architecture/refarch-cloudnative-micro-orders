@@ -15,6 +15,7 @@ RUN chmod 755 /entrypoint.sh
 
 # Copy agent files
 COPY agents/ /agents/
+ADD config/jvm.options /config/jvm.options
 
 # Add the new relic agent
 RUN wget https://download.newrelic.com/newrelic/java-agent/newrelic-agent/current/newrelic-java.zip -O /tmp/newrelic.zip \

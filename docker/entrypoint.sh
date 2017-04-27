@@ -53,3 +53,4 @@ echo "Starting with Java Options ${JAVA_OPTS}"
 
 # Start the application
 exec java ${JAVA_OPTS} -jar /app.jar
+
