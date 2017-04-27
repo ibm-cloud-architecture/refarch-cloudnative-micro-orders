@@ -104,34 +104,35 @@ Install the [kubectl CLI](https://kubernetes.io/docs/tasks/kubectl/install/).
 
 On IBM Bluemix, [Compose for MySQL](https://console.ng.bluemix.net/catalog/services/compose-for-mysql/) is a hosted managed MySQL instance.  Create an instance.
 
-   1. Once it is ready, on the `Service Credentials` tab, note the `uri` and `uri_cli` property.  Run the `url_cli` command in a console:
+1. Once it is ready, on the `Service Credentials` tab, note the `uri` and `uri_cli` property.  Run the `url_cli` command in a console:
    
-      ```
-     # mysql -u admin -p --host bluemix-sandbox-dal-9-portal.0.dblayer.com --port xxxxx --ssl-mode=REQUIRED
-      ```
+   ```
+   # mysql -u admin -p --host bluemix-sandbox-dal-9-portal.0.dblayer.com --port xxxxx --ssl-mode=REQUIRED
+   ```
       
-      The password is embedded in the `uri` property after `admin`.
+   The password is embedded in the `uri` property after `admin`.
    
-   2. Create the `orders` table in the `compose` database:
+2. Create the `orders` table in the `compose` database:
    
-      ```
-      mysql> use compose;
-      Database changed
-      mysql> source mysql/create_orders_table.sql
-      Query OK, 0 rows affected (0.11 sec)
-      ```
+   ```
+   mysql> use compose;
+   Database changed
+   mysql> source mysql/create_orders_table.sql
+   Query OK, 0 rows affected (0.11 sec)
+   ```
    
-   3. The MySQL JDBC URL is constructed using the `uri` property in the Compose credentials.  For example, for a `uri` such as the following,
-      ```
-      mysql://admin:zzzzzzzzzzzzzz@bluemix-sandbox-dal-9-portal.0.dblayer.com:22627/compose
-      ```
+3. The MySQL JDBC URL is constructed using the `uri` property in the Compose credentials.  For example, for a `uri` such as the following,
+
+   ```
+   mysql://admin:zzzzzzzzzzzzzz@bluemix-sandbox-dal-9-portal.0.dblayer.com:22627/compose
+   ```
       
-      The JDBC URL is:
-      ```
-      jdbc:mysql://bluemix-sandbox-dal-9-portal.0.dblayer.com:22627/compose
-      ```
+   The JDBC URL is:
+   ```
+   jdbc:mysql://bluemix-sandbox-dal-9-portal.0.dblayer.com:22627/compose
+   ```
       
-      The database username is `admin` and the password is `zzzzzzzzzzzzzz`.
+   The database username is `admin` and the password is `zzzzzzzzzzzzzz`.
 
 ### Create HS256 shared secret
 
