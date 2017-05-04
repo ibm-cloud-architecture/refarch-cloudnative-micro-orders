@@ -1,0 +1,12 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: orders-service
+spec:
+  rules:
+  - http:
+      paths:
+      - path: /micro/orders
+        backend:
+          serviceName: orders-service
+          servicePort: 8080
