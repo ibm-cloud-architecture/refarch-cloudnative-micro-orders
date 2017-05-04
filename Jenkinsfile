@@ -33,7 +33,7 @@ podTemplate(label: 'pod',
                     BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
 
                     cd docker
-                    docker build -t \${BX_REGISTRY}/\${BX_NAMESPACE}/orders:${env.BUILD_NUMBER} .
+                    docker build -t \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/orders:${env.BUILD_NUMBER} .
                     """
                 }
                 stage ('Push Docker Image to Registry') {
@@ -64,7 +64,7 @@ podTemplate(label: 'pod',
                     sh """
                     #!/bin/bash
                     BX_REGISTRY=`cat /var/run/configs/bluemix-target/bluemix-registry`
-                    BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-namespace`
+                    BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
 
                     cd scripts
                     ./deploy.sh ${env.BUILD_NUMBER} \${BX_REGISTRY} \$BX_CR_NAMESPACE

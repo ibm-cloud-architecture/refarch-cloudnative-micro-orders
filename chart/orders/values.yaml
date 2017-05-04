@@ -12,6 +12,9 @@ image:
   pullPolicy: IfNotPresent
   tag: latest
 
+hs256key:
+  secretName: hs256-key
+
 mysql:
   serviceName: refarch-compose-for-mysql
   servicePlan: Standard
