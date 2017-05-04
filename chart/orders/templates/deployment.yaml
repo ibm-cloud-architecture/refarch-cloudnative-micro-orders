@@ -23,7 +23,6 @@ spec:
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         ports:
         - containerPort: 8080
-        - containerPort: 9080
         env:
         - name: mysql
           valueFrom:

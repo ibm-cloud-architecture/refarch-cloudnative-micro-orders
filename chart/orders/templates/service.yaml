@@ -9,13 +9,9 @@ metadata:
     micro: orders
 spec:
   ports:
-    - protocol: TCP
-      port: 8080
+    - port: 8080
       targetPort: 8080
-    - protocol: TCP
-      port: 9080
-      targetPort: 9080
-  selector: 
+  selector:
     app: bluecompute
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     tier: backend
