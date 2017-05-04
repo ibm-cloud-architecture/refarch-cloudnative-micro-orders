@@ -17,8 +17,7 @@ podTemplate(label: 'pod',
                 stage('Build Gradle Project') {
                     sh """
                     #!/bin/bash
-                    ./gradlew :orders-service:build
-                    ./gradlew :spring-sidecar:build
+                    ./gradlew build -x test
                     ./gradlew docker
                     """
                 }
