@@ -30,7 +30,7 @@ podTemplate(label: 'pod',
                     sh """
                     #!/bin/bash
                     BX_REGISTRY=`cat /var/run/configs/bluemix-target/bluemix-registry`
-                    BX_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-namespace`
+                    BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
 
                     cd docker
                     docker build -t \${BX_REGISTRY}/\${BX_NAMESPACE}/orders:${env.BUILD_NUMBER} .
@@ -43,7 +43,7 @@ podTemplate(label: 'pod',
                     BX_SPACE=`cat /var/run/configs/bluemix-target/bluemix-space`
                     BX_API_ENDPOINT=`cat /var/run/configs/bluemix-target/bluemix-api-endpoint`
                     BX_REGISTRY=`cat /var/run/configs/bluemix-target/bluemix-registry`
-                    BX_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-namespace`
+                    BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
 
                     # Bluemix Login
                     # source /login.sh
@@ -52,7 +52,7 @@ podTemplate(label: 'pod',
                     # initialize docker using container registry secret
                     bx cr login
 
-                    docker push \${BX_REGISTRY}/\${BX_NAMESPACE}/orders:${env.BUILD_NUMBER}
+                    docker push \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/orders:${env.BUILD_NUMBER}
                     """
                 }
             }
@@ -64,10 +64,10 @@ podTemplate(label: 'pod',
                     sh """
                     #!/bin/bash
                     BX_REGISTRY=`cat /var/run/configs/bluemix-target/bluemix-registry`
-                    BX_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-namespace`
+                    BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-namespace`
 
                     cd scripts
-                    ./deploy.sh ${env.BUILD_NUMBER} \${BX_REGISTRY} \$BX_NAMESPACE
+                    ./deploy.sh ${env.BUILD_NUMBER} \${BX_REGISTRY} \$BX_CR_NAMESPACE
                     """
                 }
             }
