@@ -1,0 +1,37 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: orders-deployment
+  labels:
+    app: bluecompute
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    tier: backend
+    micro: orders
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        tier: backend
+        micro: orders
+    spec:
+      containers:
+      - name: orders
+        image: "{{ .Values.registry.name }}/{{ .Values.registry.namespace }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        ports:
+        - containerPort: 8080
+        - containerPort: 9080
+        env:
+        - name: mysql
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.mysql.secret }}"
+              key: binding
+        - name: messagehub
+          valueFrom:
+            secretKeyRef:
+              name: "{{ .Values.messagehub.secret }}"
+              key: binding
