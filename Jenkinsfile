@@ -65,7 +65,7 @@ podTemplate(
                     BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
 
                     cd docker
-                    docker build -t \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER} .
+                    docker build -t \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER} .
                     """
                 }
                 stage ('Push Docker Image to Registry') {
@@ -83,7 +83,7 @@ podTemplate(
                     # initialize docker using container registry secret
                     bx cr login
 
-                    docker push \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER}
+                    docker push \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER}
 
                     """
                 }
@@ -103,14 +103,14 @@ podTemplate(
 
                     # Replace tag
                     cat values.yaml | \
-                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders | \
+                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders | \
                         yaml w - image.tag ${env.BUILD_NUMBER} > \
                             values_new.yaml
 
                     mv values_new.yaml values.yaml
 
                     # Install/Upgrade Chart
-                    release=`helm list | grep bc-orders | awk '{print \$1}' | head -1`
+                    release=`helm list | grep bluecompute-orders | awk '{print \$1}' | head -1`
 
                     if [[ -z "\${release// }" ]]; then
                         echo "Installing orders chart for the first time"
@@ -140,7 +140,7 @@ podTemplate(
 
                     # initialize docker using container registry secret
                     bx cr login
-                    bx cr image-rm \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER}
+                    bx cr image-rm \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER}
                     """
                 }
             }
@@ -183,7 +183,7 @@ podTemplate(
                 # find out which images to delete -- keep last N images in the registry
                 MAX_IMAGES_TO_KEEP=3
                 set +e
-                all_images=`bx cr image-list -q | grep \${BX_REGISTRY} | grep \${BX_CR_NAMESPACE} | grep bc-orders`
+                all_images=`bx cr image-list -q | grep \${BX_REGISTRY} | grep \${BX_CR_NAMESPACE} | grep bluecompute-orders`
                 [ -z \$all_images ] && exit 0
                 all_image_tags=`echo "\${all_images}" | awk -F: '{print \$2;}' | sort -n`
                 total_num_images=`echo "\${all_images}" | wc -l | awk '{print \$1;}'`
@@ -197,8 +197,8 @@ podTemplate(
 
                 for i in \${images_to_delete}; do
                     # delete images smaller than current build
-                    echo "Deleting \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:\${i} ..."
-                    bx cr image-rm \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:\${i}
+                    echo "Deleting \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders:\${i} ..."
+                    bx cr image-rm \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders:\${i}
                 done
                 """
             }
