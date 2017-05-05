@@ -19,7 +19,7 @@ spec:
     spec:
       containers:
       - name: orders
-        image: "{{ .Values.registry.name }}/{{ .Values.registry.namespace }}/{{ .Values.image.name }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.repository }}/{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         volumeMounts:
         - mountPath: /var/run/secrets/binding-{{ .Values.mysql.serviceName }}
