@@ -3,6 +3,7 @@ kind: Job
 metadata:
   name: "{{.Release.Name}}-create-hs256-key"
   labels:
+    app: bluecompute
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
     chart: "{{.Chart.Name}}-{{.Chart.Version}}"
@@ -10,12 +11,13 @@ metadata:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "-7"
+    "helm.sh/hook-weight": "20"
 spec:
   template:
     metadata:
       name: "{{.Release.Name}}-create-hs256-key"
       labels:
+        app: bluecompute
         heritage: {{.Release.Service | quote }}
         release: {{.Release.Name | quote }}
         chart: "{{.Chart.Name}}-{{.Chart.Version}}"

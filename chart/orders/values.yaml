@@ -4,11 +4,11 @@
 replicaCount: 2
 
 registry:
-  name: ibmcase
-  namespace: bluecompute
+  name: registry.ng.bluemix.net
+  namespace: kyanite_int
 
 image:
-  name: orders
+  name: bluecompute-orders
   pullPolicy: IfNotPresent
   tag: latest
 
