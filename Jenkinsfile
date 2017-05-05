@@ -84,7 +84,9 @@ podTemplate(
                     bx cr login
 
                     docker push \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER}
-                    bx cr image-list -q | grep \${BX_REGISTRY} | grep \${BX_CR_NAMESPACE} | grep bc-orders:${env.BUILD_NUMBER}
+
+                    bx cr image-list -q | grep \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER}
+
                     [ $? -eq 0 ] && echo "Image pushed successfully" || exit 1
                     """
                 }
