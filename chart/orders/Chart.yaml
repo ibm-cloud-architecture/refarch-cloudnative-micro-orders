@@ -1,0 +1,4 @@
+apiVersion: v1
+description: helm chart to deploy orders microservice
+name: orders
+version: 0.1.0
