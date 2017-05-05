@@ -84,6 +84,8 @@ podTemplate(
                     bx cr login
 
                     docker push \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER}
+                    bx cr image-list -q | grep \${BX_REGISTRY} | grep \${BX_CR_NAMESPACE} | grep bc-orders:${env.BUILD_NUMBER}
+                    [ $? -eq 0 ] && echo "Image pushed successfully" || exit 1
                     """
                 }
             }
@@ -183,7 +185,7 @@ podTemplate(
                 MAX_IMAGES_TO_KEEP=3
                 set +e
                 all_images=`bx cr image-list -q | grep \${BX_REGISTRY} | grep \${BX_CR_NAMESPACE} | grep bc-orders`
-                [ -z $all_images ] && exit 0
+                [ -z \$all_images ] && exit 0
                 all_image_tags=`echo "\${all_images}" | awk -F: '{print \$2;}' | sort -n`
                 total_num_images=`echo "\${all_images}" | wc -l | awk '{print \$1;}'`
 
