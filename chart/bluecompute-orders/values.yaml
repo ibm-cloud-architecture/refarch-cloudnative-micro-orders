@@ -1,0 +1,30 @@
+# Default values for micro-orders.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+replicaCount: 2
+
+image:
+  repository: registry.ng.bluemix.net/kyanite_int/bluecompute-orders
+  pullPolicy: IfNotPresent
+  tag: latest
+
+hs256key:
+  secretName: hs256-key
+
+mysql:
+  serviceName: refarch-compose-for-mysql
+  servicePlan: Standard
+  secret: binding-refarch-compose-for-mysql
+
+messagehub:
+  serviceName: refarch-messagehub
+  servicePlan: standard
+  secret: binding-refarch-messagehub
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

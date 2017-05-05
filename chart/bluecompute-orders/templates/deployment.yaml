@@ -1,0 +1,45 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: orders-deployment
+  labels:
+    app: bluecompute
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    tier: backend
+    micro: orders
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        tier: backend
+        micro: orders
+    spec:
+      containers:
+      - name: orders
+        image: "{{ .Values.image.repository }}/{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        volumeMounts:
+        - mountPath: /var/run/secrets/binding-{{ .Values.mysql.serviceName }}
+          name: binding-{{ .Values.mysql.serviceName }}
+        - mountPath: /var/run/secrets/binding-{{ .Values.messagehub.serviceName }}
+          name: binding-{{ .Values.messagehub.serviceName }}
+        - mountPath: /var/run/secrets/hs256-key
+          name: hs256-key
+        ports:
+        - containerPort: 8080
+      volumes:
+      - name: binding-{{ .Values.mysql.serviceName }}
+        secret:
+          defaultMode: 420
+          secretName: "binding-{{ .Values.mysql.serviceName }}"
+      - name: binding-{{ .Values.messagehub.serviceName }}
+        secret:
+          defaultMode: 420
+          secretName: "binding-{{ .Values.messagehub.serviceName }}"
+      - name: hs256-key
+        secret:
+          defaultMode: 420
+          secretName: "{{ .Values.hs256key.secretName }}"

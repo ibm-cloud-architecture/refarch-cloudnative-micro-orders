@@ -1,0 +1,47 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{.Chart.Name}}-create-messagehub-{{.Release.Name}}"
+  labels:
+    app: bluecompute
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+  annotations:
+    # This is what defines this resource as a hook. Without this line, the
+    # job is considered part of the release.
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "23"
+spec:
+  template:
+    metadata:
+      name: "{{.Chart.Name}}-create-messagehub-{{.Release.Name}}"
+      labels:
+        app: bluecompute
+        heritage: {{.Release.Service | quote }}
+        release: {{.Release.Name | quote }}
+        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: create-messagehub
+        image: ibmcase/bluemix-deployer:latest
+        command: [ "/bin/bash", "-c" ]
+        args: ["source /scripts/bx_login.sh; bx service list | grep messagehub | grep '^{{ .Values.messagehub.serviceName }} ' || bx service create messagehub {{ .Values.messagehub.servicePlan}} {{ .Values.messagehub.serviceName }}"]
+        imagePullPolicy: Always
+        env:
+        - name: BX_SPACE
+          valueFrom:
+            configMapKeyRef:
+              name: bluemix-target
+              key: bluemix-space
+        - name: BX_API_ENDPOINT
+          valueFrom:
+            configMapKeyRef:
+              name: bluemix-target
+              key: bluemix-api-endpoint
+        - name: BLUEMIX_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: bluemix-api-key
+              key: api-key
