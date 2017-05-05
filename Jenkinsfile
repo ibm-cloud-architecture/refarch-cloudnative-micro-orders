@@ -85,7 +85,6 @@ podTemplate(
 
                     docker push \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bc-orders:${env.BUILD_NUMBER}
 
-                    [ $? -eq 0 ] && echo "Image pushed successfully" || exit 1
                     """
                 }
             }
