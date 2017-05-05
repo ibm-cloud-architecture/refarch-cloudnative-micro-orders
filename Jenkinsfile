@@ -181,7 +181,9 @@ podTemplate(
 
                 # find out which images to delete -- keep last N images in the registry
                 MAX_IMAGES_TO_KEEP=3
+                set +e
                 all_images=`bx cr image-list -q | grep \${BX_REGISTRY} | grep \${BX_CR_NAMESPACE} | grep bc-orders`
+                [ -z $all_images ] && exit 0
                 all_image_tags=`echo "\${all_images}" | awk -F: '{print \$2;}' | sort -n`
                 total_num_images=`echo "\${all_images}" | wc -l | awk '{print \$1;}'`
 
