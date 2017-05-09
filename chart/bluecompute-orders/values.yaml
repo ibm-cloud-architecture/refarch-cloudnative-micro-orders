@@ -4,7 +4,7 @@
 replicaCount: 2
 
 image:
-  repository: registry.ng.bluemix.net/kyanite_int/bluecompute-orders
+  repository: ibmcase/bluecompute-orders
   pullPolicy: IfNotPresent
   tag: latest
 
