@@ -9,14 +9,17 @@ image:
   tag: latest
 
 hs256key:
+  skipDelete: false
   secretName: hs256-key
 
 mysql:
+  skipDelete: false
   serviceName: refarch-compose-for-mysql
   servicePlan: Standard
   secret: binding-refarch-compose-for-mysql
 
 messagehub:
+  skipDelete: false
   serviceName: refarch-messagehub
   servicePlan: standard
   secret: binding-refarch-messagehub
@@ -28,3 +31,16 @@ resources:
   requests:
     cpu: 100m
     memory: 128Mi
+
+configMap:
+  skipDelete: false
+  bluemixAPIEndpoint: api.ng.bluemix.net
+  bluemixOrg: PUT_YOUR_BLUEMIX_ORG_HERE
+  bluemixSpace: PUT_YOUR_BLUEMIX_SPACE_HERE
+  bluemixRegistry: registry.ng.bluemix.net
+  bluemixRegistryNamespace: PUT_YOUR_BLUEMIX_REGISTRY_NAMESPACE_HERE
+  kubeClusterName: PUT_YOUR_CLUSTER_NAME_HERE
+
+secret:
+  skipDelete: false
+  apiKey: PUT_YOUR_API_KEY_HERE

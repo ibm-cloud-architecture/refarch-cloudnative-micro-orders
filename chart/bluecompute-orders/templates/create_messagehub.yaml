@@ -11,7 +11,7 @@ metadata:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "23"
+    "helm.sh/hook-weight": "26"
 spec:
   template:
     metadata:
@@ -27,7 +27,9 @@ spec:
       - name: create-messagehub
         image: ibmcase/bluemix-deployer:latest
         command: [ "/bin/bash", "-c" ]
-        args: ["source /scripts/bx_login.sh; bx service list | grep messagehub | grep '^{{ .Values.messagehub.serviceName }} ' || bx service create messagehub {{ .Values.messagehub.servicePlan}} {{ .Values.messagehub.serviceName }}"]
+        args: ["source /scripts/bx_login.sh; bx service list | grep messagehub | \
+        grep '^{{ .Values.messagehub.serviceName }} ' || \
+        bx service create messagehub {{ .Values.messagehub.servicePlan}} {{ .Values.messagehub.serviceName }}"]
         imagePullPolicy: Always
         env:
         - name: BX_SPACE

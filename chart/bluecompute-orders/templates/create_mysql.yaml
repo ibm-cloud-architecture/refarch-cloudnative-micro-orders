@@ -11,7 +11,7 @@ metadata:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "21"
+    "helm.sh/hook-weight": "23"
 spec:
   template:
     metadata:
@@ -27,7 +27,23 @@ spec:
       - name: create-mysql
         image: ibmcase/bluemix-deployer:latest
         command: [ "/bin/bash", "-c" ]
-        args: ["source /scripts/bx_login.sh; bx service list | grep compose-for-mysql | grep '^{{ .Values.mysql.serviceName }} ' || bx service create compose-for-mysql {{ .Values.mysql.servicePlan}} {{ .Values.mysql.serviceName }}"]
+        args: ["source /scripts/bx_login.sh; bx service list | \
+        grep compose-for-mysql | grep '^{{ .Values.mysql.serviceName }} ' || \
+  
+        bx service create compose-for-mysql {{ .Values.mysql.servicePlan}} {{ .Values.mysql.serviceName }}; \
+
+        echo 'Getting Dashboard URL'; \
+        DASHBOARD=$(bx service show {{ .Values.mysql.serviceName }} | sed -n -e 's/^.*Dashboard: //p'); \
+
+        echo \"Using Dashboard ${DASHBOARD} to check for status. This will take a few minutes\"; \
+        PROVISIONED=$(curl -s ${DASHBOARD} | grep \"(Status: READY)\"); \
+        
+        while [[ \"${PROVISIONED}\" == \"\" ]]; do \
+          sleep 1; \
+          PROVISIONED=$( curl -s ${DASHBOARD} | grep \"(Status: READY)\" ); \
+        done \
+
+        echo Done"]
         imagePullPolicy: Always
         env:
         - name: BX_SPACE
