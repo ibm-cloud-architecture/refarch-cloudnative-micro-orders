@@ -94,30 +94,43 @@ podTemplate(
                     #!/bin/bash
                     BX_REGISTRY=`cat /var/run/configs/bluemix-target/bluemix-registry`
                     BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
+                    BX_ORG=`cat /var/run/configs/bluemix-target/bluemix-ORG`
+                    BX_SPACE=`cat /var/run/configs/bluemix-target/bluemix-space`
+                    CLUSTER_NAME=`cat /var/run/configs/bluemix-target/kube-cluster-name`
+                    BX_API_KEY=`cat /var/run/secrets/bluemix-api-key/api-key`
 
                     # Init helm
                     helm init
 
-                    # Edit chart values using yaml (NEED TO INSTALL YAML) - Call image chart deployer
-                    cd chart/orders
+                    # Install/Upgrade Chart
+                    cd chart/bluecompute-orders
 
-                    # Replace tag
+                    # Replace values
                     cat values.yaml | \
-                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders | \
-                        yaml w - image.tag ${env.BUILD_NUMBER} > \
+                        yaml w - image.tag ${env.BUILD_NUMBER} | \
+                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-customer | \
+                        yaml w - hs256key.skipDelete true | \
+                        yaml w - mysql.skipDelete true | \
+                        yaml w - messagehub.skipDelete true | \
+                        yaml w - configMap.skipDelete true | \
+                        yaml w - secret.skipDelete true | \
+                        yaml w - configMap.bluemixOrg \${BX_ORG} | \
+                        yaml w - configMap.bluemixSpace \${BX_SPACE} | \
+                        yaml w - configMap.bluemixRegistryNamespace \${BX_CR_NAMESPACE} | \
+                        yaml w - configMap.kubeClusterName \${CLUSTER_NAME} | \
+                        yaml w - secret.apiKey \${BX_API_KEY} > \
                             values_new.yaml
 
                     mv values_new.yaml values.yaml
 
-                    # Install/Upgrade Chart
-                    release=`helm list | grep bluecompute-orders | awk '{print \$1}' | head -1`
+                    release=`helm list | grep orders | awk '{print \$1}' | head -1`
 
                     if [[ -z "\${release// }" ]]; then
-                        echo "Installing orders chart for the first time"
-                        helm install .
+                        echo "Installing bluecompute-orders chart for the first time"
+                        time helm install --name orders . --debug --wait --timeout 600
                     else
-                        echo "Upgrading orders chart release"
-                        helm upgrade \${release} .
+                        echo "Upgrading bluecompute-orders chart release"
+                        time helm upgrade orders . --debug --wait --timeout 600
                     fi
                     """
                 }
