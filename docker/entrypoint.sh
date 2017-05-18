@@ -13,7 +13,7 @@ hs256_key=`cat /var/run/secrets/hs256-key/key`
 JAVA_OPTS="${JAVA_OPTS} \
     -Djwt.sharedSecret=${hs256_key}"
 
-mysql_uri=`cat /var/run/secrets/binding-refarch-compose-mysql/binding | jq '.uri' | sed -e 's/"//g'`
+mysql_uri=`cat /var/run/secrets/binding-refarch-compose-for-mysql/binding | jq '.uri' | sed -e 's/"//g'`
 
 # rip apart the uri, the format is mysql://<user>:<password>@<host>:<port>/<db_name>
 mysql_user=`echo ${mysql_uri} | sed -e 's|mysql://\([^:]*\):.*|\1|'`
