@@ -44,7 +44,7 @@ spec:
         done \
 
         echo Done"]
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: BX_SPACE
           valueFrom:

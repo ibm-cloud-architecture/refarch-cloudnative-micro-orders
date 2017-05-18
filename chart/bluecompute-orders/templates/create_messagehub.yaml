@@ -30,7 +30,7 @@ spec:
         args: ["source /scripts/bx_login.sh; bx service list | grep messagehub | \
         grep '^{{ .Values.messagehub.serviceName }} ' || \
         bx service create messagehub {{ .Values.messagehub.servicePlan}} {{ .Values.messagehub.serviceName }}"]
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         env:
         - name: BX_SPACE
           valueFrom:
