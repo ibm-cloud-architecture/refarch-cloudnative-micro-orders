@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 # Terminal Colors
 red=$'\e[1;31m'
 grn=$'\e[1;32m'
@@ -10,10 +11,12 @@ end=$'\e[0m'
 coffee=$'\xE2\x98\x95'
 coffee3="${coffee} ${coffee} ${coffee}"
 
-API="api.ng.bluemix.net"
+BX_API_ENDPOINT="api.ng.bluemix.net"
 CLUSTER_NAME=$1
-SPACE=$2
-API_KEY=$3
+BX_SPACE=$2
+BX_API_KEY=$3
+BX_CR_NAMESPACE=""
+BX_ORG=""
 
 function check_tiller {
 	kubectl --namespace=kube-system get pods | grep tiller | grep Runnin
@@ -22,23 +25,23 @@ function check_tiller {
 function bluemix_login {
 	# Bluemix Login
 	printf "${grn}Login into Bluemix${end}\n"
-	if [[ -z "${API_KEY// }" && -z "${SPACE// }" ]]; then
+	if [[ -z "${BX_API_KEY// }" && -z "${BX_SPACE// }" ]]; then
 		echo "${yel}API Key & SPACE NOT provided.${end}"
-		bx login -a ${API}
+		bx login -a ${BX_API_ENDPOINT}
 
-	elif [[ -z "${SPACE// }" ]]; then
+	elif [[ -z "${BX_SPACE// }" ]]; then
 		echo "${yel}API Key provided but SPACE was NOT provided.${end}"
-		export BLUEMIX_API_KEY=${API_KEY}
-		bx login -a ${API}
+		export BLUEMIX_API_KEY=${BX_API_KEY}
+		bx login -a ${BX_API_ENDPOINT}
 
-	elif [[ -z "${API_KEY// }" ]]; then
+	elif [[ -z "${BX_API_KEY// }" ]]; then
 		echo "${yel}API Key NOT provided but SPACE was provided.${end}"
-		bx login -a ${API} -s ${SPACE}
+		bx login -a ${BX_API_ENDPOINT} -s ${BX_SPACE}
 
 	else
 		echo "${yel}API Key and SPACE provided.${end}"
-		export BLUEMIX_API_KEY=${API_KEY}
-		bx login -a ${API} -s ${SPACE}
+		export BLUEMIX_API_KEY=${BX_API_KEY}
+		bx login -a ${BX_API_ENDPOINT} -s ${BX_SPACE}
 	fi
 
 	status=$?
@@ -51,14 +54,23 @@ function bluemix_login {
 
 function create_api_key {
 	# Creating for API KEY
-	if [[ -z "${API_KEY// }" ]]; then
+	if [[ -z "${BX_API_KEY// }" ]]; then
 		printf "\n\n${grn}Creating API KEY...${end}\n"
-		API_KEY=$(bx iam api-key-create kubekey | tail -1 | awk '{print $3}')
+		BX_API_KEY=$(bx iam api-key-create kubekey | tail -1 | awk '{print $3}')
 		echo "${yel}API key 'kubekey' was created.${end}"
 		echo "${mag}Please preserve the API key! It cannot be retrieved after it's created.${end}"
 		echo "${cyn}Name${end}	kubekey"
-		echo "${cyn}API Key${end}	${API_KEY}"
+		echo "${cyn}API Key${end}	${BX_API_KEY}"
 	fi
+}
+
+function create_registry_namespace {	
+	printf "\n\n${grn}Login into Container Registry Service${end}\n\n"
+	bx cr login
+	BX_CR_NAMESPACE="jenkins$(cat ~/.bluemix/config.json | jq .Account.GUID | sed 's/"//g' | tail -c 7)"
+	printf "\nCreating namespace \"${BX_CR_NAMESPACE}\"...\n"
+	bx cr namespace-add ${BX_CR_NAMESPACE} &> /dev/null
+	echo "Done"
 }
 
 function get_cluster_name {
@@ -73,6 +85,16 @@ function get_cluster_name {
 			echo "No Kubernetes Clusters exist in your account. Please provision one and then run this script again."
 			exit 1
 		fi
+	fi
+}
+
+function get_org {
+	BX_ORG=$(cat ~/.bluemix/.cf/config.json | jq .OrganizationFields.Name | sed 's/"//g')
+}
+
+function get_space {
+	if [[ -z "${BX_SPACE// }" ]]; then
+		BX_SPACE=$(cat ~/.bluemix/.cf/config.json | jq .SpaceFields.Name | sed 's/"//g')
 	fi
 }
 
@@ -101,22 +123,19 @@ function initialize_helm {
 	done
 }
 
-function install_orders {
-	printf "\n\n${grn}Getting Account Information...${end}\n"
-	ORG=$(cat ~/.bluemix/.cf/config.json | jq .OrganizationFields.Name | sed 's/"//g')
-	SPACE=$(cat ~/.bluemix/.cf/config.json | jq .SpaceFields.Name | sed 's/"//g')
+function install_bluecompute_orders {
+	printf "\n\n${grn}Installing bluecompute-orders chart. This will take a few minutes...${end} ${coffee3}\n\n"
+	cd chart
 
-	cd chart/bluecompute-orders
-
-	printf "\n\n${grn}Installing Orders Application. This will take a few minutes...${end} ${coffee3}\n\n"
-	time helm install --name orders \
-	--set configMap.bluemixOrg=${ORG} \
-	--set configMap.bluemixSpace=${SPACE} \
+	time helm install --name orders --debug --wait --timeout 600 \
+	--set configMap.bluemixOrg=${BX_ORG} \
+	--set configMap.bluemixSpace=${BX_SPACE} \
+	--set configMap.bluemixRegistryNamespace=${BX_CR_NAMESPACE} \
 	--set configMap.kubeClusterName=${CLUSTER_NAME} \
-	--set secret.apiKey=${API_KEY} \
-	. --debug --wait --timeout 600
+	--set secret.apiKey=${BX_API_KEY} \
+	bluecompute-orders
 
-	printf "\n\n${grn}Orders was successfully installed!${end}\n"
+	printf "\n\n${grn}bluecompute-orders was successfully installed!${end}\n"
 	printf "\n\n${grn}Cleaning up...${end}\n"
 	kubectl delete pods,jobs -l heritage=Tiller
 
@@ -126,12 +145,15 @@ function install_orders {
 # Setup Stuff
 bluemix_login
 create_api_key
+create_registry_namespace
 get_cluster_name
+get_org
+get_space
 set_cluster_context
 initialize_helm
 
-# Install Orders Chart
-install_orders
+# Install Bluecompute
+install_bluecompute_orders
 
 printf "\n\nTo see Kubernetes Dashboard, paste the following in your terminal:\n"
 echo "${cyn}export KUBECONFIG=${KUBECONFIG}${end}"
@@ -139,5 +161,5 @@ echo "${cyn}export KUBECONFIG=${KUBECONFIG}${end}"
 printf "\nThen run this command to connect to Kubernetes Dashboard:\n"
 echo "${cyn}kubectl proxy${end}"
 
-printf "\nThen open a browser window and paste the following URL to see the Services created by Orders Chart:\n"
+printf "\nThen open a browser window and paste the following URL to see the Services created by bluecompute-orders Chart:\n"
 echo "${cyn}http://127.0.0.1:8001/api/v1/proxy/namespaces/kube-system/services/kubernetes-dashboard/#/service?namespace=default${end}"
