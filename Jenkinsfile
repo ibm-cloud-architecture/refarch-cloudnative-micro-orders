@@ -108,7 +108,7 @@ podTemplate(
                     # Replace values
                     cat values.yaml | \
                         yaml w - image.tag ${env.BUILD_NUMBER} | \
-                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-customer | \
+                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders | \
                         yaml w - hs256key.skipDelete true | \
                         yaml w - mysql.skipDelete true | \
                         yaml w - messagehub.skipDelete true | \
