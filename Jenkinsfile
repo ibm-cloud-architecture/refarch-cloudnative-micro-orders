@@ -94,7 +94,7 @@ podTemplate(
                     #!/bin/bash
                     BX_REGISTRY=`cat /var/run/configs/bluemix-target/bluemix-registry`
                     BX_CR_NAMESPACE=`cat /var/run/configs/bluemix-target/bluemix-registry-namespace`
-                    BX_ORG=`cat /var/run/configs/bluemix-target/bluemix-ORG`
+                    BX_ORG=`cat /var/run/configs/bluemix-target/bluemix-org`
                     BX_SPACE=`cat /var/run/configs/bluemix-target/bluemix-space`
                     CLUSTER_NAME=`cat /var/run/configs/bluemix-target/kube-cluster-name`
                     BX_API_KEY=`cat /var/run/secrets/bluemix-api-key/api-key`
