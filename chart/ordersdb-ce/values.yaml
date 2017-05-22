@@ -1,0 +1,15 @@
+replicaCount: 1
+micro: orders-ce
+dbname: ordersdb
+image:
+  repository: mysql
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
