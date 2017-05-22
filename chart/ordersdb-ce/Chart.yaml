@@ -1,0 +1,4 @@
+apiVersion: v1
+description: MySQL ordersdb deployment
+name: ordersdb-ce
+version: 0.1.0

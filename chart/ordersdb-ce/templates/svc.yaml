@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Chart.Name }}-service
+  labels:
+    app: bluecompute
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    tier: backend
+    micro: {{ .Values.micro }}
+spec:
+  ports:
+    - port: 3306
+      targetPort: 3306
+  selector:
+    app: {{ .Chart.Name }}

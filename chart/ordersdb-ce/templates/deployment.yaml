@@ -1,0 +1,38 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}-deployment
+  labels:
+    app: bluecompute
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    tier: backend
+    micro: {{ .Values.micro }}
+
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Chart.Name }}
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+        tier: backend
+        micro: {{ .Values.micro }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: {{ .Chart.Name }}-mysql
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "true"
+            - name: MYSQL_DATABASE
+              value: {{ .Values.dbname}}
+      volumes:
+        - name: {{ .Chart.Name }}-mysql
+          hostPath:
+            path: /var/lib/mysql
