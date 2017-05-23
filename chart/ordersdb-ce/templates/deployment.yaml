@@ -28,10 +28,31 @@ spec:
           ports:
             - containerPort: 3306
           env:
-            - name: MYSQL_ALLOW_EMPTY_PASSWORD
-              value: "true"
             - name: MYSQL_DATABASE
-              value: {{ .Values.dbname}}
+              value: {{ .Values.dbname | quote }}
+            - name: MYSQL_USER
+              value: {{ .Values.mysqluser | quote }}
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Chart.Name }}-secret
+                  key:  mysqlpass
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "false"
+          livenessProbe:
+            exec:
+              command:
+              - mysqladmin
+              - ping
+            initialDelaySeconds: 45
+            timeoutSeconds: 5
+          readinessProbe:
+            exec:
+              command:
+              - mysqladmin
+              - ping
+            initialDelaySeconds: 15
+            timeoutSeconds: 2
       volumes:
         - name: {{ .Chart.Name }}-mysql
           hostPath:

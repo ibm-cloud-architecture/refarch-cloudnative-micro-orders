@@ -1,6 +1,7 @@
 replicaCount: 1
 micro: orders-ce
 dbname: ordersdb
+mysqluser: dbuser
 image:
   repository: mysql
   tag: latest
