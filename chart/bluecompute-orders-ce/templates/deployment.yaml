@@ -1,0 +1,50 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: bluecompute-orders
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: bluecompute
+    tier: backend
+    micro: orders
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        tier: backend
+        micro: orders
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    spec:
+      containers:
+      - name: orders
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        volumeMounts:
+        - mountPath: /var/run/secrets/binding-refarch-compose-for-mysql
+          name: {{ .Values.mysql.binding.name }}
+        - mountPath: /var/run/secrets/hs256-key
+          name: hs256-key
+        ports:
+        - containerPort: 8080
+        livenessProbe:
+          httpGet:
+            path: /micro/check
+            port: 8080
+          initialDelaySeconds: 60
+        readinessProbe:
+          httpGet:
+            path: /micro/check
+            port: 8080
+          initialDelaySeconds: 60
+      volumes:
+      - name: {{ .Values.mysql.binding.name }}
+        secret:
+          defaultMode: 420
+          secretName: "{{ .Values.mysql.binding.name }}"
+      - name: hs256-key
+        secret:
+          defaultMode: 420
+          secretName: "{{ .Values.hs256key.secretName }}"

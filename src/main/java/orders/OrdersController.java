@@ -163,6 +163,10 @@ public class OrdersController {
 	 * @param order
 	 */
     private void notifyShipping(Order order) {
+    	if (!producer.isEnabled()) {
+    		return;
+    	}
+    	
         logger.info("Publishing order to shipping app: " + order);
 
         String fieldName = "order";

@@ -1,0 +1,26 @@
+replicaCount: 1
+
+mysql:
+  dbname: ordersdb
+  user: dbuser
+  password: Pass4dbus3r
+  service:
+    name: ordersdb
+    type: ClusterIP
+    externalPort: 3306
+    internalPort: 3306
+  binding:
+    name: binding-orders-mysql
+
+image:
+  repository: mysql
+  tag: latest
+  pullPolicy: IfNotPresent
+
+resources:
+  limits:
+    cpu: 100m
+    memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi

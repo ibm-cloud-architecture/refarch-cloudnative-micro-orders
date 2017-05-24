@@ -10,6 +10,7 @@ import java.util.concurrent.ExecutionException;
 
 import javax.annotation.PostConstruct;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -29,9 +30,31 @@ public class MessageHubProducer {
     private MessageHubPropertiesBean messageHubProps;
     
 	private KafkaProducer<String, String> kafkaProducer;
+	
+	private boolean isEnabled = false;
+	
  
     @PostConstruct
     private void init() throws IOException {
+    	// Check if any of the properties are not set.  if they are, then disable messagehub
+    	if (StringUtils.isEmpty(messageHubProps.getServers())) {
+    		logger.warn("Kafka brokers are not set; disabling MessageHub integration.");
+    		return;
+    	}
+    	
+    	if (StringUtils.isEmpty(messageHubProps.getTopic())) {
+    		logger.warn("MessageHub topic is not set; disabling MessageHub integration.");
+    		return;
+    	}
+    	
+    	if (StringUtils.isEmpty(messageHubProps.getUser()) || StringUtils.isEmpty(messageHubProps.getPassword())) {
+    		logger.warn("MessageHub credentials are not set; disabling MessageHub integration.");
+    		return;
+    	}
+    	
+    	// MessageHub is enabled
+    	isEnabled = true;
+    	
 		// Creates JAAS configuration file to interact with Kafka servers securely
 		// Also sets path to configuration file in Java properties
 
@@ -84,6 +107,10 @@ public class MessageHubProducer {
             }
         }
     }
+    
+	public boolean isEnabled() {
+		return isEnabled;
+	}
 
     private final Properties getClientConfiguration() {
         final Properties props = new Properties();
