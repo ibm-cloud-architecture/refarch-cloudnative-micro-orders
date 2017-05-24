@@ -25,6 +25,8 @@ spec:
           volumeMounts:
             - mountPath: /var/lib/mysql
               name: {{ .Chart.Name }}-mysql
+            - mountPath: /var/run/secrets/binding-refarch-compose-for-mysql
+              name: {{ .Chart.Name }}-secret
           ports:
             - containerPort: 3306
           env:
@@ -57,3 +59,7 @@ spec:
         - name: {{ .Chart.Name }}-mysql
           hostPath:
             path: /var/lib/mysql
+        - name: {{ .Chart.Name }}-secret
+          secret:
+            defaultMode: 420
+            secretName: "{{ .Chart.Name }}-secret"
