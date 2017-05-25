@@ -5,11 +5,11 @@ replicaCount: 1
 
 image:
   repository: ibmcase/bluecompute-orders
-  pullPolicy: IfNotPresent
   tag: latest
+  pullPolicy: IfNotPresent
 
 hs256key:
-  skipDelete: false
+  skipDelete: true
   secretName: hs256-key
 
 mysql:
@@ -23,11 +23,3 @@ mysql:
     internalPort: 3306
   binding:
     name: binding-orders-mysql
-
-resources:
-  limits:
-    cpu: 100m
-    memory: 128Mi
-  requests:
-    cpu: 100m
-    memory: 128Mi

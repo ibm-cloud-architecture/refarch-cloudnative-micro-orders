@@ -19,7 +19,7 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       containers:
-      - name: orders
+      - name: bluecompute-orders
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         volumeMounts:
@@ -38,7 +38,8 @@ spec:
           httpGet:
             path: /micro/check
             port: 8080
-          initialDelaySeconds: 60
+          initialDelaySeconds: 20
+          failureThreshold: 5
       volumes:
       - name: {{ .Values.mysql.binding.name }}
         secret:
