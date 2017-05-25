@@ -29,17 +29,6 @@ spec:
           name: hs256-key
         ports:
         - containerPort: 8080
-        livenessProbe:
-          httpGet:
-            path: /micro/check
-            port: 8080
-          initialDelaySeconds: 60
-        readinessProbe:
-          httpGet:
-            path: /micro/check
-            port: 8080
-          initialDelaySeconds: 20
-          failureThreshold: 5
       volumes:
       - name: {{ .Values.mysql.binding.name }}
         secret:
