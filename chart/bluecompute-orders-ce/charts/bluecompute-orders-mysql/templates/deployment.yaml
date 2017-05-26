@@ -43,6 +43,8 @@ spec:
                   key:  mysqlpass
             - name: MYSQL_ALLOW_EMPTY_PASSWORD
               value: "false"
+          resources:
+{{ toYaml .Values.mysql.resources | indent 14 }}
           livenessProbe:
             exec:
               command:
