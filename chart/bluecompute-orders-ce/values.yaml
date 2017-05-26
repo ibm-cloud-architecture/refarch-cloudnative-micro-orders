@@ -12,6 +12,12 @@ hs256key:
   skipDelete: true
   secretName: hs256-key
 
+resources:
+  limits:
+    memory: 128Mi
+  requests:
+    memory: 64Mi
+
 mysql:
   dbname: ordersdb
   user: dbuser
@@ -23,3 +29,9 @@ mysql:
     internalPort: 3306
   binding:
     name: binding-orders-mysql
+  resources:
+    limits:
+      memory: 128Mi
+    requests:
+      memory: 64Mi
+  

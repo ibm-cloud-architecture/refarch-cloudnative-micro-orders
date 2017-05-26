@@ -29,6 +29,8 @@ spec:
           name: hs256-key
         ports:
         - containerPort: 8080
+        resources:
+{{ toYaml .Values.resources | indent 12 }}
         livenessProbe:
           httpGet:
             path: /micro/check

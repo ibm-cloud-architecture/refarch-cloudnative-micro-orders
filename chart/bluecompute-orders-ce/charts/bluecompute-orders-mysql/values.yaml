@@ -11,6 +11,11 @@ mysql:
     internalPort: 3306
   binding:
     name: binding-orders-mysql
+  resources:
+    limits:
+      memory: 128Mi
+    requests:
+      memory: 64Mi
 
 image:
   repository: mysql
