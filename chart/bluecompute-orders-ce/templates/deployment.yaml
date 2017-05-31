@@ -31,17 +31,6 @@ spec:
         - containerPort: 8080
         resources:
 {{ toYaml .Values.resources | indent 12 }}
-        livenessProbe:
-          httpGet:
-            path: /micro/check
-            port: 8080
-          initialDelaySeconds: 60
-        readinessProbe:
-          httpGet:
-            path: /micro/check
-            port: 8080
-          initialDelaySeconds: 20
-          failureThreshold: 5
       volumes:
       - name: {{ .Values.mysql.binding.name }}
         secret:
