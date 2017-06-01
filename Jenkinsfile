@@ -167,7 +167,7 @@ podTemplate(
                 set -x
 
                 # Delete all helm jobs for this chart
-                cd chart/orders
+                cd chart/bluecompute-orders
                 chart_name=`yaml read Chart.yaml name`
                 chart_version=`yaml read Chart.yaml version`
 
