@@ -20,13 +20,6 @@ podTemplate(
             alwaysPullImage: true,
             ttyEnabled: true,
             command: 'cat'
-        ),
-        containerTemplate(
-            name: 'kubectl',
-            image: 'ibmcase/kubectl:latest',
-            alwaysPullImage: true,
-            ttyEnabled: true,
-            command: 'cat'
         )
     ],
     volumes: [
