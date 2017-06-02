@@ -20,13 +20,6 @@ podTemplate(
             alwaysPullImage: true,
             ttyEnabled: true,
             command: 'cat'
-        ),
-        containerTemplate(
-            name: 'kubectl',
-            image: 'ibmcase/kubectl:latest',
-            alwaysPullImage: true,
-            ttyEnabled: true,
-            command: 'cat'
         )
     ],
     volumes: [
@@ -158,22 +151,6 @@ podTemplate(
                 }
             }
 
-        }
-
-        container('kubectl') {
-            stage ('Cleanup Helm Install Jobs') {
-                sh """
-                #!/bin/bash
-                set -x
-
-                # Delete all helm jobs for this chart
-                cd chart/orders
-                chart_name=`yaml read Chart.yaml name`
-                chart_version=`yaml read Chart.yaml version`
-
-                kubectl delete jobs -l chart=\${chart_name}-\${chart_version}
-                """
-            }
         }
         container('docker') {
             stage ('Cleanup Old Images') {

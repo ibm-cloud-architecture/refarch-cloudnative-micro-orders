@@ -16,6 +16,26 @@ spec:
         chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
         tier: backend
         micro: orders
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+             "name": "bluecompute-orders-wait-for-mysql",
+             "image": "ibmcase/mysql-loader",
+             "imagePullPolicy": "IfNotPresent",
+             "command": ["/bin/bash", "-c", "mysql_cli=`echo ${binding_mysql} | jq -r .uri_cli | sed -e s%--ssl-mode=REQUIRED%%`; mysql_passwd=`echo ${binding_mysql} | jq -r .uri | sed -e s%mysql://admin:%% -e s%@.*%%`; until eval ${mysql_cli} -p${mysql_passwd} -e status; do echo waiting for mysql; /bin/sleep 1; done"],
+             "env": [
+               {
+                 "name": "binding_mysql",
+                 "valueFrom": {
+                   "secretKeyRef": {
+                     "name": "binding-{{ .Values.mysql.serviceName }}",
+                     "key": "binding"
+                   }
+                 }
+               }
+             ]
+          }
+        ]'
     spec:
       containers:
       - name: orders
