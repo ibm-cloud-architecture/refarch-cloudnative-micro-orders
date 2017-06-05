@@ -1,4 +1,4 @@
 apiVersion: v1
 description: MySQL ordersdb deployment
-name: bluecompute-orders-mysql
+name: orders-mysql
 version: 0.1.0

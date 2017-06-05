@@ -5,19 +5,20 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     app: bluecompute
-    tier: data
     micro: orders
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-
+    tier: data
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
         app: bluecompute
-        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-        tier: data
         micro: orders
+        tier: data
+        release: {{.Release.Name | quote }}
+        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
     spec:
       containers:
         - name: {{ .Chart.Name }}

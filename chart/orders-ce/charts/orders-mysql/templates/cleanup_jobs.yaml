@@ -4,8 +4,8 @@ metadata:
   name: "{{.Chart.Name}}-cleanup-jobs-{{.Release.Name}}"
   labels:
     app: bluecompute
-    micro: customer
-    tier: backend
+    micro: orders
+    tier: data
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
     chart: "{{.Chart.Name}}-{{.Chart.Version}}"
@@ -19,12 +19,12 @@ spec:
     metadata:
       name: "{{.Chart.Name}}-cleanup-jobs-{{.Release.Name}}"
       labels:
+        app: bluecompute
+        micro: orders
+        tier: data
         heritage: {{.Release.Service | quote }}
         release: {{.Release.Name | quote }}
         chart: "{{.Chart.Name}}-{{.Chart.Version}}"
-        app: bluecompute
-        micro: customer
-        tier: backend
     spec:
       restartPolicy: OnFailure
       containers:

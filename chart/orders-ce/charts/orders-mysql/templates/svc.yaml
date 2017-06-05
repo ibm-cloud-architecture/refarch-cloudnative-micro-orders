@@ -4,9 +4,10 @@ metadata:
   name: {{ .Values.mysql.service.name }}
   labels:
     app: bluecompute
-    tier: data
     micro: orders
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    tier: data
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
 spec:
   ports:
     - port: {{ .Values.mysql.service.internalPort }}
@@ -15,4 +16,5 @@ spec:
     app: bluecompute
     micro: orders
     tier: data
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    release: {{.Release.Name | quote }}
+    chart: "{{.Chart.Name}}-{{.Chart.Version}}"

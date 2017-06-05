@@ -1,12 +1,11 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: orders-deployment
+  name: {{ .Chart.Name }}
   labels:
     app: bluecompute
     micro: orders
     tier: backend
-    heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
@@ -17,7 +16,6 @@ spec:
         app: bluecompute
         micro: orders
         tier: backend
-        heritage: {{.Release.Service | quote }}
         release: {{.Release.Name | quote }}
         chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
       annotations:
@@ -42,7 +40,7 @@ spec:
         ]'
     spec:
       containers:
-      - name: orders
+      - name: {{ .Chart.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         volumeMounts:
