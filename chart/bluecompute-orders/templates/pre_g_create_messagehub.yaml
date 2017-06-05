@@ -1,33 +1,39 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{.Chart.Name}}-bind-mysql-{{.Release.Name}}"
+  name: "{{.Chart.Name}}-create-messagehub-{{.Release.Name}}"
   labels:
     app: bluecompute
+    micro: orders
+    tier: backend
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
-    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
   annotations:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "24"
+    "helm.sh/hook-weight": "26"
 spec:
   template:
     metadata:
-      name: "{{.Chart.Name}}-bind-mysql-{{.Release.Name}}"
+      name: "{{.Chart.Name}}-create-messagehub-{{.Release.Name}}"
       labels:
         app: bluecompute
+        micro: orders
+        tier: backend
         heritage: {{.Release.Service | quote }}
         release: {{.Release.Name | quote }}
-        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       restartPolicy: Never
       containers:
-      - name: bind-mysql
-        image: ibmcase/bluemix-cluster-deployer:latest
+      - name: create-messagehub
+        image: ibmcase/bluemix-deployer:latest
         command: [ "/bin/bash", "-c" ]
-        args: ["source /scripts/bx_login.sh; bx cs init; bx cs cluster-service-bind ${KUBE_CLUSTER_NAME} default {{ .Values.mysql.serviceName }}"]
+        args: ["source /scripts/bx_login.sh; bx service list | grep messagehub | \
+        grep '^{{ .Values.messagehub.serviceName }} ' || \
+        bx service create messagehub {{ .Values.messagehub.servicePlan}} {{ .Values.messagehub.serviceName }}"]
         imagePullPolicy: IfNotPresent
         env:
         - name: BX_SPACE
@@ -40,11 +46,6 @@ spec:
             configMapKeyRef:
               name: bluemix-target
               key: bluemix-api-endpoint
-        - name: KUBE_CLUSTER_NAME
-          valueFrom:
-            configMapKeyRef:
-              name: bluemix-target
-              key: kube-cluster-name
         - name: BLUEMIX_API_KEY
           valueFrom:
             secretKeyRef:

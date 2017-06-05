@@ -1,37 +1,41 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{.Chart.Name}}-delete-secret-{{.Release.Name}}"
+  name: "{{.Chart.Name}}-delete-configmap-{{.Release.Name}}"
   labels:
     app: bluecompute
+    micro: orders
+    tier: backend
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
-    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
   annotations:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": post-delete
-    "helm.sh/hook-weight": "24"
+    "helm.sh/hook-weight": "23"
 spec:
   template:
     metadata:
-      name: "{{.Chart.Name}}-delete-secret-{{.Release.Name}}"
+      name: "{{.Chart.Name}}-delete-configmap-{{.Release.Name}}"
       labels:
         app: bluecompute
+        micro: orders
+        tier: backend
         heritage: {{.Release.Service | quote }}
         release: {{.Release.Name | quote }}
-        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       restartPolicy: Never
       containers:
-      - name: delete-secret
+      - name: delete-configmap
         image: ibmcase/kubectl:latest
         command: [ "/bin/bash", "-c" ]
-        args: ["if [[ \"{{ .Values.secret.skipDelete }}\" == \"true\" ]]; then \
+        args: ["if [[ \"{{ .Values.configMap.skipDelete }}\" == \"true\" ]]; then \
           echo \"Skipping\"; \
           exit 0; \
         else \
-          kubectl --namespace {{ .Release.Namespace }} delete secrets bluemix-api-key || \
-          echo \"bluemix-api-key already deleted\"; \
+          kubectl --namespace {{ .Release.Namespace }} delete configmaps bluemix-target || \
+          echo \"bluemix-target already deleted\"; \
         fi"]
         imagePullPolicy: IfNotPresent

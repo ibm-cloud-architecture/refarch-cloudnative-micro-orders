@@ -4,15 +4,19 @@ metadata:
   name: orders-service
   labels:
     app: bluecompute
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-    tier: backend
     micro: orders
+    tier: backend
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
   ports:
     - port: 8080
       targetPort: 8080
   selector:
     app: bluecompute
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-    tier: backend
     micro: orders
+    tier: backend
+    heritage: {{.Release.Service | quote }}
+    release: {{.Release.Name | quote }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"

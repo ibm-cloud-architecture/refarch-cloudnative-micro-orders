@@ -19,30 +19,36 @@ BX_CR_NAMESPACE=""
 BX_ORG=""
 
 function check_tiller {
-	kubectl --namespace=kube-system get pods | grep tiller | grep Runnin
+	kubectl --namespace=kube-system get pods | grep tiller | grep Runnin | grep 1/1
+}
+
+function print_usage {
+	printf "\n\n${yel}Usage:${end}\n"
+	printf "\t${cyn}./install_bluecompute.sh <cluster-name> <bluemix-space-name> <bluemix-api-key>${end}\n\n"
 }
 
 function bluemix_login {
 	# Bluemix Login
-	printf "${grn}Login into Bluemix${end}\n"
-	if [[ -z "${BX_API_KEY// }" && -z "${BX_SPACE// }" ]]; then
-		echo "${yel}API Key & SPACE NOT provided.${end}"
-		bx login -a ${BX_API_ENDPOINT}
+	if [[ -z "${CLUSTER_NAME// }" ]]; then
+		print_usage
+		echo "${red}Please provide Cluster Name. Exiting..${end}"
+		exit 1
 
 	elif [[ -z "${BX_SPACE// }" ]]; then
-		echo "${yel}API Key provided but SPACE was NOT provided.${end}"
-		export BLUEMIX_API_KEY=${BX_API_KEY}
-		bx login -a ${BX_API_ENDPOINT}
+		print_usage
+		echo "${red}Please provide Bluemix Space. Exiting..${end}"
+		exit 1
 
 	elif [[ -z "${BX_API_KEY// }" ]]; then
-		echo "${yel}API Key NOT provided but SPACE was provided.${end}"
-		bx login -a ${BX_API_ENDPOINT} -s ${BX_SPACE}
-
-	else
-		echo "${yel}API Key and SPACE provided.${end}"
-		export BLUEMIX_API_KEY=${BX_API_KEY}
-		bx login -a ${BX_API_ENDPOINT} -s ${BX_SPACE}
+		print_usage
+		echo "${red}Please provide Bluemix API Key. Exiting..${end}"
+		exit 1
 	fi
+
+	printf "${grn}Login into Bluemix${end}\n"
+
+	export BLUEMIX_API_KEY=${BX_API_KEY}
+	bx login -a ${BX_API_ENDPOINT} -s ${BX_SPACE}
 
 	status=$?
 

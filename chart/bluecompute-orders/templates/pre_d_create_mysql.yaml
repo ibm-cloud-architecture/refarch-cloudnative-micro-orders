@@ -1,35 +1,42 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{.Chart.Name}}-create-messagehub-{{.Release.Name}}"
+  name: "{{.Chart.Name}}-create-mysql-{{.Release.Name}}"
   labels:
     app: bluecompute
+    micro: orders
+    tier: backend
     heritage: {{.Release.Service | quote }}
     release: {{.Release.Name | quote }}
-    chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
   annotations:
     # This is what defines this resource as a hook. Without this line, the
     # job is considered part of the release.
     "helm.sh/hook": pre-install
-    "helm.sh/hook-weight": "26"
+    "helm.sh/hook-weight": "23"
 spec:
   template:
     metadata:
-      name: "{{.Chart.Name}}-create-messagehub-{{.Release.Name}}"
+      name: "{{.Chart.Name}}-create-mysql-{{.Release.Name}}"
       labels:
         app: bluecompute
+        micro: orders
+        tier: backend
         heritage: {{.Release.Service | quote }}
         release: {{.Release.Name | quote }}
-        chart: "{{.Chart.Name}}-{{.Chart.Version}}"
+        chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
     spec:
       restartPolicy: Never
       containers:
-      - name: create-messagehub
+      - name: create-mysql
         image: ibmcase/bluemix-deployer:latest
         command: [ "/bin/bash", "-c" ]
-        args: ["source /scripts/bx_login.sh; bx service list | grep messagehub | \
-        grep '^{{ .Values.messagehub.serviceName }} ' || \
-        bx service create messagehub {{ .Values.messagehub.servicePlan}} {{ .Values.messagehub.serviceName }}"]
+        args: ["source /scripts/bx_login.sh; bx service list | \
+        grep compose-for-mysql | grep '^{{ .Values.mysql.serviceName }} ' || \
+  
+        bx service create compose-for-mysql {{ .Values.mysql.servicePlan}} {{ .Values.mysql.serviceName }}; \
+
+        echo Done"]
         imagePullPolicy: IfNotPresent
         env:
         - name: BX_SPACE
