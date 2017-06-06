@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: Job
 metadata:
-  name: "{{.Chart.Name}}-bind-mysql-{{.Release.Name}}"
+  name: "{{.Chart.Name}}-bind-mysql-{{.Release.Name}}-{{ randAlphaNum 5 | lower }}"
   labels:
     app: bluecompute
     micro: orders
@@ -17,7 +17,7 @@ metadata:
 spec:
   template:
     metadata:
-      name: "{{.Chart.Name}}-bind-mysql-{{.Release.Name}}"
+      name: "{{.Chart.Name}}-bind-mysql-{{.Release.Name}}-{{ randAlphaNum 5 | lower }}"
       labels:
         app: bluecompute
         micro: orders
