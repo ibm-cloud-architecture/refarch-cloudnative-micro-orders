@@ -35,5 +35,5 @@ spec:
         args: 
         - >
             set -x;
-            kubectl delete jobs -l chart={{.Chart.Name}}-{{.Chart.Version}},release={{.Release.Name}} --cascade;
+            kubectl --namespace {{ Release.Namespace }} delete jobs -l chart={{.Chart.Name}}-{{.Chart.Version}},release={{.Release.Name}} --cascade;
 

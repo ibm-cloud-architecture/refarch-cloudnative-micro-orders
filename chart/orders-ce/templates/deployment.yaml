@@ -41,4 +41,4 @@ spec:
       - name: hs256-key
         secret:
           defaultMode: 420
-          secretName: "{{ .Values.hs256key.secretName }}"
+          secretName: "{{ .Chart.Name }}-{{ .Values.hs256key.secretName }}"
