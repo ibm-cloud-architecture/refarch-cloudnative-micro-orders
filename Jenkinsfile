@@ -96,7 +96,7 @@ podTemplate(
                     helm init
 
                     # Install/Upgrade Chart
-                    cd chart/bluecompute-orders
+                    cd chart/orders
 
                     # Replace values
                     cat values.yaml | \
