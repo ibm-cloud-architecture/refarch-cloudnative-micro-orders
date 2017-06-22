@@ -123,7 +123,7 @@ podTemplate(
                         time helm install --name orders . --debug --wait --timeout 600
                     else
                         echo "Upgrading bluecompute-orders chart release"
-                        time helm upgrade orders . --debug --wait --timeout 600
+                        time helm upgrade orders . --reuse-values --debug --wait --timeout 600
                     fi
                     """
                 }
