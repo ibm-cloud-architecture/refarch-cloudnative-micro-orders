@@ -96,34 +96,50 @@ podTemplate(
                     helm init
 
                     # Install/Upgrade Chart
-                    cd chart/bluecompute-orders
-
-                    # Replace values
-                    cat values.yaml | \
-                        yaml w - image.tag ${env.BUILD_NUMBER} | \
-                        yaml w - image.repository \${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders | \
-                        yaml w - hs256key.skipDelete true | \
-                        yaml w - mysql.skipDelete true | \
-                        yaml w - messagehub.skipDelete true | \
-                        yaml w - configMap.skipDelete true | \
-                        yaml w - secret.skipDelete true | \
-                        yaml w - configMap.bluemixOrg \${BX_ORG} | \
-                        yaml w - configMap.bluemixSpace \${BX_SPACE} | \
-                        yaml w - configMap.bluemixRegistryNamespace \${BX_CR_NAMESPACE} | \
-                        yaml w - configMap.kubeClusterName \${CLUSTER_NAME} | \
-                        yaml w - secret.apiKey \${BX_API_KEY} > \
-                            values_new.yaml
-
-                    mv values_new.yaml values.yaml
+                    cd chart/orders
 
                     release=`helm list | grep orders | awk '{print \$1}' | head -1`
 
                     if [[ -z "\${release// }" ]]; then
                         echo "Installing bluecompute-orders chart for the first time"
-                        time helm install --name orders . --debug --wait --timeout 600
+                        time helm install \
+                            --name orders \
+                            . \
+                            --debug \
+                            --wait \
+                            --timeout 600 \
+                            --set image.tag=${env.BUILD_NUMBER} \
+                            --set image.repository=\${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders \
+                            --set hs256key.skipDelete=true \
+                            --set mysql.skipDelete=true \
+                            --set messagehub.skipDelete=true \
+                            --set configMap.skipDelete=true \
+                            --set secret.skipDelete=true \
+                            --set configMap.bluemixOrg=\${BX_ORG} \
+                            --set configMap.bluemixSpace=\${BX_SPACE} \
+                            --set configMap.bluemixRegistryNamespace=\${BX_CR_NAMESPACE} \
+                            --set configMap.kubeClusterName=\${CLUSTER_NAME} \
+                            --set secret.apiKey=\${BX_API_KEY}
+
                     else
                         echo "Upgrading bluecompute-orders chart release"
-                        time helm upgrade orders . --debug --wait --timeout 600
+                        time helm upgrade orders . \
+                            --reuse-values \
+                            --debug \
+                            --wait \
+                            --timeout 600 \
+                            --set image.tag=${env.BUILD_NUMBER} \
+                            --set image.repository=\${BX_REGISTRY}/\${BX_CR_NAMESPACE}/bluecompute-orders \
+                            --set hs256key.skipDelete=true \
+                            --set mysql.skipDelete=true \
+                            --set messagehub.skipDelete=true \
+                            --set configMap.skipDelete=true \
+                            --set secret.skipDelete=true \
+                            --set configMap.bluemixOrg=\${BX_ORG} \
+                            --set configMap.bluemixSpace=\${BX_SPACE} \
+                            --set configMap.bluemixRegistryNamespace=\${BX_CR_NAMESPACE} \
+                            --set configMap.kubeClusterName=\${CLUSTER_NAME} \
+                            --set secret.apiKey=\${BX_API_KEY}
                     fi
                     """
                 }
