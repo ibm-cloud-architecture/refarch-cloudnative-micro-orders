@@ -19,6 +19,15 @@ resources:
   requests:
     memory: 64Mi
 
-mysql:
+ibmcase-mysql:
   binding:
     name: binding-orders-mysql
+
+  labels:
+    app: bluecompute
+    micro: orders
+    tier: data
+
+  dbname: ordersdb
+  service:
+    name: ordersdb-mysql

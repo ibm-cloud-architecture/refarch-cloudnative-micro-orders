@@ -26,7 +26,7 @@ spec:
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         volumeMounts:
         - mountPath: /var/run/secrets/binding-refarch-compose-for-mysql
-          name: {{ .Values.mysql.binding.name }}
+          name: {{ (index .Values "ibmcase-mysql").binding.name }}
         - mountPath: /var/run/secrets/hs256-key
           name: hs256-key
         ports:
@@ -34,10 +34,10 @@ spec:
         resources:
 {{ toYaml .Values.resources | indent 12 }}
       volumes:
-      - name: {{ .Values.mysql.binding.name }}
+      - name: {{ (index .Values "ibmcase-mysql").binding.name }}
         secret:
           defaultMode: 420
-          secretName: "{{ .Values.mysql.binding.name }}"
+          secretName: {{ (index .Values "ibmcase-mysql").binding.name }}
       - name: hs256-key
         secret:
           defaultMode: 420
