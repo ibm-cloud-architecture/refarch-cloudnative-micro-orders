@@ -53,3 +53,9 @@ out
 test-output
 atlassian-ide-plugin.xml
 .gradletasknamecache
+
+chart/orders/charts
+chart/orders/requirements.lock
+
+chart/orders-ce/charts
+chart/orders-ce/requirements.lock
