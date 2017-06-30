@@ -30,4 +30,4 @@ ibmcase-mysql:
 
   dbname: ordersdb
   service:
-    name: ordersdb-mysql
+    name: orders-mysql
