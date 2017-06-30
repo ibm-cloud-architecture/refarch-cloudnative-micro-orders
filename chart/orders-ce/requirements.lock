@@ -1,0 +1,11 @@
+dependencies:
+- alias: ""
+  condition: ""
+  enabled: false
+  import-values: null
+  name: ibmcase-mysql
+  repository: https://jkwong888.github.io/refarch-cloudnative-kubernetes/charts
+  tags: null
+  version: 0.1.0
+digest: sha256:2f43cfb71a7d6424e8a7a8dee9130d34e377626fb61d80746125f77c525787e1
+generated: 2017-06-29T20:54:26.588057139-04:00
