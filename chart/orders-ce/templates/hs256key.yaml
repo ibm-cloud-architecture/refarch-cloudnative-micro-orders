@@ -1,6 +1,10 @@
 apiVersion: v1
 data:
+  {{if .Values.global.hs256key.secret }}
+  key: {{ .Values.global.hs256key.secret | b64enc }}
+  {{ else }}
   key: {{ (.Values.hs256key.secret | default (randAlphaNum 256)) | b64enc }}
+  {{ end }}
 kind: Secret
 metadata:
   labels:

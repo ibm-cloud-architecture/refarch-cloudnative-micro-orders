@@ -65,3 +65,7 @@ spec:
         secret:
           defaultMode: 420
           secretName: "{{ .Values.hs256key.secretName }}"
+      {{if eq .Values.image.usePullSecret true}}
+      imagePullSecrets:
+        - name: "{{ .Values.image.pullSecretName }}"
+      {{end}}

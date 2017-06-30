@@ -7,6 +7,8 @@ image:
   repository: ibmcase/bluecompute-orders
   pullPolicy: IfNotPresent
   tag: latest
+  usePullSecret: false
+  pullSecretName: registry-token
 
 hs256key:
   skipDelete: false
