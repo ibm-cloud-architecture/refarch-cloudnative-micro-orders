@@ -20,11 +20,15 @@ export JAVA_OPTS="${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom"
 source ./agents/newrelic.sh
 
 # open the secrets
-hs256_key=`cat /var/run/secrets/hs256-key/key`
-JAVA_OPTS="${JAVA_OPTS} \
--Djwt.sharedSecret=${hs256_key}"
+if [ ! -z "${HS256_KEY}" ]; then
+  hs256_key=${HS256_KEY}
+else
+  hs256_key=`cat /var/run/secrets/hs256-key/key`
+fi
+JAVA_OPTS="${JAVA_OPTS} -Djwt.sharedSecret=${hs256_key}"
 
-mysql_uri=`cat /var/run/secrets/binding-refarch-compose-for-mysql/binding | jq '.uri' | sed -e 's/"//g'`
+
+mysql_uri=`echo ${mysql} | base64 -d | jq -r '.uri'`
 
 # rip apart the uri, the format is mysql://<user>:<password>@<host>:<port>/<db_name>
 mysql_user=`echo ${mysql_uri} | sed -e 's|mysql://\([^:]*\):.*|\1|'`
@@ -39,8 +43,8 @@ JAVA_OPTS="${JAVA_OPTS} \
 -Dspring.datasource.password=${mysql_password} \
 -Dspring.datasource.port=${mysql_port}"
 
-if [ -f /var/run/secrets/binding-refarch-messagehub/binding ]; then
-    messagehub_creds=`cat /var/run/secrets/binding-refarch-messagehub/binding`
+if [ ! -z "${messagehub}" ]; then
+    messagehub_creds=`echo ${messagehub} | base64 -d`
     kafka_username=`echo ${messagehub_creds} | jq '.user' | sed -e 's/"//g'`
     kafka_password=`echo ${messagehub_creds} | jq '.password' | sed -e 's/"//g'`
     kafka_brokerlist=`echo ${messagehub_creds} | jq '.kafka_brokers_sasl | join(" ")' | sed -e 's/"//g'`
