@@ -1,4 +1,0 @@
-dependencies:
-  - name: ibmcase-mysql
-    repository: https://fabiogomezdiaz.github.io/refarch-cloudnative-kubernetes/charts
-    version: 0.1.0

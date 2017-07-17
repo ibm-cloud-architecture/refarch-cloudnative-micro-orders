@@ -1,3 +1,4 @@
+{{ if not .Values.global.hs256key.secretName }}
 apiVersion: v1
 data:
   {{if .Values.global.hs256key.secret }}
@@ -15,3 +16,4 @@ metadata:
   name: "{{ .Chart.Name }}-{{ .Values.hs256key.secretName }}"
   namespace: {{ .Release.Namespace }}
 type: Opaque
+{{ end }}
