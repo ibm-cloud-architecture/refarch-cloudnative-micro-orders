@@ -1,6 +1,7 @@
 package orders;
 
 import java.net.URI;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -65,7 +66,7 @@ public class OrdersController {
         	
         	logger.debug("caller: " + customerId);
             
-        	final List<Order> orders = ordersRepo.findByCustomerId(customerId);
+        	final List<Order> orders = ordersRepo.findByCustomerIdOrderByDateDesc(customerId);
         	
             return  ResponseEntity.ok(orders);
             
@@ -128,7 +129,8 @@ public class OrdersController {
 				// if no user passed in, this is a bad request
 				return ResponseEntity.badRequest().body("Invalid Bearer Token: Missing customer ID");
 			}
-	          
+	         
+			payload.setDate(Calendar.getInstance().getTime());
 			payload.setCustomerId(customerId);
     		System.out.println("New order: " + payload.toString());
 			

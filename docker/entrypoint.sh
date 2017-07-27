@@ -28,7 +28,7 @@ fi
 JAVA_OPTS="${JAVA_OPTS} -Djwt.sharedSecret=${hs256_key}"
 
 
-mysql_uri=`echo ${mysql} | base64 -d | jq -r '.uri'`
+mysql_uri=`echo ${mysql} | jq -r '.uri'`
 
 # rip apart the uri, the format is mysql://<user>:<password>@<host>:<port>/<db_name>
 mysql_user=`echo ${mysql_uri} | sed -e 's|mysql://\([^:]*\):.*|\1|'`
@@ -44,7 +44,7 @@ JAVA_OPTS="${JAVA_OPTS} \
 -Dspring.datasource.port=${mysql_port}"
 
 if [ ! -z "${messagehub}" ]; then
-    messagehub_creds=`echo ${messagehub} | base64 -d`
+    messagehub_creds=`echo ${messagehub}`
     kafka_username=`echo ${messagehub_creds} | jq '.user' | sed -e 's/"//g'`
     kafka_password=`echo ${messagehub_creds} | jq '.password' | sed -e 's/"//g'`
     kafka_brokerlist=`echo ${messagehub_creds} | jq '.kafka_brokers_sasl | join(" ")' | sed -e 's/"//g'`
