@@ -31,7 +31,7 @@ spec:
       - name: bind-mysql
         image: ibmcase/bluemix-cluster-deployer:latest
         command: [ "/bin/bash", "-c" ]
-        args: ["source /scripts/bx_login.sh; bx cs init; bx cs cluster-service-bind ${KUBE_CLUSTER_NAME} default {{ .Values.mysql.serviceName }}"]
+        args: ["source /scripts/bx_login.sh; bx cs init; bx cs cluster-services ${KUBE_CLUSTER_NAME} | grep '^{{ .Values.mysql.serviceName }} ' > /dev/null || bx cs cluster-service-bind ${KUBE_CLUSTER_NAME} {{ .Release.Namespace }} '{{ .Values.mysql.serviceName }}'"]
         imagePullPolicy: IfNotPresent
         env:
         - name: BX_SPACE
