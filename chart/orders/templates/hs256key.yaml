@@ -1,7 +1,7 @@
 {{ if not .Values.global.hs256key.secretName }}
 apiVersion: v1
 data:
-  {{if .Values.global.hs256key.secret }}
+  {{ if .Values.global }}
   key: {{ .Values.global.hs256key.secret | b64enc }}
   {{ else }}
   key: {{ (.Values.hs256key.secret | default (randAlphaNum 256)) | b64enc }}
