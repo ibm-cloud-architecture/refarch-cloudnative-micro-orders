@@ -1,48 +1,85 @@
 # Default values for micro-orders.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
-replicaCount: 2
+replicaCount: 1
 
 image:
   repository: ibmcase/bluecompute-orders
-  pullPolicy: IfNotPresent
   tag: latest
-  usePullSecret: false
-  pullSecretName: registry-token
+  pullPolicy: IfNotPresent
 
 hs256key:
-  skipDelete: false
+  skipDelete: true
   secretName: hs256-key
-
-mysql:
-  skipDelete: false
-  serviceName: refarch-compose-for-mysql
-  servicePlan: Standard
-  secret: binding-refarch-compose-for-mysql
-
-messagehub:
-  skipDelete: false
-  serviceName: refarch-messagehub
-  servicePlan: standard
-  secret: binding-refarch-messagehub
+  secret:
 
 resources:
   limits:
-    cpu: 100m
     memory: 128Mi
   requests:
-    cpu: 100m
-    memory: 128Mi
+    memory: 64Mi
 
-configMap:
-  skipDelete: false
-  bluemixAPIEndpoint: api.ng.bluemix.net
-  bluemixOrg: PUT_YOUR_BLUEMIX_ORG_HERE
-  bluemixSpace: PUT_YOUR_BLUEMIX_SPACE_HERE
-  bluemixRegistry: registry.ng.bluemix.net
-  bluemixRegistryNamespace: PUT_YOUR_BLUEMIX_REGISTRY_NAMESPACE_HERE
-  kubeClusterName: PUT_YOUR_CLUSTER_NAME_HERE
+ibmcase-mysql:
+  binding:
+    name: binding-orders-mysql
 
-secret:
-  skipDelete: false
-  apiKey: PUT_YOUR_API_KEY_HERE
+  labels:
+    app: bluecompute
+    micro: orders
+    tier: data
+
+  dbname: ordersdb
+  service:
+    name: orders-mysql
+
+bluemix-messagehub:
+  # if installing with umbrella chart, the top-level chart will install messagehub so
+  # disable it here
+  enabled: false
+  apiKey:
+
+  target:
+    endpoint: api.ng.bluemix.net
+    org:
+    space:
+
+  clusterName:
+  
+  service:
+    name: orders-messagehub
+    type: messagehub
+    plan: standard
+  
+bluemix-compose-mysql:
+  apiKey:
+
+  target:
+    endpoint: api.ng.bluemix.net
+    org:
+    space:
+
+  clusterName:
+  
+  service:
+    name: ordersdb-mysql
+    type: compose-for-mysql
+    plan: Standard
+
+global:
+  hs256key:
+    secret:
+    secretName:
+
+  bluemix:
+    apiKey:
+  
+    target:
+      endpoint: api.ng.bluemix.net
+      org:
+      space:
+  
+    clusterName:
+
+tags:
+  bluemix: false
+  localdb: false

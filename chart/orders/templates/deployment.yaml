@@ -1,7 +1,8 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Chart.Name }}
+  name: {{ .Release.Name }}-{{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
   labels:
     app: bluecompute
     micro: orders
@@ -18,54 +19,24 @@ spec:
         tier: backend
         release: {{.Release.Name | quote }}
         chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-      annotations:
-        pod.beta.kubernetes.io/init-containers: '[
-          {
-             "name": "bluecompute-orders-wait-for-mysql",
-             "image": "ibmcase/mysql-loader",
-             "imagePullPolicy": "IfNotPresent",
-             "command": ["/bin/bash", "-c", "mysql_cli=`echo ${binding_mysql} | jq -r .uri_cli | sed -e s%--ssl-mode=REQUIRED%%`; mysql_passwd=`echo ${binding_mysql} | jq -r .uri | sed -e s%mysql://admin:%% -e s%@.*%%`; until eval ${mysql_cli} -p${mysql_passwd} -e status; do echo waiting for mysql; /bin/sleep 1; done"],
-             "env": [
-               {
-                 "name": "binding_mysql",
-                 "valueFrom": {
-                   "secretKeyRef": {
-                     "name": "binding-{{ .Values.mysql.serviceName }}",
-                     "key": "binding"
-                   }
-                 }
-               }
-             ]
-          }
-        ]'
     spec:
       containers:
-      - name: {{ .Chart.Name }}
+      - name: orders
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
-        volumeMounts:
-        - mountPath: /var/run/secrets/binding-{{ .Values.mysql.serviceName }}
-          name: binding-{{ .Values.mysql.serviceName }}
-        - mountPath: /var/run/secrets/binding-{{ .Values.messagehub.serviceName }}
-          name: binding-{{ .Values.messagehub.serviceName }}
-        - mountPath: /var/run/secrets/hs256-key
-          name: hs256-key
         ports:
         - containerPort: 8080
-      volumes:
-      - name: binding-{{ .Values.mysql.serviceName }}
-        secret:
-          defaultMode: 420
-          secretName: "binding-{{ .Values.mysql.serviceName }}"
-      - name: binding-{{ .Values.messagehub.serviceName }}
-        secret:
-          defaultMode: 420
-          secretName: "binding-{{ .Values.messagehub.serviceName }}"
-      - name: hs256-key
-        secret:
-          defaultMode: 420
-          secretName: "{{ .Values.hs256key.secretName }}"
-      {{if eq .Values.image.usePullSecret true}}
-      imagePullSecrets:
-        - name: "{{ .Values.image.pullSecretName }}"
-      {{end}}
+        env:
+        - name: HS256_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "hs256SecretName" . }}
+              key: key 
+        - name: mysql
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "mysqlBindingName" . }}
+              key: binding
+        {{ template "messageHubEnv" . }}
+        resources:
+{{ toYaml .Values.resources | indent 12 }}

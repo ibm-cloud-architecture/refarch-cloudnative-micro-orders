@@ -1,0 +1,31 @@
+# Spring properties
+spring:
+  application:
+    name: orders-microservice
+     
+    # Message Hub properties
+    messagehub:
+      topic: orders
+      user:
+      password:
+      api_key:
+      kafka_rest_url:
+      # Add all brokers listed in Message Hub Credentials
+      kafka_brokers_sasl:
+        -
+  jpa:
+    show-sql: true
+    hibernate:
+      dialect: org.hibernate.dialect.H2Dialect
+      ddl-auto: create
+
+  # MySQL Data source configuration
+  datasource:
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:mem:ordersdb;DB_CLOSE_DELAY=-1
+    max-active: 4
+    testOnBorrow: true
+    validationQuery: SELECT 1
+
+jwt:
+  sharedSecret: a1b2c3d4e5f6

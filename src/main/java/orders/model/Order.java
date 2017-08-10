@@ -1,12 +1,17 @@
 package orders.model;
 
+import java.util.Date;
+
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Temporal;
+import javax.persistence.TemporalType;
+
+import org.hibernate.annotations.GenericGenerator;
 
 @Entity
 @Table(name = "orders")
@@ -17,13 +22,18 @@ public class Order {
 
 	@Id //primary key
 	@Column(name = "orderId")
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	long id;
+	@GeneratedValue(generator="uuid-generator")
+	@GenericGenerator(name="uuid-generator", strategy="uuid")
+	String id;
+	
+	@Temporal(TemporalType.TIMESTAMP)
+	@Column(name = "date")
+	Date date;
 	
 	@Basic
 	@Column(name = "itemId")
 	int itemId;
-	
+
 	@Basic
 	@Column(name = "customerId")
 	String customerId;
@@ -32,13 +42,19 @@ public class Order {
 	@Column(name = "count")
 	int count;
 	
-	public long getId() {
+	public String getId() {
 		return id;
 	}
-	public void setId(int id) {
+	public void setId(String id) {
 		this.id = id;
 	}
 	
+	public Date getDate() {
+		return date;
+	}
+	public void setDate(Date date) {
+		this.date = date;
+	}
 	public int getItemId() {
 		return itemId;
 	}
@@ -59,7 +75,7 @@ public class Order {
 	}
 	@Override
 	public String toString() {
-		return "{id = " + id + ", itemId=" + itemId + ", customerId=" + customerId
+		return "{id = " + id + ", itemId=" + itemId + ", date=" + date.toString() + ", customerId=" + customerId
 				+ ", count=" + count + "}";
 	}
 
