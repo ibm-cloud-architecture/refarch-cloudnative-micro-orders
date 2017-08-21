@@ -5,8 +5,8 @@ replicaCount: 1
 
 image:
   repository: ibmcase/bluecompute-orders
-  tag: latest
-  pullPolicy: IfNotPresent
+  tag: dev
+  pullPolicy: Always
 
 hs256key:
   skipDelete: true
@@ -18,6 +18,12 @@ resources:
     memory: 128Mi
   requests:
     memory: 64Mi
+
+service:
+  name: orders
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
 
 ibmcase-mysql:
   binding:
