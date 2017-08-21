@@ -5,8 +5,8 @@ replicaCount: 1
 
 image:
   repository: ibmcase/bluecompute-orders
-  tag: latest
-  pullPolicy: IfNotPresent
+  tag: dev
+  pullPolicy: Always
 
 hs256key:
   skipDelete: true
