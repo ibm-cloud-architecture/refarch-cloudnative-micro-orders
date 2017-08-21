@@ -19,6 +19,12 @@ resources:
   requests:
     memory: 64Mi
 
+service:
+  name: orders
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+
 ibmcase-mysql:
   binding:
     name: binding-orders-mysql
