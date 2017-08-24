@@ -17,6 +17,25 @@ spec:
         app: bluecompute
         micro: orders
         tier: backend
+      annotations:
+        pod.beta.kubernetes.io/init-containers: '[
+          {
+            "name": "test-mysql",
+            "image": "ibmcase/mysql-loader:latest",
+            "imagePullPolicy": "Always",
+            "command": ["/bin/bash", "-c"], 
+            "args": ["source ./helper.sh; mysql_uri=`echo ${mysql} | jq -r .uri`; uri_parser ${mysql_uri}; until mysql -h ${uri_host} -P ${uri_port} -u${uri_user} -p${uri_password} -e status `echo ${uri_path} | cut -d/ -f2`; do echo waiting for mysql; sleep 1; done"],
+            "env": [{ 
+              "name": "mysql",
+              "valueFrom": {
+                "secretKeyRef": {
+                  "name": "{{ template "mysqlBindingName" . }}",
+                  "key": "binding"
+                }
+              }
+            }]
+          }
+        ]'
     spec:
       containers:
       - name: orders
