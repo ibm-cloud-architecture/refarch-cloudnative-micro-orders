@@ -7,19 +7,19 @@ podTemplate(
     ],
 
     containers: [
-        containerTemplate(name: 'java', image: 'openjdk:8-jdk-alpine', alwaysPullImage: true, ttyEnabled: true, command: 'cat'),
+        containerTemplate(name: 'gradle', image: 'ibmcase/gradle:jdk8-alpine', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'docker' , image: 'docker:17.06.1-ce', ttyEnabled: true, command: 'cat')
     ],
 ) {
     node ('mypod') {
         checkout scm
-        container('java') {
+        container('gradle') {
             stage('Build Gradle Project') {
                 sh """
-                #!/bin/bash
-                ./gradlew build -x test
-                ./gradlew docker
+                #!/bin/sh
+                gradle build -x test
+                gradle docker
                 """
             }
         }
