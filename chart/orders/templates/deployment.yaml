@@ -21,7 +21,7 @@ spec:
         pod.beta.kubernetes.io/init-containers: '[
           {
             "name": "test-mysql",
-            "image": "ibmcase/mysql-loader:latest",
+            "image": "{{ template "dataLoaderDockerImage" . }}:{{ .Values.dataloader.image.tag }}",
             "imagePullPolicy": "Always",
             "command": ["/bin/bash", "-c"], 
             "args": ["source ./helper.sh; mysql_uri=`echo ${mysql} | jq -r .uri`; uri_parser ${mysql_uri}; until mysql -h ${uri_host} -P ${uri_port} -u${uri_user} -p${uri_password} -e status `echo ${uri_path} | cut -d/ -f2`; do echo waiting for mysql; sleep 1; done"],
@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: orders
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ template "dockerImage" . }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         ports:
         - containerPort: {{ .Values.service.internalPort }}

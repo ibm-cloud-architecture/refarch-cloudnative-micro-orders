@@ -31,3 +31,23 @@
     {{- .Release.Name }}-{{ .Chart.Name }}-{{ .Values.hs256key.secretName -}}
   {{- end }}
 {{- end -}}
+
+{{- define "dockerImage" -}}
+  {{- if .Values.global.useICPPrivateImages -}}
+    {{/* assume image exists in ICP Private Registry */}}
+    {{- printf "mycluster.icp:8500/default/bluecompute-orders" -}}
+    {{/*{{- printf "mycluster.icp:8500/%s/bluecompute-orders" .Release.Namespace - */}}
+  {{- else -}}
+    {{- .Values.image.repository }}
+  {{- end }}
+{{- end -}}
+
+{{- define "dataLoaderDockerImage" -}}
+  {{- if .Values.global.useICPPrivateImages -}}
+    {{/* assume image exists in ICP Private Registry */}}
+    {{- printf "mycluster.icp:8500/default/bluecompute-dataloader" -}}
+    {{/*- printf "mycluster.icp:8500/%s/bluecompute-dataloader" .Release.Namespace - */}}
+  {{- else -}}
+    {{- .Values.dataloader.image.repository }}
+  {{- end }}
+{{- end -}}

@@ -89,3 +89,8 @@ global:
 tags:
   bluemix: false
   localdb: false
+
+dataloader:
+  image:
+    repository: ibmcase/bluecompute-dataloader
+    tag: latest
