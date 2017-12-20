@@ -39,7 +39,7 @@ spec:
     spec:
       containers:
       - name: orders
-        image: "{{ template "dockerImage" . }}:{{ .Values.image.tag }}"
+        image: "{{ template "ordersDockerImage" . }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         ports:
         - containerPort: {{ .Values.service.internalPort }}

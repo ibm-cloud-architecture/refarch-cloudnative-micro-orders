@@ -1,21 +1,21 @@
 dependencies:
-  - name: ibmcase-mysql
-    repository: https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts/bluecompute-ce
-    version: 0.1.0
-    condition: ibmcase-mysql.enabled
+  - name: mysql
+    repository: https://raw.githubusercontent.com/fabiogomezdiaz/refarch-cloudnative-kubernetes/master/docs/charts
+    version: 0.2.0
+    condition: mysql.enabled
     tags:
     - localdb
-  - name: ibmcase-bluemix-service
-    repository: https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts/bluecompute-ce
-    version: 0.1.0
-    alias: bluemix-messagehub
-    condition: bluemix-messagehub.enabled
+  - name: bluemixservice
+    repository: https://raw.githubusercontent.com/fabiogomezdiaz/refarch-cloudnative-kubernetes/master/docs/charts
+    version: 0.2.0
+    alias: bluemixmessagehub
+    condition: bluemixmessagehub.enabled
     tags:
     - bluemix
-  - name: ibmcase-bluemix-service
-    repository: https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/master/docs/charts/bluecompute-ce
-    version: 0.1.0
-    alias: bluemix-compose-mysql
-    condition: bluemix-compose-mysql.enabled
+  - name: bluemixservice
+    repository: https://raw.githubusercontent.com/fabiogomezdiaz/refarch-cloudnative-kubernetes/master/docs/charts
+    version: 0.2.0
+    alias: bluemixcomposemysql
+    condition: bluemixcomposemysql.enabled
     tags:
     - bluemix
