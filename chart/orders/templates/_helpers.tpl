@@ -1,27 +1,15 @@
 {{- define "messageHubEnv" -}}
-  {{- if (index .Values "bluemixmessagehub").enabled -}}
+  {{- if .Values.messagehub.binding.name -}}
         - name: messagehub
           valueFrom:
             secretKeyRef:
-              name: {{ cat "binding-" ((index .Values "bluemixmessagehub").service.name | lower | replace " " "-") | nospace }}
-              key: binding
-  {{- else if .Values.tags.bluemix -}}
-        - name: messagehub
-          valueFrom:
-            secretKeyRef:
-              name: {{ cat "binding-" ((index .Values "bluemixmessagehub").service.name | lower | replace " " "-") | nospace }}
+              name: {{ .Values.messagehub.binding.name | lower | replace " " "-" | nospace }}
               key: binding
   {{- end -}}
 {{- end -}}
 
 {{- define "mysqlBindingName" -}}
-  {{- if (index .Values "bluemixcomposemysql").enabled -}}
-    {{- cat "binding-" ((index .Values "bluemixcomposemysql").service.name | lower | replace " " "-") | nospace -}}
-  {{- else if .Values.tags.bluemix -}}
-    {{- cat "binding-" ((index .Values "bluemixcomposemysql").service.name | lower | replace " " "-") | nospace -}}
-  {{- else -}}
-    {{- (index .Values "mysql").binding.name -}}
-  {{- end -}}
+  {{- .Values.mysql.binding.name -}}
 {{- end -}}
 
 {{- define "hs256SecretName" -}}
@@ -33,21 +21,9 @@
 {{- end -}}
 
 {{- define "ordersDockerImage" -}}
-  {{- if .Values.global.useICPPrivateImages -}}
-    {{/* assume image exists in ICP Private Registry */}}
-    {{- printf "mycluster.icp:8500/default/bluecompute-orders" -}}
-    {{/*{{- printf "mycluster.icp:8500/%s/bluecompute-orders" .Release.Namespace - */}}
-  {{- else -}}
-    {{- .Values.image.repository }}
-  {{- end }}
+  {{- .Values.image.repository }}
 {{- end -}}
 
 {{- define "dataLoaderDockerImage" -}}
-  {{- if .Values.global.useICPPrivateImages -}}
-    {{/* assume image exists in ICP Private Registry */}}
-    {{- printf "mycluster.icp:8500/default/bluecompute-dataloader" -}}
-    {{/*- printf "mycluster.icp:8500/%s/bluecompute-dataloader" .Release.Namespace - */}}
-  {{- else -}}
-    {{- .Values.dataloader.image.repository }}
-  {{- end }}
+  {{- .Values.dataloader.image.repository }}
 {{- end -}}

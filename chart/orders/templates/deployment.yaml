@@ -23,9 +23,9 @@ spec:
             "name": "test-mysql",
             "image": "{{ template "dataLoaderDockerImage" . }}:{{ .Values.dataloader.image.tag }}",
             "imagePullPolicy": "Always",
-            "command": ["/bin/bash", "-c"], 
+            "command": ["/bin/bash", "-c"],
             "args": ["source ./helper.sh; mysql_uri=`echo ${mysql} | jq -r .uri`; uri_parser ${mysql_uri}; until mysql -h ${uri_host} -P ${uri_port} -u${uri_user} -p${uri_password} -e status `echo ${uri_path} | cut -d/ -f2`; do echo waiting for mysql; sleep 1; done"],
-            "env": [{ 
+            "env": [{
               "name": "mysql",
               "valueFrom": {
                 "secretKeyRef": {
@@ -49,7 +49,7 @@ spec:
           valueFrom:
             secretKeyRef:
               name: {{ template "hs256SecretName" . }}
-              key: key 
+              key: key
         - name: mysql
           valueFrom:
             secretKeyRef:
