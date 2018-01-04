@@ -19,11 +19,3 @@
     {{- .Release.Name }}-{{ .Chart.Name }}-{{ .Values.hs256key.secretName -}}
   {{- end }}
 {{- end -}}
-
-{{- define "ordersDockerImage" -}}
-  {{- .Values.image.repository }}
-{{- end -}}
-
-{{- define "dataLoaderDockerImage" -}}
-  {{- .Values.dataloader.image.repository }}
-{{- end -}}
