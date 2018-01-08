@@ -19,73 +19,21 @@ resources:
   requests:
     memory: 64Mi
 
+dataloader:
+  image:
+    repository: ibmcase/bluecompute-dataloader
+    tag: latest
+
 service:
   name: orders
   type: ClusterIP
   externalPort: 8080
   internalPort: 8080
 
-ibmcase-mysql:
+mysql:
   binding:
     name: binding-orders-mysql
 
-  labels:
-    app: bluecompute
-    micro: orders
-    tier: data
-
-  dbname: ordersdb
-  service:
-    name: orders-mysql
-
-bluemix-messagehub:
-  # if installing with umbrella chart, the top-level chart will install messagehub so
-  # disable it here
-  enabled: false
-  apiKey:
-
-  target:
-    endpoint: api.ng.bluemix.net
-    org:
-    space:
-
-  clusterName:
-  
-  service:
-    name: orders-messagehub
-    type: messagehub
-    plan: standard
-  
-bluemix-compose-mysql:
-  apiKey:
-
-  target:
-    endpoint: api.ng.bluemix.net
-    org:
-    space:
-
-  clusterName:
-  
-  service:
-    name: ordersdb-mysql
-    type: compose-for-mysql
-    plan: Standard
-
-global:
-  hs256key:
-    secret:
-    secretName:
-
-  bluemix:
-    apiKey:
-  
-    target:
-      endpoint: api.ng.bluemix.net
-      org:
-      space:
-  
-    clusterName:
-
-tags:
-  bluemix: false
-  localdb: false
+messagehub:
+  binding:
+    name:
