@@ -1,3 +1,7 @@
+{{- define "ordersServiceName" -}}
+  {{- .Release.Name }}-{{ .Values.service.name -}}
+{{- end -}}
+
 {{- define "messageHubEnv" -}}
   {{- if .Values.messagehub.binding.name -}}
         - name: messagehub
@@ -13,8 +17,8 @@
 {{- end -}}
 
 {{- define "hs256SecretName" -}}
-  {{- if .Values.global.hs256key.secretName -}}
-    {{- .Release.Name }}-{{ .Values.global.hs256key.secretName -}}
+  {{- if .Values.hs256key.secretName -}}
+    {{- .Release.Name }}-{{ .Values.hs256key.secretName -}}
   {{- else -}}
     {{- .Release.Name }}-{{ .Chart.Name }}-{{ .Values.hs256key.secretName -}}
   {{- end }}
