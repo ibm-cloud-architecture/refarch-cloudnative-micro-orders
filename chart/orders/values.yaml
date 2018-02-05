@@ -32,7 +32,7 @@ service:
 
 ingress:
   enabled: false
-  loadBalancerID: ENTER_PRIVATE_LOAD_BALANCER_ID_HERE
+  loadBalancerID: ENTER_PRIVATE_LOAD_BALANCER_ID
 
 tls:
   enabled: false
