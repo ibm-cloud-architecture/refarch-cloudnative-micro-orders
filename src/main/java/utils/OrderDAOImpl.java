@@ -47,11 +47,11 @@ public class OrderDAOImpl {
       }
    
 
-   public List<Order> findByOrderId(String orderId, String customerId)
+   public List<Order> findByOrderId(String id)
      {
-		
-		List<Order> orderData = new ArrayList<>();
-		List<Order> findByOrderId = new ArrayList<>();
+	    System.out.println("I am in"); 
+	   
+	    List<Order> orderData = new ArrayList<>();
 		
 		JDBCConnection jdbcConnection = new JDBCConnection();
 		
@@ -60,33 +60,26 @@ public class OrderDAOImpl {
 		try {
 		 PreparedStatement ps = connection.prepareStatement(
 		 "select orderId,itemId,customerId,count from ordersdb.orders where orderId=?");
-		 ps.setString(1, orderId);
+		 ps.setString(1, id);
 		 ResultSet rs = ps.executeQuery();
 
-		while (rs.next()) {
-		 Order order = new Order();
-		 order.setId(rs.getString("orderId"));
-		 order.setItemId(rs.getInt("itemId"));
-		 order.setCustomerId(rs.getString("customerId"));
-		 order.setCount(rs.getInt("count"));
-		 orderData.add(order);
-
-		}
-
-		} catch (SQLException e) {
+		     while (rs.next()) {
+		      Order order = new Order();
+		      order.setId(rs.getString("orderId"));
+		      order.setItemId(rs.getInt("itemId"));
+		      order.setCustomerId(rs.getString("customerId"));
+		      order.setCount(rs.getInt("count"));
+		      System.out.println("added");
+		      orderData.add(order);
+             }
+        } 
+		catch (SQLException e) {
 		 // TODO Auto-generated catch block
 		 e.printStackTrace();
-		 }
-
-		for (Order temp : orderData) {
-			if(temp.getCustomerId() == customerId)
-			{
-				findByOrderId.add(temp);
-			}
-				
-		} 
-		return findByOrderId;
-      }
+		}
+	
+		return orderData;
+     }
 
    public void putOrderDetails(Order order){
 

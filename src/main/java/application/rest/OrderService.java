@@ -1,5 +1,6 @@
 package application.rest;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
@@ -58,30 +59,47 @@ public class OrderService {
 	 }
 	
 	@GET
-	 @Path("/{id}")
+	 @Path("{id}")
 	 @Produces("application/json")
 	public String getById(@PathParam("id") String id) {
-		String orderDetails =null;
-		final String customerId = getCustomerId();
-		if (customerId == null) {
-			// if no user passed in, this is a bad request
-			return "Invalid Bearer Token: Missing customer ID";
-		}
+        
+		String orderDetails = null;
 		
-		System.out.println("caller: " + customerId);
-		
-		OrderDAOImpl ordersRepo = new OrderDAOImpl();
-		
-		final List<Order> orders = ordersRepo.findByOrderId(customerId,id);
-		
-		if(orders==null){
-			return "Order with ID " + id + " not found";
-		}
-		
-		Gson gson = new Gson();
-    	orderDetails = gson.toJson(orders);
-    	
-		return orderDetails;
+		try {
+         	final String customerId = getCustomerId();
+        	if (customerId == null) {
+        		// if no user passed in, this is a bad request
+        		return "Invalid Bearer Token: Missing customer ID";
+        	}
+        	
+        	System.out.println("caller: hello " + id);
+        	
+        	OrderDAOImpl ordersRepo = new OrderDAOImpl();
+        	
+        	System.out.println("repo initiated");
+            
+        	final List<Order> orders = ordersRepo.findByOrderId(id);
+        	List<Order> findByOrderId = new ArrayList<>();
+        	
+        	for (Order temp : orders) {
+        		System.out.println("temp cust id"+temp.getCustomerId());
+        		System.out.println("our cust id"+customerId);
+    			if(temp.getCustomerId().equals(customerId))
+    			{
+    				findByOrderId.add(temp);
+    			}
+    				
+    		} 
+        	
+        	Gson gson = new Gson();
+        	orderDetails = gson.toJson(findByOrderId);
+   		    return orderDetails;
+            
+        } catch (Exception e) {
+            System.err.println(e.getMessage() +""+ e);
+            // Include Http client later
+            return "Status not found";
+        }
 	}
 	
 	@POST
@@ -114,7 +132,7 @@ public class OrderService {
     }
 	
 	private String getCustomerId() {
-		//to be replaced
+		//to be replaced by the customer using the security context
 		return "1";
     }
 
