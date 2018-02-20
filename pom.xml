@@ -96,6 +96,24 @@
             <artifactId>commons-lang3</artifactId>
             <version>3.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.ibm.websphere.appserver.api</groupId>
+            <artifactId>com.ibm.websphere.appserver.api.oidc</artifactId>
+            <version>1.0.16</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.ibm.websphere.appserver.api</groupId>
+            <artifactId>com.ibm.websphere.appserver.api.oauth</artifactId>
+            <version>1.2.16</version>
+            <scope>provided</scope>
+        </dependency>
+         <dependency>
+            <groupId>com.ibm.websphere.appserver.api</groupId>
+            <artifactId>com.ibm.websphere.appserver.api.jwt</artifactId>
+            <version>1.0.16</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -132,10 +150,6 @@
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
                 <configuration>
-                    <install>
-                        <type>webProfile7</type>
-                        <version>2017.+</version>
-                    </install>
                     <configFile>${basedir}/src/main/liberty/config/server.xml</configFile>
                     <serverEnv>${basedir}/src/main/liberty/config/server.env</serverEnv>
                     <jvmOptionsFile>${basedir}/src/main/liberty/config/jvm.options</jvmOptionsFile>
