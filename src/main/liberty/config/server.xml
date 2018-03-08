@@ -2,7 +2,6 @@
 
   <featureManager>
       <feature>microprofile-1.2</feature>
-      <feature>openidConnectClient-1.0</feature>
   </featureManager>
 
   <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
@@ -13,18 +12,13 @@
 
   <webApplication name="orders" location="${app.location}"/>
            
-  <openidConnectClient id="bluecomputeweb" 		
-    clientId="bluecomputeweb" 		
-    clientSecret="${env.SECRET}"
-    authorizationEndpointUrl="${env.AUTH_ENDPOINT_URL}" 		
-    tokenEndpointUrl="${env.TOKEN_ENDPOINT_URL}"
-    userIdentifier="user_name"
-    signatureAlgorithm="HS256"
-    disableIssChecking="true"
-    inboundPropagation="supported"> 	
- </openidConnectClient>
+  <mpJwt 
+     id="myMpJwt"
+     jwksUri="https://localhost:9443/oidc/endpoint/OP/jwk"
+     issuer="https://localhost:9443/oidc/endpoint/OP">
+  </mpJwt>
  
- <keyStore id="defaultKeyStore" password="yourPassword" />
+ <keyStore id="defaultKeyStore" password="keypass" />
 
 
 </server>
