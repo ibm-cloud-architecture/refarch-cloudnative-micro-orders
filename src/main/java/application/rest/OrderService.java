@@ -1,6 +1,7 @@
 package application.rest;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -16,10 +17,16 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.apache.commons.lang3.SerializationUtils;
+import org.eclipse.microprofile.config.Config;
+import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import com.google.gson.Gson;
@@ -42,7 +49,7 @@ public class OrderService {
 	@Inject
     private JsonWebToken jwt;
 	
-	private final static String QUEUE_NAME = "hello";
+	private final static String QueueName = "stock";
 	
 	@GET
 	 @Path("/check")
@@ -166,9 +173,9 @@ public class OrderService {
     		OrderDAOImpl ordersRepo = new OrderDAOImpl();
 			ordersRepo.putOrderDetails(payload);
 			
-			//return payload.toString() + " created";
+			//Using RabbitMQ to update stock
 			
-			notifyShipping();
+			notifyShipping(payload);
 			
             return Response.status(Response.Status.OK).entity(payload +" posted").build();
 			
@@ -187,16 +194,25 @@ public class OrderService {
     	return jwt;
     }
 	
-	private void notifyShipping() throws IOException, TimeoutException {
+	private void notifyShipping(Order payload) throws IOException, TimeoutException {
 	    ConnectionFactory factory = new ConnectionFactory();
         factory.setHost("localhost");
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
     
-        channel.queueDeclare(QUEUE_NAME, false, false, false, null);
-        String message = "Hello World!";
-        channel.basicPublish("", QUEUE_NAME, null, message.getBytes());
-        System.out.println(" [x] Sent '" + message + "'");
+        channel.queueDeclare(QueueName, false, false, false, null);
+        
+        String id  = Integer.toString(payload.getItemId());
+        String stock  = Integer.toString(payload.getCount());
+        String update = id + " " + stock;
+        channel.basicPublish("", QueueName, null, update.getBytes());
+        System.out.println(" [x] Sent '" + update + "'");
+        Config config = ConfigProvider.getConfig();
+  	    String inv_url = config.getValue("inventory_url", String.class);
+        Client client = ClientBuilder.newClient();
+		WebTarget target = client.target(inv_url);
+		String s = target.request().get(String.class);
+		System.out.println(s);
     
         channel.close();
         connection.close();

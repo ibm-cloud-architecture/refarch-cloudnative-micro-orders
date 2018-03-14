@@ -2,7 +2,7 @@ package model;
 
 import java.util.Date;
 
-public class Order {
+public class Order{
 	
 	String id;
 	
