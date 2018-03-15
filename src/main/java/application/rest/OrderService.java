@@ -2,6 +2,7 @@ package application.rest;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -22,6 +23,7 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
 import org.apache.commons.lang3.SerializationUtils;
@@ -173,11 +175,16 @@ public class OrderService {
     		OrderDAOImpl ordersRepo = new OrderDAOImpl();
 			ordersRepo.putOrderDetails(payload);
 			
+			UriBuilder builder = uriInfo.getAbsolutePathBuilder();
+			builder.path(payload.getId());
+			System.out.println(builder.build().toString());
+            
 			//Using RabbitMQ to update stock
 			
 			notifyShipping(payload);
 			
-            return Response.status(Response.Status.OK).entity(payload +" posted").build();
+            //return Response.status(Response.Status.OK).entity(payload +" posted").build();
+			return javax.ws.rs.core.Response.created(builder.build()).build();
 			
         } catch (Exception ex) {
             System.err.println("Error creating order: " + ex);
