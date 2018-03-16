@@ -324,7 +324,39 @@ cd /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders
 [INFO] Final Memory: 17M/303M
 [INFO] ------------------------------------------------------------------------
 ```
-4. If you are done accessing the application, you can stop your server using the following command.
+4. Validate the order in the following way.
+
+Before validating the Order service, grab the access token from the [Auth Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile). Sample of an access token generated from the [Auth Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) is as follows.
+
+<p align="center">
+    <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/accesstoken.png">
+</p>
+
+You can validate the order service as below
+
+**Get all orders**
+
+Run the following to retrieve all orders for the foo customer ID. Be sure to use the JWT retrieved from the previous step in place of <access token>
+
+```
+curl -k -H "Content-Type: application/json" -H "Authorization: Bearer <access token>" https://localhost:8443/orders/rest/orders
+```
+
+You will see something like below
+
+```
+[{"id":"1f9a4904-9d98-48cf-9508-6450a536e6b9","date":1521227554000,"itemId":13406,"customerId":"foo","count":1},{"id":"3cad602b-37b2-4d3e-a923-dcf33d927018","date":1521162698000,"itemId":13406,"customerId":"foo","count":1},{"id":"46b43aef-9d41-46fb-b140-c60f70e7f5c5","date":1521165435000,"itemId":13410,"customerId":"foo","count":4},{"id":"48efa02c-33e9-4924-91ba-f073ecff2430","date":1521165207000,"itemId":13411,"customerId":"foo","count":3}]
+```
+
+**Create an orde**
+
+Run the following to create an order for the foo customer ID. Be sure to use the JWT retrieved from the previous step in place of <access token>.
+
+```
+curl -k -H "Content-Type: application/json" -H "Authorization: Bearer <access token>" -X POST -d '{"itemId":13405, "count":4}' https://localhost:8443/orders/rest/orders
+```
+
+5. If you are done accessing the application, you can stop your server using the following command.
 
    `mvn liberty:stop-server -DtestServerHttpPort=9084 -DtestServerHttpsPort=8443`
 
