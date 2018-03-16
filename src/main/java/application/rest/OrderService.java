@@ -163,7 +163,7 @@ public class OrderService {
 				return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID").build();
 			}
 	         
-			//payload.setDate(Calendar.getInstance().getTime());
+			payload.setDate(Calendar.getInstance().getTime());
 			payload.setCustomerId(customerId);
 			
 			String id = UUID.randomUUID().toString();
