@@ -48,6 +48,8 @@ https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes. Though
 
 ### API Endpoints
 
+The Orders Microservice REST APIs are protected by OpenID Connect. These APIs identifies and validates the caller using mp-jwt tokens.
+
 ```
 GET     /orders/rest/orders 
 ```
@@ -148,6 +150,8 @@ The config values are sorted according to their ordinal. We can override the low
 - all META-INF/microprofile-config.properties files on the ClassPath.
 
 In our sample application, we obtained the configuration programatically.
+
+5. MicroProfile JWT Authentication 1.0 - Used Microprofile JWT Authentication for token based authentication. It uses OpenIDConnect based JSON Web Tokens (JWT) for role based access control of rest endpoints. This allows the system to verify, authorize and authenticate the user based the security token.
 
 ### Building the app
 
@@ -268,6 +272,21 @@ export dbpassword=password
 
 ### Locally in JVM
 
+1. Make sure the [Auth Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) is up and running. Also, make sure you copied your SSL certificate in a file as mentioned [here]()
+
+Since we are using default kestore in our server, we need to get the key from the keystore of the OpenID Provider and put it in the truststore of the service.
+
+Use the below lines to copy the SSL certificate from the Authentication server to the service.
+
+```
+cd target/liberty/wlp/usr/servers/defaultServer/resources/security
+
+keytool -importcert -keystore key.jks -storepass keypass -alias libertyop -file /Users/user@ibm.com/BlueCompute/refarch-cloudnative-auth/target/liberty/wlp/usr/servers/defaultServer/resources/security/libertyOP.cer -noprompt
+
+cd /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders
+
+```
+
 1. Set the JDBC URL before you start your application. The host and port depends on the service you use. You can run the MYSQL server locally on your system using the MYSQL docker container or use the [MYSQL Compose](https://www.ibm.com/cloud/compose/mysql) available in [IBM Cloud](https://www.ibm.com/cloud/).
 
    ```
@@ -277,7 +296,7 @@ export dbpassword=password
    ``` 
  2. Start your server.
 
-   `mvn liberty:start-server -DtestServerHttpPort=9084`
+   `mvn liberty:start-server -DtestServerHttpPort=9084 -DtestServerHttpsPort=8443`
 
    You will see the below.
    
@@ -297,7 +316,7 @@ export dbpassword=password
 ```
 3. If you are done accessing the application, you can stop your server using the following command.
 
-   `mvn liberty:stop-server -DtestServerHttpPort=9084`
+   `mvn liberty:stop-server -DtestServerHttpPort=9084 -DtestServerHttpsPort=8443`
 
 Once you do this, you see the below messages.
 
