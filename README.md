@@ -284,7 +284,7 @@ export dbpassword=password
 
 1. Make sure the [Auth Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) is up and running. Also, make sure you copied your SSL certificate in a file as mentioned [here]()
 
-Since we are using default kestore in our server, we need to get the key from the keystore of the OpenID Provider and put it in the truststore of the service.
+Since we are using default keystore in our server, we need to get the key from the keystore of the OpenID Provider and put it in the truststore of the service.
 
 Use the below lines to copy the SSL certificate from the Authentication server to the service.
 
@@ -297,14 +297,14 @@ cd /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders
 
 ```
 
-1. Set the JDBC URL before you start your application. The host and port depends on the service you use. You can run the MYSQL server locally on your system using the MYSQL docker container or use the [MYSQL Compose](https://www.ibm.com/cloud/compose/mysql) available in [IBM Cloud](https://www.ibm.com/cloud/).
+2. Set the JDBC URL before you start your application. The host and port depends on the service you use. You can run the MYSQL server locally on your system using the MYSQL docker container or use the [MYSQL Compose](https://www.ibm.com/cloud/compose/mysql) available in [IBM Cloud](https://www.ibm.com/cloud/).
 
    ```
    export jdbcURL=jdbc:mysql://<Your host>:<Port>/ordersdb?useSSL=false
    export dbuser=<DB_USER_NAME>
    export dbpassword=<PASSWORD>
    ``` 
- 2. Start your server.
+3. Start your server.
 
    `mvn liberty:start-server -DtestServerHttpPort=9084 -DtestServerHttpsPort=8443`
 
@@ -324,7 +324,7 @@ cd /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders
 [INFO] Final Memory: 17M/303M
 [INFO] ------------------------------------------------------------------------
 ```
-3. If you are done accessing the application, you can stop your server using the following command.
+4. If you are done accessing the application, you can stop your server using the following command.
 
    `mvn liberty:stop-server -DtestServerHttpPort=9084 -DtestServerHttpsPort=8443`
 
