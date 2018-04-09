@@ -193,12 +193,6 @@ To build the application, we used maven build. Maven is a project management too
 
 ### Pre-requisites
 
-As Orders service needs an Oauth token, make sure the auth service is up and running before running the Orders.
-
-1. Locally in JVM
-
-To run the Orders microservice locally in JVM, please complete the [Building the app](#building-the-app) section.
-
 **Set Up MYSQL on IBM Cloud**
 
 1. [Provision](https://console.ng.bluemix.net/catalog/services/compose-for-mysql) and instance of MySQL into your Bluemix space.
@@ -280,6 +274,16 @@ export dbpassword=password
 
 `docker run -d -p 5672:5672 -p 15672:15672  --name rabbitmq rabbitmq`
 
+*As Orders service needs an Oauth token, make sure the auth service is up and running before running the Orders.*
+
+#### Locally in JVM
+
+To run the Orders microservice locally in JVM, please complete the [Building the app](#building-the-app) section.
+
+#### Locally in Containers
+
+To run Catalog microservice locally in container, you need [Docker](https://www.docker.com/) to be locally present in your system.
+
 ### Locally in JVM
 
 1. Make sure the [Auth Service](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) is up and running. Also, make sure you copied your SSL certificate in a file as mentioned [here]()
@@ -348,7 +352,7 @@ You will see something like below
 [{"id":"1f9a4904-9d98-48cf-9508-6450a536e6b9","date":1521227554000,"itemId":13406,"customerId":"foo","count":1},{"id":"3cad602b-37b2-4d3e-a923-dcf33d927018","date":1521162698000,"itemId":13406,"customerId":"foo","count":1},{"id":"46b43aef-9d41-46fb-b140-c60f70e7f5c5","date":1521165435000,"itemId":13410,"customerId":"foo","count":4},{"id":"48efa02c-33e9-4924-91ba-f073ecff2430","date":1521165207000,"itemId":13411,"customerId":"foo","count":3}]
 ```
 
-**Create an orde**
+**Create an order**
 
 Run the following to create an order for the foo customer ID. Be sure to use the JWT retrieved from the previous step in place of <access token>.
 
@@ -375,6 +379,108 @@ Once you do this, you see the below messages.
 [INFO] Final Memory: 13M/309M
 [INFO] ------------------------------------------------------------------------
 ```
+
+### Locally in Containers
+
+To run the application in docker, we first need to define a Docker file.
+
+#### Docker file
+
+We are using Docker to containerize the application. With Docker, you can pack, ship, and run applications on a portable, lightweight container that can run anywhere virtually.
+
+```
+FROM websphere-liberty:microProfile
+
+MAINTAINER IBM Java engineering at IBM Cloud
+
+COPY /target/liberty/wlp/usr/servers/defaultServer /config/
+COPY target/liberty/wlp/usr/shared /opt/ibm/wlp/usr/shared/
+
+# Install required features if not present
+RUN installUtility install --acceptLicense defaultServer
+
+CMD ["/opt/ibm/wlp/bin/server", "run", "defaultServer"]
+
+# Upgrade to production license if URL to JAR provided
+ARG LICENSE_JAR_URL
+RUN \
+  if [ $LICENSE_JAR_URL ]; then \
+    wget $LICENSE_JAR_URL -O /tmp/license.jar \
+    && java -jar /tmp/license.jar -acceptLicense /opt/ibm \
+    && rm /tmp/license.jar; \
+  fi
+```
+
+- The `FROM` instruction sets the base image. You're setting the base image to `websphere-liberty:microProfile`.
+- The `MAINTAINER` instruction sets the Author field. Here it is `IBM Java engineering at IBM Cloud`.
+- The `COPY` instruction copies directories and files from a specified source to a destination in the container file system.
+  - You're copying the `/target/liberty/wlp/usr/servers/defaultServer` to the `config` directory in the container.
+  - You're replacing the contents of `/opt/ibm/wlp/usr/shared/` with the contents of `target/liberty/wlp/usr/shared`.
+- The `RUN` instruction runs the commands.
+  - The instruction is a precondition to install all the utilities in the server.xml file. You can use the RUN command to install the utilities on the base image.
+- The `CMD` instruction provides defaults for an executing container.
+
+#### Running the application locally in a docker container
+
+1. Build the docker image.
+
+`docker build -t orders:microprofile .`
+
+Once this is done, you will see something similar to the below messages.
+```
+Successfully built 7c05e5afbc40
+Successfully tagged orders:microprofile
+```
+You can see the docker images by using this command.
+
+`docker images`
+
+```
+REPOSITORY                                      TAG                 IMAGE ID            CREATED             SIZE
+orders                                          microprofile        7c05e5afbc40        39 seconds ago      413MB
+```
+2. Run the docker image.
+
+`docker run -d -p 9380:9080 -p 8443:9443 --name orders -t --link mysql:mysql --env jdbcURL=jdbc:mysql://mysql:3306/inventorydb?useSSL=false --env dbuser=root --env dbpassword=password orders:microprofile`
+
+When it is done, you can verify it using the below command.
+
+`docker ps`
+
+You will see something like below.
+
+```
+CONTAINER ID        IMAGE                               COMMAND                  CREATED              STATUS              PORTS                                                                             NAMES
+f7a89f9f33ac        orders:microprofile                 "/opt/ibm/wlp/bin/se…"   About a minute ago   Up About a minute   0.0.0.0:9380->9080/tcp, 0.0.0.0:8443->9443/tcp                                    order
+002cb06e9076        auth:microprofile                   "/opt/ibm/docker/doc…"   8 minutes ago        Up 8 minutes        0.0.0.0:9580->9080/tcp, 0.0.0.0:7443->9443/tcp                                    auth
+7f50df9b03a3        catalog:microprofile                "/opt/ibm/wlp/bin/se…"   11 minutes ago       Up 11 minutes       9443/tcp, 0.0.0.0:9280->9080/tcp                                                  catalog
+e1fe5ab7cfbc        ibmcase/bluecompute-elasticsearch   "/run.sh"                16 minutes ago       Up 16 minutes       0.0.0.0:9200->9200/tcp, 9300/tcp                                                  elasticsearch
+3149cb57629f        inventory:microprofile              "/opt/ibm/wlp/bin/se…"   17 minutes ago       Up 17 minutes       9443/tcp, 0.0.0.0:9180->9080/tcp                                                  inventory
+526f5c1e6cb2        rabbitmq                            "docker-entrypoint.s…"   19 minutes ago       Up 19 minutes       4369/tcp, 0.0.0.0:5672->5672/tcp, 5671/tcp, 25672/tcp, 0.0.0.0:15672->15672/tcp   rabbitmq
+b87156ca98e5        mysql                               "docker-entrypoint.s…"   19 minutes ago       Up 19 minutes       0.0.0.0:9041->3306/tcp                                                            mysql
+```
+3. Once you are done accessing the application, you can come out of the process. 
+
+4. You can also remove the container if desired. This can be done in the following way.
+
+`docker ps`
+
+```
+CONTAINER ID        IMAGE                        COMMAND                  CREATED             STATUS              PORTS                              NAMES
+f7a89f9f33ac        orders:microprofile          "/opt/ibm/wlp/bin/se…"   About a minute ago   Up About a minute   0.0.0.0:9380->9080/tcp, 0.0.0.0:8443->9443/tcp 
+```
+
+Grab the container id.
+
+- Do `docker stop <CONTAINER ID>`
+In this case it will be, `docker stop f7a89f9f33ac`
+- Do `docker rm <CONTAINER ID>`
+In this case it will be, `docker rm f7a89f9f33ac`
+
+
+
+
+
 
 
 
