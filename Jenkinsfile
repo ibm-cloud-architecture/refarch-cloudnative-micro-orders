@@ -57,9 +57,9 @@ podTemplate(
                 set +e
                 NAMESPACE=`cat /var/run/configs/registry-config/namespace`
                 REGISTRY=`cat /var/run/configs/registry-config/registry`
-                DEPLOYMENT=`kubectl get deployments -l app=bluecompute,tier=backend,micro=orders -o name`
+                DEPLOYMENT=`kubectl --namespace=\${NAMESPACE} get deployments -l app=bluecompute,tier=backend,micro=orders -o name`
 
-                kubectl get \${DEPLOYMENT}
+                kubectl --namespace=\${NAMESPACE} get \${DEPLOYMENT}
 
                 if [ \${?} -ne "0" ]; then
                     # No deployment to update
@@ -68,8 +68,8 @@ podTemplate(
                 fi
 
                 # Update Deployment
-                kubectl set image \${DEPLOYMENT} orders=\${REGISTRY}/\${NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER}
-                kubectl rollout status \${DEPLOYMENT}
+                kubectl --namespace=\${NAMESPACE} set image \${DEPLOYMENT} orders=\${REGISTRY}/\${NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER}
+                kubectl --namespace=\${NAMESPACE} rollout status \${DEPLOYMENT}
                 """
             }
         }
