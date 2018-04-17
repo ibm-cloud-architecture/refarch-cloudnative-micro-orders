@@ -14,8 +14,7 @@ spec:
   
   selector:
     micro: orders
-    service: server
-    
+    service: server  
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -29,7 +28,6 @@ metadata:
     chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
 spec:
   replicas: {{ .Values.replicaCount }}
-  revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
   template:
     metadata:
       labels:
@@ -67,41 +65,8 @@ spec:
             value: "{{ .Values.service.servicePort }}"
           - name: APPLICATION_NAME
             value: "{{ .Release.Name }}"
-          - name: GET_HOSTS_FROM
-            value: dns
-
 
         resources:
           requests:
             cpu: "{{ .Values.image.resources.requests.cpu }}"
             memory: "{{ .Values.image.resources.requests.memory }}"
-
-      # - name: "rabbitmq"
-      #   image: rabbitmq
-      #   imagePullPolicy: Always
-      #   port: 5672
-      #   port: 15672
-
-      # Container for MySQL
-      # - name: mysql
-      #   image: mysql-db
-      #   imagePullPolicy: IfNotPresent
-      #   ports:
-      #   - containerPort: {{ .Values.sql.sql_port }}
-      #   command: ['sh', '-c', 'sleep 10; ./etc/init.d/mysql start; ./create_orders_db.sh {{ .Values.sql.sql_user }} {{ .Values.sql.sql_password }}']
-      #   env:
-      #     - name: MYSQL_ROOT_PASSWORD
-      #       value: "{{ .Values.sql.sql_password }}"
-      #   ExecAction:
-      #     command: ['sh', '-c', './etc.init.d/mysql status']
-
-
-
-
-
-
-
-
-
-
-

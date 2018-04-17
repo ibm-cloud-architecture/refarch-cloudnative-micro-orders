@@ -1,0 +1,67 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: mysqld-service
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.sql.port }}
+  selector:
+    micro: orders
+    service: mysql-db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: bluecompute
+    tier: backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysqld-deployment
+  labels:
+    app: bluecompute
+    micro: orders
+    service: mysql-db
+    tier: backend
+    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        micro: orders
+        service: mysql-db
+        tier: backend
+
+    spec:
+      containers:
+
+      # Container for MySQL
+      - name: mysql
+        # img can't be named mysql to use local build with scripts
+        image: mysql-db
+        imagePullPolicy: IfNotPresent
+        port: {{ .Values.sql.port }}
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: {{ .Values.sql.password }}
+        volumeMounts:
+        - name: mysql-pv
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-pv
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim

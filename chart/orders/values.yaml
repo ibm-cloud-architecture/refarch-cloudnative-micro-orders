@@ -26,6 +26,10 @@ base:
   weight: 100
 
 sql:
-  sql_user: root
-  sql_password: password
-  sql_port: 3306
+  user: root
+  password: password
+  port: 3306
+
+rabbitmq:
+  mainPort: 5672
+  managePort: 15672
