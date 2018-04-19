@@ -13,9 +13,9 @@
   <webApplication name="orders" location="${app.location}"/>
            
   <mpJwt 
-     id="myMpJwt"
-     jwksUri="https://localhost:9443/oidc/endpoint/OP/jwk"
-     issuer="https://localhost:9443/oidc/endpoint/OP">
+     id="${jwt.id}"
+     jwksUri="${jwksUri}"
+     issuer="${jwksIssuer}">
   </mpJwt>
  
  <keyStore id="defaultKeyStore" password="keypass" />

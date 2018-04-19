@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: "{{ .Chart.Name }}-service"
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+  - name: http
+    port: {{ .Values.service.servicePort }}
+  - name: https
+    port: {{ .Values.service.servicePortHttps }}
+  selector:
+    app: bluecompute
+    micro: orders
+    service: server  
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: "{{ .Chart.Name }}-deployment"
+  labels:
+    app: bluecompute
+    micro: orders
+    service: server
+    tier: backend
+    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        micro: orders
+        service: server
+        tier: backend
+
+    spec:
+      containers:
+
+      # Liberty Server Container
+      - name: "{{ .Chart.Name }}"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+
+        readinessProbe:
+          httpGet:
+            path: /orders/rest/health
+            port: 9080
+          initialDelaySeconds: 30
+        livenessProbe:
+          httpGet:
+            path: /orders/rest/health
+            port: 9080
+          initialDelaySeconds: 1500
+          timeoutSeconds: 500
+        env:
+          jdbcURL: "jdbc:mysql://localhost:{{ .Values.sql.port }}/ordersdb?useSSL=false"
+          dbuser: root
+          dbpassword: password
+
+        env:
+          - name: PORT
+            value: "{{ .Values.service.servicePort }}"
+          - name: APPLICATION_NAME
+            value: "{{ .Release.Name }}"
+          - name: jwt.id
+            value: {{ .Values.jwt.id }}
+          - name: jwksUri
+            value: {{ .Values.jwt.uri }}
+          - name: jwksIssuer
+            value: {{ .Values.jwt.issuer}}
+
+        resources:
+          requests:
+            cpu: "{{ .Values.image.resources.requests.cpu }}"
+            memory: "{{ .Values.image.resources.requests.memory }}"

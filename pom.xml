@@ -18,6 +18,9 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
+        <jwt.id>myMpJwt</jwt.id>
+        <jwksUri>https://localhost:9443/oidc/endpoint/OP/jwk</jwksUri>
+        <jwksIssuer>https://localhost:9443/oidc/endpoint/OP</jwksIssuer>
 
         <app.name>orders</app.name>
         <testServerHttpPort>9080</testServerHttpPort>

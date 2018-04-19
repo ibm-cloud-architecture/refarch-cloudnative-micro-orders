@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.service.sqlservicename }}
+  labels:
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.sql.port }}
+  selector:
+    micro: orders
+    service: mysql-db
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-pv-claim
+  labels:
+    app: bluecompute
+    tier: backend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 20Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-create-table
+spec:
+  template:
+    spec:
+      containers:
+      - name: mysql
+        image: mysql-db
+        command: ["sh", "-c", "ls; sleep 30;./create_orders_db.sh root password 0.0.0.0 3306"]
+      restartPolicy: Never
+  backoffLimit: 4
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysqld-deployment
+  labels:
+    app: bluecompute
+    micro: orders
+    service: mysql-db
+    tier: backend
+    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+spec:
+  replicas: {{ .Values.replicaCount }}
+  template:
+    metadata:
+      labels:
+        app: bluecompute
+        micro: orders
+        service: mysql-db
+        tier: backend
+
+    spec:
+      containers:
+
+      # Container for MySQL
+      - name: mysql
+        # img can't be named mysql to use local build with scripts
+        image: mysql-db
+        imagePullPolicy: IfNotPresent
+        port: {{ .Values.sql.port }}
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: {{ .Values.sql.password }}
+        volumeMounts:
+        - name: mysql-pv
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-pv
+        persistentVolumeClaim:
+          claimName: mysql-pv-claim
