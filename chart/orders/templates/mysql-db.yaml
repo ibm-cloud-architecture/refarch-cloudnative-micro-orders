@@ -1,7 +1,7 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: mysqld-service
+  name: {{ .Values.service.sqlservicename }}
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
 spec:
@@ -25,6 +25,20 @@ spec:
   resources:
     requests:
       storage: 20Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: mysql-create-table
+spec:
+  template:
+    spec:
+      containers:
+      - name: mysql
+        image: mysql-db
+        command: ["sh", "-c", "ls; sleep 30;./create_orders_db.sh root password 0.0.0.0 3306"]
+      restartPolicy: Never
+  backoffLimit: 4
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
