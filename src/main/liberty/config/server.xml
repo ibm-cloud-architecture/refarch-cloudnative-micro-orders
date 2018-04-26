@@ -13,12 +13,13 @@
   <webApplication name="orders" location="${app.location}"/>
            
   <mpJwt 
-     id="${jwt.id}"
-     jwksUri="${jwksUri}"
-     issuer="${jwksIssuer}">
+     id="myMpJwt"
+     jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
+     issuer="https://auth-service:9443/oidc/endpoint/OP">
   </mpJwt>
- 
- <keyStore id="defaultKeyStore" password="keypass" />
-
+  
+  <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
+  <keyStore id="bcKeyStore" location="/etc/keystorevol/BCKeyStoreFile.jks" type="JKS" password="password" />
+  <keyStore id="bcTrustStore" location="/etc/keystorevol/truststore.jks" type="JKS" password="password" />  
 
 </server>

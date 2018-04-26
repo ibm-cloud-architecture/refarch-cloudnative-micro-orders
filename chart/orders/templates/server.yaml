@@ -14,7 +14,7 @@ spec:
   selector:
     app: bluecompute
     micro: orders
-    service: server  
+    service: server
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -38,12 +38,10 @@ spec:
 
     spec:
       containers:
-
       # Liberty Server Container
       - name: "{{ .Chart.Name }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.imagePullPolicy }}
-
         readinessProbe:
           httpGet:
             path: /orders/rest/health
@@ -55,24 +53,20 @@ spec:
             port: 9080
           initialDelaySeconds: 1500
           timeoutSeconds: 500
-        env:
-          jdbcURL: "jdbc:mysql://localhost:{{ .Values.sql.port }}/ordersdb?useSSL=false"
-          dbuser: root
-          dbpassword: password
-
+        resources:
+          requests:
+            cpu: "{{ .Values.image.resources.requests.cpu }}"
+            memory: "{{ .Values.image.resources.requests.memory }}"
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
           - name: APPLICATION_NAME
             value: "{{ .Release.Name }}"
-          - name: jwt.id
-            value: {{ .Values.jwt.id }}
-          - name: jwksUri
-            value: {{ .Values.jwt.uri }}
-          - name: jwksIssuer
-            value: {{ .Values.jwt.issuer}}
-
-        resources:
-          requests:
-            cpu: "{{ .Values.image.resources.requests.cpu }}"
-            memory: "{{ .Values.image.resources.requests.memory }}"
+        volumeMounts:
+        - name: keystorevol
+          mountPath: "/etc/keystorevol"
+          readOnly: true
+      volumes:
+      - name: keystorevol
+        secret:
+          secretName: keystoresecret
