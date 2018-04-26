@@ -16,11 +16,8 @@ public class OrderDAOImpl {
 	
    public List<Order> findByCustomerIdOrderByDateDesc(String customerId)
      {
-		
 		List<Order> orderData = new ArrayList<>();
-		
 		JDBCConnection jdbcConnection = new JDBCConnection();
-		
 		Connection connection = jdbcConnection.getConnection();
 
 		try {
@@ -51,7 +48,6 @@ public class OrderDAOImpl {
 
    public List<Order> findByOrderId(String id)
      {
-	    System.out.println("I am in"); 
 	   
 	    List<Order> orderData = new ArrayList<>();
 		
@@ -91,7 +87,7 @@ public class OrderDAOImpl {
 	Connection connection = jdbcConnection.getConnection();
 	try
     {
-      String query = " insert into orders (orderId,itemId,customerId,count,date)"
+      String query = " insert into ordersdb.orders (orderId,itemId,customerId,count,date)"
         + " values (?, ?, ?, ?, ?)";
 
       PreparedStatement preparedStmt = connection.prepareStatement(query);

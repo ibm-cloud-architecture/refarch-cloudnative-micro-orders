@@ -1,8 +1,6 @@
 package application.rest;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
@@ -26,20 +24,14 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import org.apache.commons.lang3.SerializationUtils;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.jwt.JsonWebToken;
-
-import com.google.gson.Gson;
-import com.ibm.websphere.security.openidconnect.PropagationHelper;
-import com.ibm.websphere.security.openidconnect.token.IdToken;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
-import config.JwtConfig;
 import model.Order;
 import utils.OrderDAOImpl;
 
@@ -64,10 +56,6 @@ public class OrderService {
 	 @Produces("application/json")
 	 public Response getOrders() {
 		
-		//JwtConfig jwt = getJwt();
-		
-		//String orderDetails = null;
-		
 		try {
          	final String customerId = jwt.getName();
         	if (customerId == null) {
@@ -82,16 +70,10 @@ public class OrderService {
             
         	final List<Order> orders = ordersRepo.findByCustomerIdOrderByDateDesc(customerId);
         	
-        	//Gson gson = new Gson();
-        	//orderDetails = gson.toJson(orders);
-   		    //return orderDetails;
-        	
         	return Response.ok(orders).build();
             
         } catch (Exception e) {
             System.err.println(e.getMessage() +""+ e);
-            // Include Http client later
-            // return "Status not found";
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
         }
 	 
@@ -102,10 +84,6 @@ public class OrderService {
 	 @Produces("application/json")
 	public Response getById(@PathParam("id") String id) {
 		
-		//JwtConfig jwt = getJwt();
-        
-		//String orderDetails = null;
-		
 		try {
          	final String customerId = jwt.getName();
         	if (customerId == null) {
@@ -114,18 +92,12 @@ public class OrderService {
         		return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID").build();
         	}
         	
-        	System.out.println("caller: hello " + id);
-        	
         	OrderDAOImpl ordersRepo = new OrderDAOImpl();
-        	
-        	System.out.println("repo initiated");
             
         	final List<Order> orders = ordersRepo.findByOrderId(id);
         	List<Order> findByOrderId = new ArrayList<>();
         	
         	for (Order temp : orders) {
-        		System.out.println("temp cust id"+temp.getCustomerId());
-        		System.out.println("our cust id"+customerId);
     			if(temp.getCustomerId().equals(customerId))
     			{
     				findByOrderId.add(temp);
@@ -133,16 +105,10 @@ public class OrderService {
     				
     		} 
         	
-        	//Gson gson = new Gson();
-        	//orderDetails = gson.toJson(findByOrderId);
-   		    //return orderDetails;
-        	
         	return Response.ok(findByOrderId).build();
             
         } catch (Exception e) {
             System.err.println(e.getMessage() +""+ e);
-            // Include Http client later
-            // return "Status not found";
             return Response.status(Response.Status.NOT_FOUND).build();
         }
 	}
@@ -151,8 +117,6 @@ public class OrderService {
 	@Consumes("application/json")
 	@Produces("application/json")
 	public Response create(Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
-		
-		//JwtConfig jwt = getJwt();
 		
         try {
 			
@@ -183,7 +147,6 @@ public class OrderService {
 			
 			notifyShipping(payload);
 			
-            //return Response.status(Response.Status.OK).entity(payload +" posted").build();
 			return javax.ws.rs.core.Response.created(builder.build()).build();
 			
         } catch (Exception ex) {
@@ -193,17 +156,11 @@ public class OrderService {
         
     }
 	
-	private JwtConfig getJwt(){
-    	IdToken token = PropagationHelper.getIdToken();
-    	String claims = token.getAllClaimsAsJson();
-        Gson g = new Gson();
-        JwtConfig jwt = g.fromJson(claims, JwtConfig.class);
-    	return jwt;
-    }
-	
 	private void notifyShipping(Order payload) throws IOException, TimeoutException {
 	    ConnectionFactory factory = new ConnectionFactory();
-        factory.setHost("localhost");
+	    Config config = ConfigProvider.getConfig();
+		String rabbit_host = config.getValue("rabbit", String.class);
+	    factory.setHost(rabbit_host);
         Connection connection = factory.newConnection();
         Channel channel = connection.createChannel();
     
@@ -213,8 +170,7 @@ public class OrderService {
         String stock  = Integer.toString(payload.getCount());
         String update = id + " " + stock;
         channel.basicPublish("", QueueName, null, update.getBytes());
-        System.out.println(" [x] Sent '" + update + "'");
-        Config config = ConfigProvider.getConfig();
+        System.out.println("Sent the message '" + update + "'");
   	    String inv_url = config.getValue("inventory_url", String.class);
         Client client = ClientBuilder.newClient();
 		WebTarget target = client.target(inv_url);
