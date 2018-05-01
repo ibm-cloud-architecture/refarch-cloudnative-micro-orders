@@ -13,11 +13,7 @@
   <webApplication name="orders" location="${app.location}"/>
            
   <mpJwt 
-<<<<<<< HEAD
-     id="${jwt.id}"
-=======
      id="myMpJwt"
->>>>>>> 875adead51a33d6bdb79d2c94972a6529cdca130
      jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
      issuer="https://auth-service:9443/oidc/endpoint/OP">
   </mpJwt>

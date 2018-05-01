@@ -39,4 +39,3 @@ spec:
       - name: "rabbitmq"
         image: rabbitmq
         imagePullPolicy: Always
-
