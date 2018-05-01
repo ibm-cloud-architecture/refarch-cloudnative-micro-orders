@@ -13,7 +13,7 @@ spec:
     port: {{ .Values.rabbitmq.managePort }}
   selector:
     micro: orders
-    service: chat  
+    service: chat
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -39,8 +39,4 @@ spec:
       - name: "rabbitmq"
         image: rabbitmq
         imagePullPolicy: Always
-      ports:
-      - name: main
-        port: {{ .Values.rabbitmq.mainPort }}
-      - name: management
-        port: {{ .Values.rabbitmq.managePort }}
+
