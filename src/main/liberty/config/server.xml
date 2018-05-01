@@ -14,8 +14,8 @@
            
   <mpJwt 
      id="${jwt.id}"
-     jwksUri="${jwksUri}"
-     issuer="${jwksIssuer}">
+     jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
+     issuer="https://auth-service:9443/oidc/endpoint/OP">
   </mpJwt>
  
  <keyStore id="defaultKeyStore" password="keypass" />

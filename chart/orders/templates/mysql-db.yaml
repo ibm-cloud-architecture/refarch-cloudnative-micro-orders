@@ -26,20 +26,6 @@ spec:
     requests:
       storage: 20Gi
 ---
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: mysql-create-table
-spec:
-  template:
-    spec:
-      containers:
-      - name: mysql
-        image: mysql-db
-        command: ["sh", "-c", "ls; sleep 30;./create_orders_db.sh root password 0.0.0.0 3306"]
-      restartPolicy: Never
-  backoffLimit: 4
----
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
@@ -64,12 +50,16 @@ spec:
       containers:
 
       # Container for MySQL
-      - name: mysql
+      - name: mysql-db
         # img can't be named mysql to use local build with scripts
         image: mysql-db
         imagePullPolicy: IfNotPresent
         port: {{ .Values.sql.port }}
         env:
+          - name: MYSQL_DATABASE
+            value: ordersdb
+          - name: MYSQL_USER
+            value: ordersdb_user
           - name: MYSQL_ROOT_PASSWORD
             value: {{ .Values.sql.password }}
         volumeMounts:
