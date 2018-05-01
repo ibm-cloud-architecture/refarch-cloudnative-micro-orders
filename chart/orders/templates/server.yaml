@@ -53,15 +53,22 @@ spec:
             port: 9080
           initialDelaySeconds: 1500
           timeoutSeconds: 500
-        resources:
-          requests:
-            cpu: "{{ .Values.image.resources.requests.cpu }}"
-            memory: "{{ .Values.image.resources.requests.memory }}"
+
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
           - name: APPLICATION_NAME
             value: "{{ .Release.Name }}"
+          - name: jwt.id
+            value: {{ .Values.jwt.id }}
+          - name: jwksUri
+            value: {{ .Values.jwt.uri }}
+          - name: jwksIssuer
+            value: {{ .Values.jwt.issuer}}
+        resources:
+          requests:
+            cpu: "{{ .Values.image.resources.requests.cpu }}"
+            memory: "{{ .Values.image.resources.requests.memory }}"
         volumeMounts:
         - name: keystorevol
           mountPath: "/etc/keystorevol"

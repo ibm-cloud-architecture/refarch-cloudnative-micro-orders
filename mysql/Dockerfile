@@ -1,13 +1,9 @@
 FROM mysql
 
-ADD scripts/load-data.sh load-data.sh
-ADD scripts/load-data.sql load-data.sql
+# For mysql and mysqld
+ENV PATH /usr/bin:$PATH
+ENV PATH /usr/sbin:$PATH
 
-RUN chmod u+x load-data.sh
-
-ADD scripts/create_orders_db.sh create_orders_db.sh
-ADD scripts/create_orders_table.sql create_orders_table.sql
-
-RUN chmod u+x create_orders_db.sh
+ADD scripts/load-data.sql scripts/create_orders_table.sql /docker-entrypoint-initdb.d/
 
 CMD ["mysqld"]
