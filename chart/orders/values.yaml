@@ -3,7 +3,7 @@
 replicaCount: 1
 
 image:
-  repository: orders
+  repository: registry.csplab.cloudns.cx/microprofile/orders-mp
   tag: v1.0.0
   pullPolicy: IfNotPresent
   resources:
@@ -39,3 +39,16 @@ jwt:
 rabbitmq:
   mainPort: 5672
   managePort: 15672
+
+## Persist data to a persistent volume
+persistence:
+  enabled: true
+  ## database data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  storageClass: "glusterfs"
+  accessMode: ReadWriteOnce

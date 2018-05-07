@@ -1,3 +1,5 @@
+create database if not exists ordersdb;
+use ordersdb;
 create table if not exists orders (
    orderId varchar(64) not null primary key,
    itemId int not null,

@@ -12,6 +12,7 @@ spec:
     micro: orders
     service: mysql-db
 ---
+{{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim) }}
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -25,6 +26,14 @@ spec:
   resources:
     requests:
       storage: 20Gi
+{{- if .Values.persistence.storageClass }}
+{{- if (eq "-" .Values.persistence.storageClass) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.persistence.storageClass }}"
+{{- end }}
+{{- end }}
+{{- end }}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -52,7 +61,7 @@ spec:
       # Container for MySQL
       - name: mysql-db
         # img can't be named mysql to use local build with scripts
-        image: mysql-db:latest
+        image: ibmcase/mysql-db-mp:v1.0.0
         imagePullPolicy: IfNotPresent
         env:
           - name: MYSQL_DATABASE

@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ template "mysql.fullname" . }}
+  name: {{ template "ordersdb.fullname" . }}
 data:
 {{- range $key, $val := .Values.configurationFiles }}
   {{ $key }}: |-

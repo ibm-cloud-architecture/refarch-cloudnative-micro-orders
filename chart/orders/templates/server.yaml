@@ -44,13 +44,15 @@ spec:
         imagePullPolicy: {{ .Values.image.imagePullPolicy }}
         readinessProbe:
           httpGet:
-            path: /orders/rest/health
-            port: 9080
+            path: /
+            port: 9443
+            scheme: HTTPS
           initialDelaySeconds: 30
         livenessProbe:
           httpGet:
-            path: /orders/rest/health
-            port: 9080
+            path: /
+            port: 9443
+            scheme: HTTPS
           initialDelaySeconds: 1500
           timeoutSeconds: 500
 

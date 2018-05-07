@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: {{ .Values.service.servicename }}
   labels:
-    app: {{ template "mysql.fullname" . }}
+    app: {{ template "ordersdb.fullname" . }}
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
@@ -17,4 +17,4 @@ spec:
     nodePort: {{ .Values.service.nodePort }}
     {{- end }}
   selector:
-    app: {{ template "mysql.fullname" . }}
+    app: {{ template "ordersdb.fullname" . }}
