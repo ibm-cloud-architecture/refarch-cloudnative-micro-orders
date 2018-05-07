@@ -12,8 +12,8 @@
   {{- end -}}
 {{- end -}}
 
-{{- define "mysqlBindingName" -}}
-  {{- .Values.mysql.binding.name -}}
+{{- define "ordersMySQLBindingName" -}}
+  {{- .Values.ordersmysql.binding.name -}}
 {{- end -}}
 
 {{- define "hs256SecretName" -}}

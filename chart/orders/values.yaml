@@ -42,7 +42,7 @@ dataloader:
     repository: ibmcase/bluecompute-dataloader
     tag: latest
 
-mysql:
+ordersmysql:
   binding:
     name: binding-orders-mysql
 
