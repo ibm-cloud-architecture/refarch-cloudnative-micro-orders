@@ -8,6 +8,24 @@ image:
   tag: latest
   pullPolicy: Always
 
+service:
+  name: orders
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+
+ingress:
+  enabled: false
+  hostname: orders.bluecompute.com
+  path: /micro/orders
+  loadBalancerID: ENTER_PRIVATE_LOAD_BALANCER_ID
+
+tls:
+  enabled: false
+  secretName:
+  crt: ENTER_BASE64_ENCODED_CERTIFICATE
+  key: ENTER_BASE64_ENCODED_KEY
+
 hs256key:
   skipDelete: true
   secretName: hs256-key
@@ -23,21 +41,6 @@ dataloader:
   image:
     repository: ibmcase/bluecompute-dataloader
     tag: latest
-
-service:
-  name: orders
-  type: ClusterIP
-  externalPort: 8080
-  internalPort: 8080
-
-ingress:
-  enabled: false
-  loadBalancerID: ENTER_PRIVATE_LOAD_BALANCER_ID
-
-tls:
-  enabled: false
-  crt: ENTER_BASE64_ENCODED_CERTIFICATE
-  key: ENTER_BASE64_ENCODED_KEY
 
 mysql:
   binding:
