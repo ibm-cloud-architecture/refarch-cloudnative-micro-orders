@@ -1,8 +1,4 @@
-FROM mysql
-
-# For mysql and mysqld
-ENV PATH /usr/bin:$PATH
-ENV PATH /usr/sbin:$PATH
+FROM mysql:5.7.14
 
 ADD scripts/load-data.sql scripts/create_orders_table.sql /docker-entrypoint-initdb.d/
 
