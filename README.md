@@ -17,15 +17,16 @@ This repository contains the **MicroProfile** implementation of the **Orders Ser
     1. [Microprofile](#microprofile)
 5. [Features and App details](#features)
 6. [Building the app](#building-the-app)
-6. [Setting up MYSQL](#setting-up-mysql)
+7. [Setting up MYSQL](#setting-up-mysql)
     1. [MYSQL Pre-requisites](#mysql-pre-requisites)
     2. [Set Up MYSQL on Minikube](#set-up-mysql-on-minikube)
     3. [Set Up MYSQL on IBM Cloud Private](#set-up-mysql-on-ibm-cloud-private)
-7. [Running the app and stopping it](#running-the-app-and-stopping-it)
+8. [Setting up RabbitMQ](#setting-up-rabbitmq)
+9. [Running the app and stopping it](#running-the-app-and-stopping-it)
     1. [Pre-requisites](#pre-requisites)
     2. [Locally in Minikube](#locally-in-minikube)
     3. [Remotely in ICP](#remotely-in-icp)
-8. [References](#references)
+10. [References](#references)
 
 ### Introduction
 
@@ -426,6 +427,26 @@ logout
 ```
 
 **NOTE**: If you are using a version of ICP older than 2.1.0.2, you don't need to add the --tls at the end of the helm command.
+
+### Setting up RabbitMQ
+
+The charts for RabbitMQ are included in the helm charts for Orders Service. Launching the helm charts for Orders Service also launches RabbitMQ.
+
+Once the Orders service is deployed as [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/tree/microprofile#running-the-app-and-stopping-it), you can see the below.
+
+`kubectl get deployments`
+
+```
+NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+rabbitmq-deployment                         1         1         1            1           9m
+```
+
+`kubectl get services`
+
+```
+NAME                       TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                          AGE
+rabbitmq-service           NodePort    10.101.72.56     <none>        5672:30086/TCP,15672:31942/TCP   38m
+```
 
 ### Running the app and stopping it
 
