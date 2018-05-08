@@ -1,5 +1,5 @@
 FROM mysql:5.7.14
 
-ADD scripts/load-data.sql scripts/create_orders_table.sql /docker-entrypoint-initdb.d/
+ADD scripts/create_orders_table.sql /docker-entrypoint-initdb.d/
 
 CMD ["mysqld"]
