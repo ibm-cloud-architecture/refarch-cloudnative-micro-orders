@@ -34,9 +34,9 @@ This project is built to demonstrate how to build Orders Microservices applicati
 
 - Based on [MicroProfile](https://microprofile.io/).
 - Persist order data to a MySQL database.
+- Transmit stock to Inventory using RabbitMQ
 - OAuth 2.0 protected APIs
-- Devops - TBD
-- Deployment options for local, Docker Container-based runtimes, Minikube environment and ICP/BMX.
+- Deployment options for Minikube environment and ICP.
 
 ### How it works
 
@@ -185,7 +185,7 @@ Finally, we must create a Kubernetes Cluster. As already said before, we are goi
 
 - [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) - Create a single node virtual cluster on your workstation. Follow the instructions [here](https://kubernetes.io/docs/tasks/tools/install-minikube/) to get Minikube installed on your workstation.
 
-We not only recommend to complete the three Minikube installation steps on the link above but also read the [Running Kubernetes Locally via Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) page for getting more familiar with Minikube. We can learn there interesting things such as reusing our Docker daemon, getting the Minikube's ip or opening the Minikube's dashboard for GUI interaction with out Kubernetes Cluster.
+We not only recommend to complete the three Minikube installation steps on the link above but also read the [Running Kubernetes Locally via Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) page for getting more familiar with Minikube.
 
 2. Set Up MYSQL on IBM Cloud Private
 
@@ -452,7 +452,7 @@ Finally, we must create a Kubernetes Cluster. As already said before, we are goi
 
 - [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) - Create a single node virtual cluster on your workstation. Follow the instructions [here](https://kubernetes.io/docs/tasks/tools/install-minikube/) to get Minikube installed on your workstation.
 
-We not only recommend to complete the three Minikube installation steps on the link above but also read the [Running Kubernetes Locally via Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) page for getting more familiar with Minikube. We can learn there interesting things such as reusing our Docker daemon, getting the Minikube's ip or opening the Minikube's dashboard for GUI interaction with out Kubernetes Cluster.
+We not only recommend to complete the three Minikube installation steps on the link above but also read the [Running Kubernetes Locally via Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) page for getting more familiar with Minikube.
 
 2. Remotely in ICP
 
