@@ -3,7 +3,9 @@
 replicaCount: 1
 
 image:
-  repository: registry.csplab.cloudns.cx/microprofile/orders-mp
+  #repository: registry.csplab.cloudns.cx/microprofile/orders-mp
+  #repository: ibmcase/orders-mp
+  repository: orders-mp
   tag: v1.0.0
   pullPolicy: IfNotPresent
   resources:
@@ -50,5 +52,5 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  storageClass: "glusterfs"
+  #storageClass: "glusterfs"
   accessMode: ReadWriteOnce
