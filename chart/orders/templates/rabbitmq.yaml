@@ -4,6 +4,7 @@ metadata:
   name: "rabbitmq-service"
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    implementation: microprofile
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -14,6 +15,7 @@ spec:
   selector:
     micro: orders
     service: chat
+    implementation: microprofile
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -25,6 +27,7 @@ metadata:
     service: chat
     tier: backend
     chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    implementation: microprofile
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
@@ -34,6 +37,7 @@ spec:
         micro: orders
         service: chat
         tier: backend
+        implementation: microprofile
     spec:
       containers:
       - name: "rabbitmq"

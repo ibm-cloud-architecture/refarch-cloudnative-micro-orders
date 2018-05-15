@@ -16,7 +16,7 @@ image:
 service:
   name: orders
   sqlservicename: mysqld-service
-  type: NodePort
+  type: ClusterIP
   servicePort: 9080
   servicePortHttps: 9443
 
@@ -52,5 +52,5 @@ persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  #storageClass: "glusterfs"
+  storageClass: "glusterfs"
   accessMode: ReadWriteOnce

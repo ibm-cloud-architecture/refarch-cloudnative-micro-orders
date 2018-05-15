@@ -7,11 +7,13 @@ metadata:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
     release: "{{ .Release.Name }}"
     heritage: "{{ .Release.Service }}"
+    implementation: microprofile
 spec:
   template:
     metadata:
       labels:
         app: {{ template "ordersdb.fullname" . }}
+        implementation: microprofile
     spec:
       initContainers:
       - name: "remove-lost-found"

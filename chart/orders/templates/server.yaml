@@ -4,6 +4,7 @@ metadata:
   name: "{{ .Chart.Name }}-service"
   labels:
     chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    implementation: microprofile
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -15,6 +16,7 @@ spec:
     app: bluecompute
     micro: orders
     service: server
+    implementation: microprofile
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
@@ -25,6 +27,7 @@ metadata:
     micro: orders
     service: server
     tier: backend
+    implementation: microprofile
     chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -35,6 +38,7 @@ spec:
         micro: orders
         service: server
         tier: backend
+        implementation: microprofile
 
     spec:
       containers:
