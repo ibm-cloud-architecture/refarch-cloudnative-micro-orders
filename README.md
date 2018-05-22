@@ -398,7 +398,7 @@ Then run ` cd ..`
 
 10. Run the helm chart as below.
 
-`helm install --name=ordersdb chart/ordersdb`
+`helm install --name=ordersdb chart/ordersdb --tls`
 
 11. Make sure your deployment is ready. To verify run this command and you should see the availability.
 
