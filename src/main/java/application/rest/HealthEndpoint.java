@@ -17,6 +17,9 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
 
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 import utils.JDBCConnection;
 
 @Health
@@ -26,6 +29,12 @@ public class HealthEndpoint implements HealthCheck {
 	
 	private final static String QUEUE_NAME = "ordershealth";
 	String health = "orders_health_check";
+	
+    private Config config = ConfigProvider.getConfig();
+	
+	private String inv_url = config.getValue("inventory_health", String.class);
+	
+	private OkHttpClient client = new OkHttpClient();
 	
     public boolean isOrdersDbReady(){
 	   //Checking if Orders database is UP
@@ -101,7 +110,7 @@ public class HealthEndpoint implements HealthCheck {
     public boolean isAuthReady() {
 		
 		//Checking if Auth service is UP
-
+    	
 		return false;
 
 	}
@@ -110,6 +119,20 @@ public class HealthEndpoint implements HealthCheck {
 		
 		//Checking if Inventory service is UP
 
+    	Request.Builder builder = new Request.Builder().url(inv_url);
+		Request request = builder.build();
+		
+		try {
+			Response response = client.newCall(request).execute();
+			boolean status = response.isSuccessful();
+			response.close();
+			if(status)
+				return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	
 		return false;
 
 	}
