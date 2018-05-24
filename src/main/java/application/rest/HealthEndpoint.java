@@ -1,24 +1,77 @@
 package application.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
-@Path("health")
-public class HealthEndpoint {
+import javax.enterprise.context.ApplicationScoped;
 
-    @GET
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response healthcheck() {
-      /*
-      if (!healthy) {
-        return Response.status(503).entity("{\"status\":\"DOWN\"}").build();
-      }
-      */
-      return Response.ok("{\"status\":\"UP\"}").build();
-    }
+import org.eclipse.microprofile.health.Health;
+import org.eclipse.microprofile.health.HealthCheck;
+import org.eclipse.microprofile.health.HealthCheckResponse;
+
+@Health
+@ApplicationScoped
+
+public class HealthEndpoint implements HealthCheck {
+	
+    public boolean isOrdersDbReady(){
+	   //Checking if Orders database is UP
+	   
+       return true;
+	}
+
+	public boolean isRabbitMQReady() {
+		
+		//Checking if RabbitMQ is UP
+
+		return true;
+
+	}
+	
+    public boolean isAuthReady() {
+		
+		//Checking if Auth service is UP
+
+		return true;
+
+	}
+    
+    public boolean isInventoryReady() {
+		
+		//Checking if Inventory service is UP
+
+		return true;
+
+	}
+
+
+	@Override
+	public HealthCheckResponse call() {
+		// TODO Auto-generated method stub
+		if (!isOrdersDbReady()) {
+		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
+		                                .withData("Inventory Database", "DOWN").down()
+		                                .build();
+		    }
+
+
+		if (!isRabbitMQReady()) {
+			  return HealthCheckResponse.named(OrderService.class.getSimpleName())
+			                             .withData("RabbitMQ", "DOWN").down()
+			                             .build();
+			    }
+		
+		if (!isAuthReady()) {
+		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
+		                                .withData("Auth Service", "DOWN").down()
+		                                .build();
+		    }
+		
+		if (!isInventoryReady()) {
+		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
+		                                .withData("Inventory Service", "DOWN").down()
+		                                .build();
+		    }
+		
+		return HealthCheckResponse.named(OrderService.class.getSimpleName()).withData("Order Service", "UP").up().build();
+	}
 
 }
