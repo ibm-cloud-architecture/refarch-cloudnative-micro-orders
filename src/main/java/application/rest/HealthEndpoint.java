@@ -7,6 +7,8 @@ import org.eclipse.microprofile.health.Health;
 import org.eclipse.microprofile.health.HealthCheck;
 import org.eclipse.microprofile.health.HealthCheckResponse;
 
+import utils.JDBCConnection;
+
 @Health
 @ApplicationScoped
 
@@ -14,8 +16,15 @@ public class HealthEndpoint implements HealthCheck {
 	
     public boolean isOrdersDbReady(){
 	   //Checking if Orders database is UP
-	   
-       return true;
+		
+        JDBCConnection jdbcConnection = new JDBCConnection();
+		
+		java.sql.Connection connection = jdbcConnection.getConnection();
+		
+		if(connection!=null) 
+			return true;
+		else
+		return false;
 	}
 
 	public boolean isRabbitMQReady() {
