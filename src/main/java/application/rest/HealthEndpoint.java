@@ -2,9 +2,13 @@ package application.rest;
 
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.TimeoutException;
 
 import javax.enterprise.context.ApplicationScoped;
+import javax.net.ssl.HttpsURLConnection;
 
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
@@ -17,9 +21,6 @@ import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.GetResponse;
 
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.Response;
 import utils.JDBCConnection;
 
 @Health
@@ -33,8 +34,7 @@ public class HealthEndpoint implements HealthCheck {
     private Config config = ConfigProvider.getConfig();
 	
 	private String inv_url = config.getValue("inventory_health", String.class);
-	
-	private OkHttpClient client = new OkHttpClient();
+	private String auth_url = config.getValue("auth_health", String.class);
 	
     public boolean isOrdersDbReady(){
 	   //Checking if Orders database is UP
@@ -110,7 +110,26 @@ public class HealthEndpoint implements HealthCheck {
     public boolean isAuthReady() {
 		
 		//Checking if Auth service is UP
-    	
+
+    	URL url;
+		try {
+			url = new URL(auth_url); 
+			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
+			if(con!=null){
+				if(con.getResponseMessage().equals("OK"))
+					return true;
+				else
+					return false;
+			}
+		}
+		catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		return false;
 
 	}
@@ -118,21 +137,26 @@ public class HealthEndpoint implements HealthCheck {
     public boolean isInventoryReady() {
 		
 		//Checking if Inventory service is UP
-
-    	Request.Builder builder = new Request.Builder().url(inv_url);
-		Request request = builder.build();
-		
+    	
+    	URL url;
 		try {
-			Response response = client.newCall(request).execute();
-			boolean status = response.isSuccessful();
-			response.close();
-			if(status)
-				return true;
-		} catch (IOException e) {
+			url = new URL(inv_url); 
+			HttpURLConnection con = (HttpURLConnection)url.openConnection();
+			if(con!=null){
+				if(con.getResponseMessage().equals("OK"))
+					return true;
+				else
+					return false;
+			}
+		}
+		catch (MalformedURLException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	
 		return false;
 
 	}
@@ -152,7 +176,7 @@ public class HealthEndpoint implements HealthCheck {
 			  return HealthCheckResponse.named(OrderService.class.getSimpleName())
 			                             .withData("RabbitMQ", "DOWN").down()
 			                             .build();
-			    }
+			}
 		
 		if (!isAuthReady()) {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
