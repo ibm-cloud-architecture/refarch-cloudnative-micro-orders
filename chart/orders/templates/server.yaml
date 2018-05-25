@@ -54,7 +54,7 @@ spec:
           initialDelaySeconds: 30
         livenessProbe:
           httpGet:
-            path: /
+            path: /health
             port: 9443
             scheme: HTTPS
           initialDelaySeconds: 1500
