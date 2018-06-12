@@ -11,102 +11,95 @@ import java.util.List;
 import model.Order;
 
 
-
 public class OrderDAOImpl {
-	
-   public List<Order> findByCustomerIdOrderByDateDesc(String customerId)
-     {
-		List<Order> orderData = new ArrayList<>();
-		JDBCConnection jdbcConnection = new JDBCConnection();
-		Connection connection = jdbcConnection.getConnection();
 
-		try {
-		 PreparedStatement ps = connection.prepareStatement(
-		 "select orderId,itemId,customerId,count,date from ordersdb.orders where customerId=?");
-		 ps.setString(1, customerId);
-		 ResultSet rs = ps.executeQuery();
+    public List<Order> findByCustomerIdOrderByDateDesc(String customerId) {
+        List<Order> orderData = new ArrayList<>();
+        JDBCConnection jdbcConnection = new JDBCConnection();
+        Connection connection = jdbcConnection.getConnection();
 
-		while (rs.next()) {
-		 Order order = new Order();
-		 order.setId(rs.getString("orderId"));
-		 order.setItemId(rs.getInt("itemId"));
-		 order.setCustomerId(rs.getString("customerId"));
-		 order.setCount(rs.getInt("count"));
-		 order.setDate(rs.getTimestamp("date"));
-		 orderData.add(order);
+        try {
+            PreparedStatement ps = connection.prepareStatement(
+                    "select orderId,itemId,customerId,count,date from ordersdb.orders where customerId=?");
+            ps.setString(1, customerId);
+            ResultSet rs = ps.executeQuery();
 
-		}
+            while (rs.next()) {
+                Order order = new Order();
+                order.setId(rs.getString("orderId"));
+                order.setItemId(rs.getInt("itemId"));
+                order.setCustomerId(rs.getString("customerId"));
+                order.setCount(rs.getInt("count"));
+                order.setDate(rs.getTimestamp("date"));
+                orderData.add(order);
 
-		} catch (SQLException e) {
-		 // TODO Auto-generated catch block
-		 e.printStackTrace();
-		 }
+            }
 
-		return orderData;
-      }
-   
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
 
-   public List<Order> findByOrderId(String id)
-     {
-	   
-	    List<Order> orderData = new ArrayList<>();
-		
-		JDBCConnection jdbcConnection = new JDBCConnection();
-		
-		Connection connection = jdbcConnection.getConnection();
-
-		try {
-		 PreparedStatement ps = connection.prepareStatement(
-		 "select orderId,itemId,customerId,count,date from ordersdb.orders where orderId=?");
-		 ps.setString(1, id);
-		 ResultSet rs = ps.executeQuery();
-
-		     while (rs.next()) {
-		      Order order = new Order();
-		      order.setId(rs.getString("orderId"));
-		      order.setItemId(rs.getInt("itemId"));
-		      order.setCustomerId(rs.getString("customerId"));
-		      order.setCount(rs.getInt("count"));
-		      order.setDate(rs.getTimestamp("date"));
-		      System.out.println("added");
-		      orderData.add(order);
-             }
-        } 
-		catch (SQLException e) {
-		 // TODO Auto-generated catch block
-		 e.printStackTrace();
-		}
-	
-		return orderData;
-     }
-
-   public void putOrderDetails(Order order){
-
-	JDBCConnection jdbcConnection = new JDBCConnection();
-	
-	Connection connection = jdbcConnection.getConnection();
-	try
-    {
-      String query = " insert into ordersdb.orders (orderId,itemId,customerId,count,date)"
-        + " values (?, ?, ?, ?, ?)";
-
-      PreparedStatement preparedStmt = connection.prepareStatement(query);
-      preparedStmt.setString(1, order.getId());
-      preparedStmt.setInt(2, order.getItemId());
-      preparedStmt.setString(3, order.getCustomerId());
-      preparedStmt.setInt(4, order.getCount());
-      preparedStmt.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
-      
-      preparedStmt.execute();
-      
-      connection.close();
+        return orderData;
     }
-    catch (Exception e)
-    {
-      System.err.println("Got an exception!");
-      System.err.println(e.getMessage());
+
+
+    public List<Order> findByOrderId(String id) {
+
+        List<Order> orderData = new ArrayList<>();
+
+        JDBCConnection jdbcConnection = new JDBCConnection();
+
+        Connection connection = jdbcConnection.getConnection();
+
+        try {
+            PreparedStatement ps = connection.prepareStatement(
+                    "select orderId,itemId,customerId,count,date from ordersdb.orders where orderId=?");
+            ps.setString(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Order order = new Order();
+                order.setId(rs.getString("orderId"));
+                order.setItemId(rs.getInt("itemId"));
+                order.setCustomerId(rs.getString("customerId"));
+                order.setCount(rs.getInt("count"));
+                order.setDate(rs.getTimestamp("date"));
+                System.out.println("added");
+                orderData.add(order);
+            }
+        } catch (SQLException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+
+        return orderData;
     }
-}
+
+    public void putOrderDetails(Order order) {
+
+        JDBCConnection jdbcConnection = new JDBCConnection();
+
+        Connection connection = jdbcConnection.getConnection();
+        try {
+            String query = " insert into ordersdb.orders (orderId,itemId,customerId,count,date)"
+                    + " values (?, ?, ?, ?, ?)";
+
+            PreparedStatement preparedStmt = connection.prepareStatement(query);
+            preparedStmt.setString(1, order.getId());
+            preparedStmt.setInt(2, order.getItemId());
+            preparedStmt.setString(3, order.getCustomerId());
+            preparedStmt.setInt(4, order.getCount());
+            preparedStmt.setTimestamp(5, new java.sql.Timestamp(new java.util.Date().getTime()));
+
+            preparedStmt.execute();
+
+            connection.close();
+        } catch (Exception e) {
+            System.err.println("Got an exception!");
+            System.err.println(e.getMessage());
+        }
+    }
 
 }
 
