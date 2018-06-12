@@ -1,10 +1,8 @@
 package application.rest;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.UUID;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.security.DeclareRoles;
@@ -24,6 +22,7 @@ import javax.ws.rs.core.*;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 
 import com.rabbitmq.client.Channel;
@@ -50,11 +49,11 @@ public class OrderService {
         return "it works!";
     }
 
+    @Timeout(value = 2, unit = ChronoUnit.SECONDS)
     @GET
-    @Produces("application/json")
-    @Fallback(fallbackMethod = "returnEmptyOrdersList")
-    public Response getOrders() {
-
+    @Produces(MediaType.APPLICATION_JSON)
+    @Fallback(fallbackMethod = "returnDummyOrder")
+    public Response getOrders() throws Exception {
         try {
             final String customerId = jwt.getName();
             if (customerId == null) {
@@ -73,52 +72,17 @@ public class OrderService {
 
         } catch (Exception e) {
             System.err.println(e.getMessage() + "" + e);
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            System.err.println("Entering the Fallback Method.");
+            throw new Exception(e.toString());
         }
 
-    }
-
-    @GET
-    @Path("{id}")
-    @Produces(MediaType.APPLICATION_JSON)
-    @Fallback(fallbackMethod = "returnEmptyOrdersByIdList")
-    public Response getById(@PathParam("id") String id) {
-
-        try {
-            final String customerId = jwt.getName();
-            if (customerId == null) {
-                // if no user passed in, this is a bad request
-                // return "Invalid Bearer Token: Missing customer ID";
-                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID").build();
-            }
-
-            OrderDAOImpl ordersRepo = new OrderDAOImpl();
-
-            final List<Order> orders = ordersRepo.findByOrderId(id);
-            List<Order> findByOrderId = new ArrayList<>();
-
-            for (Order temp : orders) {
-                if (temp.getCustomerId().equals(customerId)) {
-                    findByOrderId.add(temp);
-                }
-
-            }
-
-            return Response.ok(findByOrderId).build();
-
-        } catch (Exception e) {
-            System.err.println(e.getMessage() + "" + e);
-            return Response.status(Response.Status.NOT_FOUND).build();
-        }
     }
 
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     public Response create(Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
-
         try {
-
             final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
@@ -143,7 +107,6 @@ public class OrderService {
             System.out.println(builder.build().toString());
 
             //Using RabbitMQ to update stock
-
             notifyShipping(payload);
 
             return javax.ws.rs.core.Response.created(builder.build()).build();
@@ -181,14 +144,19 @@ public class OrderService {
     }
 
     @Produces(MediaType.APPLICATION_JSON)
-    public Response returnEmptyOrdersList() {
-        return Response.ok(new ArrayList<>()).build();
-    }
+    public Response returnDummyOrder() {
+        Order order = new Order();
+        order.setId("999");
+        order.setItemId(999);
+        order.setCustomerId("999");
+        order.setCount(-1);
 
-    // TODO: Find a better solution to write two different fallback methods in Orders.
-    // Second method required to match fallback with different parameters
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response returnEmptyOrdersByIdList(@PathParam("id") String id) {
-        return Response.ok(new ArrayList<>()).build();
+        Date time = new GregorianCalendar(1776, Calendar.JULY, 5).getTime();
+        order.setDate(time);
+
+        List<Order> fakeOrderData = new ArrayList<>();
+        fakeOrderData.add(order);
+
+        return Response.ok(fakeOrderData).build();
     }
 }

@@ -1,25 +1,25 @@
 <server description="Sample Liberty server">
 
-  <featureManager>
-      <feature>microprofile-1.2</feature>
-  </featureManager>
+    <featureManager>
+        <feature>microprofile-1.2</feature>
+    </featureManager>
 
-  <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
-      id="defaultHttpEndpoint" host="*" />
-      
-  <!-- Automatically expand WAR files and EAR files -->
-  <applicationManager autoExpand="true"/>
+    <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
+                  id="defaultHttpEndpoint" host="*"/>
 
-  <webApplication name="orders" location="${app.location}"/>
-           
-  <mpJwt 
-     id="myMpJwt"
-     jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
-     issuer="https://auth-service:9443/oidc/endpoint/OP">
-  </mpJwt>
-  
-  <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
-  <keyStore id="bcKeyStore" location="/etc/keystorevol/BCKeyStoreFile.jks" type="JKS" password="password" />
-  <keyStore id="bcTrustStore" location="/etc/keystorevol/truststore.jks" type="JKS" password="password" />  
+    <!-- Automatically expand WAR files and EAR files -->
+    <applicationManager autoExpand="true"/>
+
+    <webApplication name="orders" location="${app.location}"/>
+
+    <mpJwt
+    id="myMpJwt"
+    jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
+    issuer="https://auth-service:9443/oidc/endpoint/OP">
+    </mpJwt>
+
+    <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
+    <keyStore id="bcKeyStore" location="/etc/keystorevol/BCKeyStoreFile.jks" type="JKS" password="password"/>
+    <keyStore id="bcTrustStore" location="/etc/keystorevol/truststore.jks" type="JKS" password="password"/>
 
 </server>
