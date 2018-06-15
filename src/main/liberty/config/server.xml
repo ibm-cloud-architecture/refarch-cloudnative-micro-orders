@@ -12,10 +12,16 @@
 
     <webApplication name="orders" location="${app.location}"/>
 
+    <!--<mpJwt-->
+            <!--id="myMpJwt"-->
+            <!--jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"-->
+            <!--issuer="https://auth-service:9443/oidc/endpoint/OP">-->
+    <!--</mpJwt>-->
+
     <mpJwt
-    id="myMpJwt"
-    jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
-    issuer="https://auth-service:9443/oidc/endpoint/OP">
+            id="${jwt.id}"
+            jwksUri="${jwt.Uri}"
+            issuer="${jwt.Issuer}">
     </mpJwt>
 
     <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>

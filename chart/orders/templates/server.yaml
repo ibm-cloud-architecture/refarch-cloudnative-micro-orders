@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ .Chart.Name }}-service"
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
     implementation: microprofile
 spec:
   type: {{ .Values.service.type }}
@@ -21,14 +21,14 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: "{{ .Chart.Name }}-deployment"
+  name: {{ .ReleaseName }}-{{ .Chart.Name }}-deployment
   labels:
     app: bluecompute
     micro: orders
     service: server
     tier: backend
     implementation: microprofile
-    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    chart: '{{ .ReleaseName}}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
@@ -63,7 +63,7 @@ spec:
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
-          - name: APPLICATION_NAME
+          - name: RELEASE_NAME
             value: "{{ .Release.Name }}"
           - name: jwt.id
             value: {{ .Values.jwt.id }}

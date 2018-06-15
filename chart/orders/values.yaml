@@ -16,7 +16,7 @@ image:
 service:
   name: orders
   sqlservicename: mysqld-service
-  type: ClusterIP
+  type: NodePort
   servicePort: 9080
   servicePortHttps: 9443
 
@@ -35,8 +35,8 @@ sql:
 
 jwt:
   id: myMpJwt
-  uri: https://auth-service:9443/oidc/endpoint/OP/jwk
-  issuer: https://auth-service:9443/oidc/endpoint/OP
+  uri: "https://{{ .ReleaseName }}-auth-service:9443/oidc/endpoint/OP/jwk"
+  issuer: "https://{{ .ReleaseName }}-auth-service:9443/oidc/endpoint/OP"
 
 rabbitmq:
   mainPort: 5672
