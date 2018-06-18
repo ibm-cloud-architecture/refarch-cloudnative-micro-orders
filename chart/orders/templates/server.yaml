@@ -21,14 +21,14 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .ReleaseName }}-{{ .Chart.Name }}-deployment
+  name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
   labels:
     app: bluecompute
     micro: orders
     service: server
     tier: backend
     implementation: microprofile
-    chart: '{{ .ReleaseName}}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
@@ -62,9 +62,9 @@ spec:
 
         env:
           - name: PORT
-            value: "{{ .Values.service.servicePort }}"
+            value: {{ .Values.service.servicePort }}
           - name: RELEASE_NAME
-            value: "{{ .Release.Name }}"
+            value: {{ .Release.Name }}
           - name: jwt.id
             value: {{ .Values.jwt.id }}
           - name: jwksUri
