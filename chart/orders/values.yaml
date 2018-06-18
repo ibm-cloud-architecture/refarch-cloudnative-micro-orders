@@ -35,8 +35,8 @@ sql:
 
 jwt:
   id: myMpJwt
-  uri: "https://{{ .ReleaseName }}-auth-service:9443/oidc/endpoint/OP/jwk"
-  issuer: "https://{{ .ReleaseName }}-auth-service:9443/oidc/endpoint/OP"
+  uri: "https://{{ .Release.Name }}-auth-service:9443/oidc/endpoint/OP/jwk"
+  issuer: "https://{{ .Release.Name }}-auth-service:9443/oidc/endpoint/OP"
 
 rabbitmq:
   mainPort: 5672
