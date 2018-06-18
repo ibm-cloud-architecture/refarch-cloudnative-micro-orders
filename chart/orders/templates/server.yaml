@@ -71,6 +71,17 @@ spec:
             value: {{ .Values.jwt.uri }}
           - name: jwksIssuer
             value: {{ .Values.jwt.issuer}}
+          - name: jdbcURL
+            value: {{ .Values.mpConfig.jdbcURL }}
+          - name: inventory_url
+            value: {{ .Values.mpConfig.inventory_url }}
+          - name: inventory_health
+            value: {{ .Values.mpConfig.inventory_health }}
+          - name: rabbit
+            value: {{ .Values.mpConfig.rabbit }}
+          - name: auth_health
+            value: {{ .Values.mpConfig.auth_health }}
+
         resources:
           requests:
             cpu: "{{ .Values.image.resources.requests.cpu }}"
