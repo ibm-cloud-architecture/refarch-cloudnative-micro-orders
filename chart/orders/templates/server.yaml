@@ -21,7 +21,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Chart.Name }}-deployment
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
     app: bluecompute
     micro: orders
@@ -62,25 +62,25 @@ spec:
 
         env:
           - name: PORT
-            value: {{ .Values.service.servicePort }}
+            value: "{{ .Values.service.servicePort }}"
           - name: RELEASE_NAME
-            value: {{ .Release.Name }}
+            value: "{{ .Release.Name }}"
           - name: jwt.id
-            value: {{ .Values.jwt.id }}
+            value: "myMpJwt"
           - name: jwksUri
-            value: {{ .Values.jwt.uri }}
+            value: "https://{{ .Release.Name }}-auth:9443/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
-            value: {{ .Values.jwt.issuer}}
+            value: "https://{{ .Release.Name }}-auth:9443/oidc/endpoint/OP"
           - name: jdbcURL
-            value: {{ .Values.mpConfig.jdbcURL }}
+            value: "jdbc:mysql://{{ .Release.Name }}-os-mysql:3306/ordersdb?useSSL=false"
           - name: inventory_url
-            value: {{ .Values.mpConfig.inventory_url }}
+            value: "http://{{ .Release.Name }}-inventory:9080/inventory/rest/inv/stock"
           - name: inventory_health
-            value: {{ .Values.mpConfig.inventory_health }}
+            value: "http://{{ .Release.Name }}-inventory:9080/health"
           - name: rabbit
-            value: {{ .Values.mpConfig.rabbit }}
+            value: "{{ .Release.Name }}-rabbitmq"
           - name: auth_health
-            value: {{ .Values.mpConfig.auth_health }}
+            value: "https://{{ .Release.Name }}-auth:9443/health"
 
         resources:
           requests:

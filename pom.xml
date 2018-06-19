@@ -19,8 +19,8 @@
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
         <jwt.id>myMpJwt</jwt.id>
-        <jwksUri>https://auth-service:9443/oidc/endpoint/OP/jwk</jwksUri>
-        <jwksIssuer>https://auth-servce:9443/oidc/endpoint/OP</jwksIssuer>
+        <jwksUri>https://auth:9443/oidc/endpoint/OP/jwk</jwksUri>
+        <jwksIssuer>https://auth:9443/oidc/endpoint/OP</jwksIssuer>
 
         <app.name>orders</app.name>
         <testServerHttpPort>9080</testServerHttpPort>

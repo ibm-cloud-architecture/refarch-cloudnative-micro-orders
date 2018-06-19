@@ -15,7 +15,6 @@ image:
 
 service:
   name: orders
-  sqlservicename: mysqld-service
   type: NodePort
   servicePort: 9080
   servicePortHttps: 9443
@@ -32,18 +31,6 @@ sql:
   user: root
   password: password
   port: 3306
-
-jwt:
-  id: myMpJwt
-  uri: "https://{{ .Release.Name }}-auth-service:9443/oidc/endpoint/OP/jwk"
-  issuer: "https://{{ .Release.Name }}-auth-service:9443/oidc/endpoint/OP"
-
-mpConfig:
-  jdbcURL: jdbc:mysql://{{ .Release.Name }}-os-mysql:3306/ordersdb?useSSL=false
-  inventory_url: http://{{ .Release.Name }}-inventory-service:9080/inventory/rest/inv/stock
-  inventory_health: http://{{ .Release.Name }}-inventory-service:9080/health
-  rabbit: {{ .Release.Name }}-rabbitmq-service
-  auth_health: https://{{ .Release.Name }}-auth-service:9443/health
 
 rabbitmq:
   mainPort: 5672
