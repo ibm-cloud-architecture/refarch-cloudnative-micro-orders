@@ -13,7 +13,11 @@
     <webApplication name="orders" location="${app.location}"/>
 
     <!--These values are defined in pom.xml-->
-    <mpJwt id="${jwt.id}" jwksUri="${jwksUri}" issuer="${jwksIssuer}"/>
+    <mpJwt
+       id="${env.jwtid}"
+       jwksUri="${env.jwksUri}"
+       issuer="${env.jwksIssuer}">
+    </mpJwt>
 
     <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
     <keyStore id="bcKeyStore" location="/etc/keystorevol/BCKeyStoreFile.jks" type="JKS" password="password"/>
