@@ -12,11 +12,8 @@
 
     <webApplication name="orders" location="${app.location}"/>
 
-    <mpJwt
-    id="myMpJwt"
-    jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
-    issuer="https://auth-service:9443/oidc/endpoint/OP">
-    </mpJwt>
+    <!--These values are defined in pom.xml-->
+    <mpJwt id="${jwt.id}" jwksUri="${jwksUri}" issuer="${jwksIssuer}"/>
 
     <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
     <keyStore id="bcKeyStore" location="/etc/keystorevol/BCKeyStoreFile.jks" type="JKS" password="password"/>
