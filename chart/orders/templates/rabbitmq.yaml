@@ -20,7 +20,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.service.rabbitmq }
+  name: {{ .Release.Name }}-{{ .Values.service.rabbitmq }}
   labels:
     app: bluecompute
     micro: orders
