@@ -39,7 +39,6 @@ spec:
         service: server
         tier: backend
         implementation: microprofile
-
     spec:
       containers:
       # Liberty Server Container
@@ -59,28 +58,28 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: 1500
           timeoutSeconds: 500
-
+          
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
           - name: RELEASE_NAME
             value: "{{ .Release.Name }}"
-          - name: jwt.id
-            value: "myMpJwt"
+          - name: jwtid
+            value: "{{ .Values.jwt.id }}"
           - name: jwksUri
-            value: "https://{{ .Release.Name }}-auth:9443/oidc/endpoint/OP/jwk"
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
-            value: "https://{{ .Release.Name }}-auth:9443/oidc/endpoint/OP"
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP"
           - name: jdbcURL
-            value: "jdbc:mysql://{{ .Release.Name }}-os-mysql:3306/ordersdb?useSSL=false"
+            value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3306/ordersdb?useSSL=false"
           - name: inventory_url
-            value: "http://{{ .Release.Name }}-inventory:9080/inventory/rest/inv/stock"
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inv/stock"
           - name: inventory_health
-            value: "http://{{ .Release.Name }}-inventory:9080/health"
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/health"
           - name: rabbit
-            value: "{{ .Release.Name }}-rabbitmq"
+            value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
           - name: auth_health
-            value: "https://{{ .Release.Name }}-auth:9443/health"
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
 
         resources:
           requests:

@@ -18,6 +18,10 @@ service:
   type: NodePort
   servicePort: 9080
   servicePortHttps: 9443
+  rabbitmq: rabbitmq
+  ordersdb: ordersdb
+  inventory: inventory
+  auth: auth
 
 services:
 base:
@@ -31,6 +35,9 @@ sql:
   user: root
   password: password
   port: 3306
+
+jwt:
+  id: myMpJwt
 
 rabbitmq:
   mainPort: 5672
