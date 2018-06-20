@@ -63,6 +63,7 @@ public class OrderService {
     @Fallback(fallbackMethod = "returnDummyOrder")
     public Response getOrders() throws Exception {
         try {
+            System.out.println("I am in getOrders");
             final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request

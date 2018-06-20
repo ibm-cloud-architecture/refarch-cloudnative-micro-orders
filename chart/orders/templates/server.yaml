@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: "{{ .Chart.Name }}-service"
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
+    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
     implementation: microprofile
 spec:
   type: {{ .Values.service.type }}
@@ -21,14 +21,14 @@ spec:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: "{{ .Chart.Name }}-deployment"
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
     app: bluecompute
     micro: orders
     service: server
     tier: backend
     implementation: microprofile
-    chart: '{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
@@ -39,7 +39,6 @@ spec:
         service: server
         tier: backend
         implementation: microprofile
-
     spec:
       containers:
       # Liberty Server Container
@@ -59,18 +58,29 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: 1500
           timeoutSeconds: 500
-
+          
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
-          - name: APPLICATION_NAME
+          - name: RELEASE_NAME
             value: "{{ .Release.Name }}"
-          - name: jwt.id
-            value: {{ .Values.jwt.id }}
+          - name: jwtid
+            value: "{{ .Values.jwt.id }}"
           - name: jwksUri
-            value: {{ .Values.jwt.uri }}
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
-            value: {{ .Values.jwt.issuer}}
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP"
+          - name: jdbcURL
+            value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3306/ordersdb?useSSL=false"
+          - name: inventory_url
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inv/stock"
+          - name: inventory_health
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/health"
+          - name: rabbit
+            value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
+          - name: auth_health
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
+
         resources:
           requests:
             cpu: "{{ .Values.image.resources.requests.cpu }}"

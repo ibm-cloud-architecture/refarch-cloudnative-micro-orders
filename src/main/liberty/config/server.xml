@@ -12,10 +12,11 @@
 
     <webApplication name="orders" location="${app.location}"/>
 
+    <!--These values are defined in pom.xml-->
     <mpJwt
-    id="myMpJwt"
-    jwksUri="https://auth-service:9443/oidc/endpoint/OP/jwk"
-    issuer="https://auth-service:9443/oidc/endpoint/OP">
+       id="${env.jwtid}"
+       jwksUri="${env.jwksUri}"
+       issuer="${env.jwksIssuer}">
     </mpJwt>
 
     <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
