@@ -15,7 +15,6 @@ image:
 
 service:
   name: orders
-  sqlservicename: mysqld-service
   type: NodePort
   servicePort: 9080
   servicePortHttps: 9443

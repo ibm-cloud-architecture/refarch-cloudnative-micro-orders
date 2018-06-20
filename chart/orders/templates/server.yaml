@@ -58,6 +58,7 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: 1500
           timeoutSeconds: 500
+          
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
@@ -79,6 +80,7 @@ spec:
             value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
           - name: auth_health
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
+
         resources:
           requests:
             cpu: "{{ .Values.image.resources.requests.cpu }}"
