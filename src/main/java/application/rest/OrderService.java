@@ -37,6 +37,7 @@ import org.eclipse.microprofile.metrics.annotation.Metered;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
 import org.eclipse.microprofile.openapi.annotations.info.License;
@@ -47,6 +48,8 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import model.Order;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import utils.OrderDAOImpl;
@@ -197,7 +200,13 @@ public class OrderService {
             displayName = "Orders Call Frequency",
             description = "Rate the throughput of createOrders",
             reusable = true)
-    public Response create(Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
+    public Response create(
+            @Parameter(
+                    description = "A JSON payload with the information to create an order",
+                    required = true,
+                    example = "{\"itemId\":13401, \"count\":1}",
+                    schema = @Schema(type = SchemaType.STRING))
+            Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
         try {
             final String customerId = jwt.getName();
             if (customerId == null) {
