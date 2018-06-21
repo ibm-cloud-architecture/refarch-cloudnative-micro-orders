@@ -124,19 +124,23 @@ You should also include a feature in [server.xml](https://github.com/ibm-cloud-a
 
 4. Eclipse MicroProfile Config 1.1 - Configuration data comes from different sources like system properties, system environment variables, .properties etc. These values may change dynamically. Using this feature, helps us to pick up configured values immediately after they got changed.
 
-The config values are sorted according to their ordinal. We can override the lower importance values from outside. The config sources by default, below is the order of importance.
+    The config values are sorted according to their ordinal. We can override the lower importance values from outside. The config sources by default, below is the order of importance.
 
-- System.getProperties()
-- System.getenv()
-- all META-INF/microprofile-config.properties files on the ClassPath.
+    - System.getProperties()
+    - System.getenv()
+    - all META-INF/microprofile-config.properties files on the ClassPath.
 
-In our sample application, we obtained the configuration programatically.
+    In our sample application, we obtained the configuration programatically.
 
 5. MicroProfile JWT Authentication 1.0 - Used Microprofile JWT Authentication for token based authentication. It uses OpenIDConnect based JSON Web Tokens (JWT) for role based access control of rest endpoints. This allows the system to verify, authorize and authenticate the user based the security token.
 
 6. MicroProfile Health Check 1.0 - For MicroProfile implementations, this feature helps us to determine the status of the service as well as its availability. This helps us to know if the service is healthy. If not, we can know the reasons behind the termination or shutdown. 
 
-In our sample application, we injected this `/health` endpoint in our liveness probes.
+    In our sample application, we injected this `/health` endpoint in our liveness probes.
+
+7. MicroProfile OpenAPI 1.0 - This feature helps us to expose the API documentation for the RESTful services. It allows the developers to produce OpenAPI v3 documents for their JAX-RS applications.
+
+    In our sample application we used @OpenAPIDefinition, @Info, @Contact, @License, @APIResponses, @APIResponse, @Content, @Schema and @Operation annotations.
 
 ### Building the app
 
