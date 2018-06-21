@@ -58,7 +58,7 @@ spec:
             scheme: HTTPS
           initialDelaySeconds: 1500
           timeoutSeconds: 500
-          
+
         env:
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
@@ -73,7 +73,7 @@ spec:
           - name: jdbcURL
             value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3306/ordersdb?useSSL=false"
           - name: inventory_url
-            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inv/stock"
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inventory/stock"
           - name: inventory_health
             value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/health"
           - name: rabbit
