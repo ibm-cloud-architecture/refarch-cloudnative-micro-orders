@@ -116,18 +116,15 @@ public class OrderService {
     @Timed(name = "getOrders.timer",
             absolute = true,
             displayName = "getOrders Timer",
-            description = "Time taken by getOrders",
-            reusable = true)
+            description = "Time taken by getOrders")
     @Counted(name = "getOrders",
             absolute = true,
             displayName = "getOrders call count",
             description = "Number of times we retrieved orders from the database",
-            monotonic = true,
-            reusable = true)
+            monotonic = true)
     @Metered(name = "getOrdersMeter",
             displayName = "getOrders call frequency",
-            description = "Rate the throughput of getOrders",
-            reusable = true)
+            description = "Rate the throughput of getOrders")
     public Response getOrders() throws Exception {
         try {
             // System.out.println("I am in getOrders");
@@ -188,18 +185,15 @@ public class OrderService {
     @Timed(name = "createOrders.timer",
             absolute = true,
             displayName = "createOrder Timer",
-            description = "Time taken to create an order.",
-            reusable = true)
+            description = "Time taken to create an order.")
     @Counted(name = "createOrders",
             absolute = true,
             displayName = "createOrders call count",
             description = "Number of times we've called createOrders.",
-            monotonic = true,
-            reusable = true)
+            monotonic = true)
     @Metered(name = "createOrdersMeter",
             displayName = "Orders Call Frequency",
-            description = "Rate the throughput of createOrders",
-            reusable = true)
+            description = "Rate the throughput of createOrders")
     public Response create(
             @Parameter(
                     description = "A JSON with the information to create an order",
