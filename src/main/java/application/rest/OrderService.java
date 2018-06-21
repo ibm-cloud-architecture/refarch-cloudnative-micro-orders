@@ -32,23 +32,41 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
+import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.info.Contact;
+import org.eclipse.microprofile.openapi.annotations.info.Info;
+import org.eclipse.microprofile.openapi.annotations.info.License;
 
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
 
 import model.Order;
+import org.eclipse.microprofile.openapi.annotations.media.Content;
+import org.eclipse.microprofile.openapi.annotations.media.Schema;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
+import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import utils.OrderDAOImpl;
 
 @DeclareRoles({"Admin", "User"})
 @RequestScoped
 @Path("/orders")
+@OpenAPIDefinition(
+        info = @Info(
+                title = "Orders Service",
+                version = "0.0",
+                description = "Orders APIs",
+                contact = @Contact(url = "https://github.com/ibm-cloud-architecture", name = "IBM CASE"),
+                license = @License(name = "License",
+                        url = "https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/blob/microprofile/LICENSE")
+        )
+)
 public class OrderService {
 
+    private final static String QueueName = "stock";
     @Inject
     private JsonWebToken jwt;
-
-    private final static String QueueName = "stock";
 
     @GET
     @Path("/check")
@@ -61,9 +79,38 @@ public class OrderService {
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Fallback(fallbackMethod = "returnDummyOrder")
+    @APIResponses(value = {
+            @APIResponse(
+                    responseCode = "400",
+                    description = "Invalid Bearer Token causing a missing customer ID.",
+                    content = @Content(
+                            mediaType = "text/plain"
+                    )
+            ),
+            @APIResponse(
+                    // Possible, but should trigger the Fallback method
+                    responseCode = "500",
+                    description = "Internal Server Error.",
+                    content = @Content(
+                            mediaType = "text/plain"
+                    )
+            ),
+            @APIResponse(
+                    responseCode = "200",
+                    description = "List and retrieve all orders from the database.",
+                    content = @Content(
+                            mediaType = "text/plain"
+                    )
+            )
+    }
+    )
+    @Operation(
+            summary = "Get all orders",
+            description = "Retrieve all orders made from the database."
+    )
     public Response getOrders() throws Exception {
         try {
-            System.out.println("I am in getOrders");
+            // System.out.println("I am in getOrders");
             final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
@@ -81,7 +128,7 @@ public class OrderService {
 
         } catch (Exception e) {
             System.err.println(e.getMessage() + "" + e);
-            System.err.println("Entering the Fallback Method.");
+            System.err.println("Entering the Fallback Method from getOrders().");
             throw new Exception(e.toString());
         }
 
@@ -90,6 +137,34 @@ public class OrderService {
     @POST
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
+    @APIResponses(value = {
+            @APIResponse(
+                    responseCode = "400",
+                    description = "Invalid Bearer Token causing a missing customer ID.",
+                    content = @Content(
+                            mediaType = "text/plain"
+                    )
+            ),
+            @APIResponse(
+                    responseCode = "500",
+                    description = "Internal Server Error.",
+                    content = @Content(
+                            mediaType = "text/plain"
+                    )
+            ),
+            @APIResponse(
+                    responseCode = "200",
+                    description = "Create a new order to notify Inventory.",
+                    content = @Content(
+                            mediaType = "application/json"
+                    )
+            )
+    }
+    )
+    @Operation(
+            summary = "Create an order",
+            description = "Uses RabbitMQ to notify a new shipping order."
+    )
     public Response create(Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
         try {
             final String customerId = jwt.getName();
