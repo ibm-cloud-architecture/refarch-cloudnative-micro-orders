@@ -32,6 +32,9 @@ import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.jwt.JsonWebToken;
+import org.eclipse.microprofile.metrics.annotation.Counted;
+import org.eclipse.microprofile.metrics.annotation.Metered;
+import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
@@ -44,7 +47,6 @@ import com.rabbitmq.client.ConnectionFactory;
 
 import model.Order;
 import org.eclipse.microprofile.openapi.annotations.media.Content;
-import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
 import utils.OrderDAOImpl;
@@ -108,6 +110,21 @@ public class OrderService {
             summary = "Get all orders",
             description = "Retrieve all orders made from the database."
     )
+    @Timed(name = "getOrders.timer",
+            absolute = true,
+            displayName = "getOrders Timer",
+            description = "Time taken by getOrders",
+            reusable = true)
+    @Counted(name = "getOrders",
+            absolute = true,
+            displayName = "getOrders call count",
+            description = "Number of times we retrieved orders from the database",
+            monotonic = true,
+            reusable = true)
+    @Metered(name = "getOrdersMeter",
+            displayName = "getOrders call frequency",
+            description = "Rate the throughput of getOrders",
+            reusable = true)
     public Response getOrders() throws Exception {
         try {
             // System.out.println("I am in getOrders");
@@ -165,6 +182,21 @@ public class OrderService {
             summary = "Create an order",
             description = "Uses RabbitMQ to notify a new shipping order."
     )
+    @Timed(name = "createOrders.timer",
+            absolute = true,
+            displayName = "createOrder Timer",
+            description = "Time taken to create an order.",
+            reusable = true)
+    @Counted(name = "createOrders",
+            absolute = true,
+            displayName = "createOrders call count",
+            description = "Number of times we've called createOrders.",
+            monotonic = true,
+            reusable = true)
+    @Metered(name = "createOrdersMeter",
+            displayName = "Orders Call Frequency",
+            description = "Rate the throughput of createOrders",
+            reusable = true)
     public Response create(Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
         try {
             final String customerId = jwt.getName();
