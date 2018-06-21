@@ -202,7 +202,7 @@ public class OrderService {
             reusable = true)
     public Response create(
             @Parameter(
-                    description = "A JSON payload with the information to create an order",
+                    description = "A JSON with the information to create an order",
                     required = true,
                     example = "{\"itemId\":13401, \"count\":1}",
                     schema = @Schema(type = SchemaType.STRING))
