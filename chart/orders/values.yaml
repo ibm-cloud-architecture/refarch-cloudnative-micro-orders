@@ -4,9 +4,9 @@ replicaCount: 1
 
 image:
   #repository: registry.csplab.cloudns.cx/microprofile/orders-mp
-  #repository: ibmcase/orders-mp
-  repository: orders-mp
-  tag: v1.0.0
+  repository: ibmcase/orders-mp
+  #repository: orders-mp
+  tag: v2.0.0
   pullPolicy: IfNotPresent
   resources:
     requests:

@@ -1,10 +1,10 @@
 ## mysql image version
 ## ref: https://hub.docker.com/r/library/mysql/tags/
 ##
-image: "ordersdb"
+#image: "ordersdb"
 #image: "registry.csplab.cloudns.cx/microprofile/bc-ordersdb"
-#image: "ibmcase/bc-ordersdb"
-imageTag: "v1.0.0"
+image: "ibmcase/bc-ordersdb"
+imageTag: "v2.0.0"
 
 ## Specify password for root user
 ##
