@@ -37,6 +37,7 @@ import org.eclipse.microprofile.metrics.annotation.Metered;
 import org.eclipse.microprofile.metrics.annotation.Timed;
 import org.eclipse.microprofile.openapi.annotations.OpenAPIDefinition;
 import org.eclipse.microprofile.openapi.annotations.Operation;
+import org.eclipse.microprofile.openapi.annotations.enums.ParameterIn;
 import org.eclipse.microprofile.openapi.annotations.enums.SchemaType;
 import org.eclipse.microprofile.openapi.annotations.info.Contact;
 import org.eclipse.microprofile.openapi.annotations.info.Info;
@@ -116,7 +117,7 @@ public class OrderService {
     @Timed(name = "getOrders.timer",
             absolute = true,
             displayName = "getOrders Timer",
-            description = "Time taken by getOrders")
+            description = "Time taken by getOrders.")
     @Counted(name = "getOrders",
             absolute = true,
             displayName = "getOrders call count",
@@ -124,7 +125,7 @@ public class OrderService {
             monotonic = true)
     @Metered(name = "getOrdersMeter",
             displayName = "getOrders call frequency",
-            description = "Rate the throughput of getOrders")
+            description = "Rate the throughput of getOrders.")
     public Response getOrders() throws Exception {
         try {
             // System.out.println("I am in getOrders");
@@ -175,8 +176,7 @@ public class OrderService {
                     content = @Content(
                             mediaType = "application/json"
                     )
-            )
-    }
+            )}
     )
     @Operation(
             summary = "Create an order",
@@ -193,11 +193,12 @@ public class OrderService {
             monotonic = true)
     @Metered(name = "createOrdersMeter",
             displayName = "Orders Call Frequency",
-            description = "Rate the throughput of createOrders")
+            description = "Rate the throughput of createOrders.")
     public Response create(
             @Parameter(
-                    description = "A JSON with the information to create an order",
-                    required = true,
+                    name = "payload",
+                    in = ParameterIn.HEADER,
+                    description = "A JSON with the information to create an order.",
                     example = "{\"itemId\":13401, \"count\":1}",
                     schema = @Schema(type = SchemaType.STRING))
             Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
