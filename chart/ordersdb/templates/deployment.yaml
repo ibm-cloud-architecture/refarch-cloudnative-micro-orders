@@ -13,6 +13,7 @@ spec:
     metadata:
       labels:
         app: {{ template "ordersdb.fullname" . }}
+        release: {{ .Release.Name }}
         implementation: microprofile
     spec:
       initContainers:

@@ -4,6 +4,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.service.rabbitmq }}
   labels:
     chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    release: {{ .Release.Name }}
     implementation: microprofile
 spec:
   type: {{ .Values.service.type }}
@@ -15,6 +16,7 @@ spec:
   selector:
     micro: orders
     service: chat
+    release: {{ .Release.Name }}
     implementation: microprofile
 ---
 apiVersion: extensions/v1beta1
@@ -27,6 +29,7 @@ metadata:
     service: chat
     tier: backend
     chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    release: {{ .Release.Name }}
     implementation: microprofile
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -37,6 +40,7 @@ spec:
         micro: orders
         service: chat
         tier: backend
+        release: {{ .Release.Name }}
         implementation: microprofile
     spec:
       containers:
