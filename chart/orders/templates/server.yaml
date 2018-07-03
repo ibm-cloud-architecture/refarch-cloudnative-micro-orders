@@ -4,6 +4,7 @@ metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
     chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    release: {{ .Release.Name }}
     implementation: microprofile
 spec:
   type: {{ .Values.service.type }}
@@ -16,6 +17,7 @@ spec:
     app: bluecompute
     micro: orders
     service: server
+    release: {{ .Release.Name }}
     implementation: microprofile
 ---
 apiVersion: extensions/v1beta1
@@ -28,6 +30,7 @@ metadata:
     service: server
     tier: backend
     implementation: microprofile
+    release: {{ .Release.Name }}
     chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -38,6 +41,7 @@ spec:
         micro: orders
         service: server
         tier: backend
+        release: {{ .Release.Name }}
         implementation: microprofile
     spec:
       containers:
@@ -70,6 +74,8 @@ spec:
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP"
+          - name: jwksUser
+            value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: jdbcURL
             value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3306/ordersdb?useSSL=false"
           - name: inventory_url

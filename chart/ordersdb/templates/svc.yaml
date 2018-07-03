@@ -19,4 +19,5 @@ spec:
     {{- end }}
   selector:
     app: {{ template "ordersdb.fullname" . }}
+    release: {{ .Release.Name }}
     implementation: microprofile
