@@ -71,6 +71,7 @@ import utils.OrderDAOImpl;
 public class OrderService {
 
     private final static String QueueName = "stock";
+
     @Inject
     private JsonWebToken jwt;
 

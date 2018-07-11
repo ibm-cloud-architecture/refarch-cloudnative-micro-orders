@@ -2,7 +2,11 @@ FROM websphere-liberty:microProfile
 
 MAINTAINER IBM Java engineering at IBM Cloud
 
+# copy over the server
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
+
+# copy over the opentracing extension
+COPY /target/liberty/wlp/usr/extension /opt/ibm/wlp/usr/extension
 
 # Install required features if not present
 RUN installUtility install --acceptLicense defaultServer
