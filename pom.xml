@@ -100,6 +100,11 @@
             <version>2.0.2-beta</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>io.opentracing</groupId>
+            <artifactId>opentracing-api</artifactId>
+            <version>0.30.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -135,6 +140,7 @@
             <plugin>
                 <groupId>net.wasdev.wlp.maven.plugins</groupId>
                 <artifactId>liberty-maven-plugin</artifactId>
+                <version>2.4.2</version>
                 <configuration>
                     <configFile>${basedir}/src/main/liberty/config/server.xml</configFile>
                     <serverEnv>${basedir}/src/main/liberty/config/server.env</serverEnv>
