@@ -53,6 +53,9 @@ import org.eclipse.microprofile.openapi.annotations.media.Schema;
 import org.eclipse.microprofile.openapi.annotations.parameters.Parameter;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponse;
 import org.eclipse.microprofile.openapi.annotations.responses.APIResponses;
+import org.eclipse.microprofile.opentracing.Traced;
+import io.opentracing.Tracer;
+import io.opentracing.ActiveSpan;
 import utils.OrderDAOImpl;
 
 @DeclareRoles({"Admin", "User"})
@@ -71,8 +74,11 @@ import utils.OrderDAOImpl;
 public class OrderService {
 
     private final static String QueueName = "stock";
+
     @Inject
     private JsonWebToken jwt;
+
+    @Inject Tracer tracer;
 
     @GET
     @Path("/check")
@@ -126,6 +132,7 @@ public class OrderService {
     @Metered(name = "getOrdersMeter",
             displayName = "getOrders call frequency",
             description = "Rate the throughput of getOrders.")
+    @Traced(value = true, operationName = "getOrders.list")
     public Response getOrders() throws Exception {
         try {
             // System.out.println("I am in getOrders");
@@ -194,6 +201,7 @@ public class OrderService {
     @Metered(name = "createOrdersMeter",
             displayName = "Orders Call Frequency",
             description = "Rate the throughput of createOrders.")
+    @Traced(value = true, operationName = "createOrders")
     public Response create(
             @Parameter(
                     name = "payload",
@@ -239,44 +247,48 @@ public class OrderService {
     }
 
     private void notifyShipping(Order payload) throws IOException, TimeoutException {
-        ConnectionFactory factory = new ConnectionFactory();
-        Config config = ConfigProvider.getConfig();
-        String rabbit_host = config.getValue("rabbit", String.class);
-        factory.setHost(rabbit_host);
-        Connection connection = factory.newConnection();
-        Channel channel = connection.createChannel();
+        try (ActiveSpan childSpan = tracer.buildSpan("Grabbing messages from Messaging System").startActive()) {
+            ConnectionFactory factory = new ConnectionFactory();
+            Config config = ConfigProvider.getConfig();
+            String rabbit_host = config.getValue("rabbit", String.class);
+            factory.setHost(rabbit_host);
+            Connection connection = factory.newConnection();
+            Channel channel = connection.createChannel();
 
-        channel.queueDeclare(QueueName, false, false, false, null);
+            channel.queueDeclare(QueueName, false, false, false, null);
 
-        String id = Integer.toString(payload.getItemId());
-        String stock = Integer.toString(payload.getCount());
-        String update = id + " " + stock;
-        channel.basicPublish("", QueueName, null, update.getBytes());
-        System.out.println("Sent the message '" + update + "'");
-        String inv_url = config.getValue("inventory_url", String.class);
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target(inv_url);
-        String s = target.request().get(String.class);
-        System.out.println(s);
+            String id = Integer.toString(payload.getItemId());
+            String stock = Integer.toString(payload.getCount());
+            String update = id + " " + stock;
+            channel.basicPublish("", QueueName, null, update.getBytes());
+            System.out.println("Sent the message '" + update + "'");
+            String inv_url = config.getValue("inventory_url", String.class);
+            Client client = ClientBuilder.newClient();
+            WebTarget target = client.target(inv_url);
+            String s = target.request().get(String.class);
+            System.out.println(s);
 
-        channel.close();
-        connection.close();
+            channel.close();
+            connection.close();
+        }
     }
 
     @Produces(MediaType.APPLICATION_JSON)
     public Response returnDummyOrder() {
-        Order order = new Order();
-        order.setId("999");
-        order.setItemId(999);
-        order.setCustomerId("999");
-        order.setCount(-1);
+        try (ActiveSpan childSpan = tracer.buildSpan("Grabbing messages from Messaging System").startActive()) {
+            Order order = new Order();
+            order.setId("999");
+            order.setItemId(999);
+            order.setCustomerId("999");
+            order.setCount(-1);
 
-        Date time = new GregorianCalendar(1776, Calendar.JULY, 5).getTime();
-        order.setDate(time);
+            Date time = new GregorianCalendar(1776, Calendar.JULY, 5).getTime();
+            order.setDate(time);
 
-        List<Order> fakeOrderData = new ArrayList<>();
-        fakeOrderData.add(order);
+            List<Order> fakeOrderData = new ArrayList<>();
+            fakeOrderData.add(order);
 
-        return Response.ok(fakeOrderData).build();
+            return Response.ok(fakeOrderData).build();
+        }
     }
 }

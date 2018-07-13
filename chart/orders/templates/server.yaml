@@ -86,6 +86,10 @@ spec:
             value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
           - name: auth_health
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
+          - name: zipkinHost
+            value: "{{ .Release.Name }}-{{ .Values.service.zipkinHost }}"
+          - name: zipkinPort
+            value: "{{ .Values.service.zipkinPort }}"
 
         resources:
           requests:

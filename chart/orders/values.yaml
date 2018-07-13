@@ -22,6 +22,8 @@ service:
   ordersdb: ordersdb
   inventory: inventory
   auth: auth
+  zipkinHost: zipkin
+  zipkinPort: 9411
 
 services:
 base:
