@@ -2,7 +2,8 @@
 
 ## Microprofile based Microservice Apps Integration with MySQL Database Server
 
-This repository contains the **MicroProfile** implementation of the **Orders Service** which is a part of the 'IBM Cloud Native Reference Architecture' suite, available at https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes
+This repository contains the **MicroProfile** implementation of the **Orders Service** which is a part of the 
+'IBM Cloud Native Reference Architecture' suite, available at https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes
 
 <p align="center">
   <a href="https://microprofile.io/">
@@ -30,7 +31,8 @@ This repository contains the **MicroProfile** implementation of the **Orders Ser
 
 ### Introduction
 
-This project is built to demonstrate how to build Orders Microservices applications using Microprofile. This application provides basic operations of saving and querying orders from a relational database as part of the Orders function of BlueCompute.
+This project is built to demonstrate how to build Orders Microservices applications using Microprofile. 
+This application provides basic operations of saving and querying orders from a relational database as part of the Orders function of BlueCompute.
 
 - Based on [MicroProfile](https://microprofile.io/).
 - Persist order data to a MySQL database.
@@ -40,8 +42,9 @@ This project is built to demonstrate how to build Orders Microservices applicati
 
 ### How it works
 
-Orders Microservice serves 'IBM Cloud Native Reference Architecture' suite, available at
-https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes. Though it is a part of a bigger application, Order service is itself an application in turn that persists the data of orders to a MYSQL database.
+The Orders MicroService serves 'IBM Cloud Native Reference Architecture' suite, available at
+https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes. Though it is a part of a bigger application, 
+the Orders service is itself an application that persists the data of orders to a MYSQL database.
 
 <p align="center">
     <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/orders_microservice.png">
@@ -49,25 +52,32 @@ https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes. Though
 
 ### API Endpoints
 
-The Orders Microservice REST APIs are protected by OpenID Connect. These APIs identifies and validates the caller using mp-jwt tokens.
+The Orders MicroService REST APIs are protected by OpenID Connect. These APIs identifies and validates the caller using mp-jwt tokens.
 
 ```
 GET     /orders/rest/orders 
 ```
 
-- Returns all orders. The caller of this API must pass a valid OAuth token. The OAuth token is a JWT with the customer ID of the caller encoded in the `user_name` claim. A JSON object array is returned consisting of only orders created by the customer ID
+- Returns all orders. The caller of this API must pass a valid OAuth token. 
+The OAuth token is a JWT with the customer ID of the caller encoded in the `user_name` claim. 
+A JSON object array is returned consisting of only orders created by the customer ID
 
 ```
 GET     /orders/rest/orders/{id}  
 ```
 
-- Return order by ID. The caller of this API must pass a valid OAuth token. The OAuth token is a JWT with the customer ID of the caller encoded in the `user_name` claim. If the `id` of the order is owned by the customer passed in the `IBM-App-User` header, it is returned as a JSON object in the response; otherwise `HTTP 401` is returned.
+- Return order by ID. The caller of this API must pass a valid OAuth token. 
+The OAuth token is a JWT with the customer ID of the caller encoded in the `user_name` claim. 
+If the `id` of the order is owned by the customer passed in the `IBM-App-User` header, 
+it is returned as a JSON object in the response; otherwise `HTTP 401` is returned.
 
 ```
 POST   /orders/rest/orders
 ```
 
-- Create an order. The caller of this API must pass a valid OAuth token. The OAuth token is a JWT with the customer ID of the caller encoded in the user_name claim. The Order object must be passed as JSON object in the request body with the following format:
+- Create an order. The caller of this API must pass a valid OAuth token. 
+The OAuth token is a JWT with the customer ID of the caller encoded in the user_name claim. 
+The Order object must be passed as JSON object in the request body with the following format:
 
 ```
 {
@@ -82,11 +92,17 @@ On success, `HTTP 201` is returned with the ID of the created order in the `Loca
 
 #### [MicroProfile](https://microprofile.io/)
 
-MicroProfile is an open platform that optimizes the Enterprise Java for microservices architecture. In this application, we are using [**MicroProfile 1.2**](https://github.com/eclipse/microprofile-bom). This includes
+MicroProfile is an open platform that optimizes the Enterprise Java for microservices architecture. In this application, 
+we use [**MicroProfile 1.2**](https://github.com/eclipse/microprofile-bom). This includes:
 
-- MicroProfile 1.0 ([JAX-RS 2.0](https://jcp.org/en/jsr/detail?id=339), [CDI 1.2](https://jcp.org/en/jsr/detail?id=346), and [JSON-P 1.0](https://jcp.org/en/jsr/detail?id=353))
+- MicroProfile 1.0 ([JAX-RS 2.0](https://jcp.org/en/jsr/detail?id=339), [CDI 1.2](https://jcp.org/en/jsr/detail?id=346), 
+and [JSON-P 1.0](https://jcp.org/en/jsr/detail?id=353))
 - MicroProfile 1.1 (MicroProfile 1.0, [MicroProfile Config 1.0.](https://github.com/eclipse/microprofile-config))
-- [MicroProfile Config 1.1](https://github.com/eclipse/microprofile-config) (supercedes MicroProfile Config 1.0), [MicroProfile Fault Tolerance 1.0](https://github.com/eclipse/microprofile-fault-tolerance), [MicroProfile Health Check 1.0](https://github.com/eclipse/microprofile-health), [MicroProfile Metrics 1.0](https://github.com/eclipse/microprofile-metrics), [MicroProfile JWT Authentication 1.0](https://github.com/eclipse/microprofile-jwt-auth).
+- [MicroProfile Config 1.1](https://github.com/eclipse/microprofile-config) (supercedes MicroProfile Config 1.0), 
+[MicroProfile Fault Tolerance 1.0](https://github.com/eclipse/microprofile-fault-tolerance), 
+[MicroProfile Health Check 1.0](https://github.com/eclipse/microprofile-health), 
+[MicroProfile Metrics 1.0](https://github.com/eclipse/microprofile-metrics), 
+[MicroProfile JWT Authentication 1.0](https://github.com/eclipse/microprofile-jwt-auth).
 
 You can make use of this feature by including this dependency in Maven.
 
@@ -120,47 +136,63 @@ You should also include a feature in [server.xml](https://github.com/ibm-cloud-a
 
 2. CDI 1.2 - Used CDI for typesafe dependency injection
 
-3. JAX-RS 2.0.1 - JAX-RS is used for providing both standard client and server APIs for RESTful communication by MicroProfile applications.
+3. JAX-RS 2.0.1 - JAX-RS is used for providing both standard client and server APIs for RESTful communication by the MicroProfile applications.
 
-4. Eclipse MicroProfile Config 1.1 - Configuration data comes from different sources like system properties, system environment variables, .properties etc. These values may change dynamically. Using this feature, helps us to pick up configured values immediately after they got changed.
+4. Eclipse MicroProfile Config 1.1 - Configuration data comes from different sources like system properties, 
+system environment variables, *.properties etc. These values may change dynamically. 
+This feature enables us to pick up configured values immediately after they got changed.
 
-    The config values are sorted according to their ordinal. We can override the lower importance values from outside. The config sources by default, below is the order of importance.
+    The config values are sorted according to their ordinal. We can override the less important values from outside. 
+    The config sources three locations by default, and the list below shows their rank in priority from most to least:
 
     - System.getProperties()
     - System.getenv()
     - all META-INF/microprofile-config.properties files on the ClassPath.
 
-    In our sample application, we obtained the configuration programatically.
+    In our sample application, we obtained the configuration programmatically.
 
-5. MicroProfile JWT Authentication 1.0 - Used Microprofile JWT Authentication for token based authentication. It uses OpenIDConnect based JSON Web Tokens (JWT) for role based access control of rest endpoints. This allows the system to verify, authorize and authenticate the user based the security token.
+5. MicroProfile JWT Authentication 1.0 - MicroProfile JWT Authentication for token based authentication. 
+It uses OpenIDConnect based JSON Web Tokens (JWT) for role based access control to our REST endpoints. 
+This allows the system to verify, authorize and authenticate the user based the security token given.
 
-6. MicroProfile Health Check 1.0 - For MicroProfile implementations, this feature helps us to determine the status of the service as well as its availability. This helps us to know if the service is healthy. If not, we can know the reasons behind the termination or shutdown. 
+6. MicroProfile Health Check 1.0 - For MicroProfile implementations, 
+this feature helps us determine the status of the service as well as its availability. 
+This helps us to identify if the service is healthy or not. If the service is down, we can investigate the reasons behind its termination or shutdown. 
 
     In our sample application, we injected this `/health` endpoint in our liveness probes.
 
-7. MicroProfile OpenAPI 1.0 - This feature helps us to expose the API documentation for the RESTful services. It allows the developers to produce OpenAPI v3 documents for their JAX-RS applications.
+7. MicroProfile OpenAPI 1.0 - This feature helps us to expose the API documentation for the RESTful services. 
+It allows the developers to produce OpenAPI v3 documents for their JAX-RS applications.
 
     In our sample application we used @OpenAPIDefinition, @Info, @Contact, @License, @APIResponses, @APIResponse, @Content, @Schema and @Operation annotations.
 
 ### Building the app
 
-To build the application, we used maven build. Maven is a project management tool that is based on the Project Object Model (POM). Typically, people use Maven for project builds, dependencies, and documentation. Maven simplifies the project build. In this task, you use Maven to build the project.
+To build the application, we used Maven. Maven is a project management tool that is based on the Project Object Model (POM). 
+Typically, people use Maven for project builds, dependencies, and documentation. Maven simplifies the project build. 
+In this task, you use Maven to build the project.
 
-1. Clone this repository.
+1. Clone this respository and navigate into it
 
-   `git clone https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git`
+   ```
+   $ git clone https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git
+   $ cd refarch-cloudnative-micro-orders/
+   ```
+
+2. Checkout the MicroProfile branch.
+
+   ```
+   $ git checkout microprofile
+   ```
+
+3. Use Maven to build and install the project.
+
+   ```
+   $ mvn install
+   ```
+   Optionally, you may use `maven clean install` to ensure a clean working directory before you build.
    
-2. `cd refarch-cloudnative-micro-orders/`
-
-3. Checkout MicroProfile branch.
-
-   `git checkout microprofile`
-
-4. Run this command. This command builds the project and installs it.
-
-   `mvn install`
-   
-   If this runs successfully, you will be able to see the below messages.
+   If this runs successfully, you will see a similar message to the one below. 
    
 ```
 [INFO] --- maven-failsafe-plugin:2.18.1:verify (verify-results) @ orders ---
@@ -178,143 +210,146 @@ To build the application, we used maven build. Maven is a project management too
 [INFO] ------------------------------------------------------------------------
 ```
 
-### Setting up MYSQL
+### Setting up MYSQL on Minikube or ICP
 
-#### MYSQL Pre-requisites
+#### Pre-requisites
 
 1. Set Up MYSQL on Minikube
 
-To set up MYSQL locally on your laptop on a Kubernetes-based environment such as Minikube (which is meant to be a small development environment), we first need to get few tools installed:
+    To set up MYSQL in a Kubernetes-based environment locally, we will use Minikube (which is meant to be a small development environment), 
+    and a couple of tools:
 
-- [Kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) (Kubernetes CLI) - Follow the instructions [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/) to install it on your platform.
-- [Helm](https://github.com/kubernetes/helm) (Kubernetes package manager) - Follow the instructions [here](https://github.com/kubernetes/helm/blob/master/docs/install.md) to install it on your platform.
+    - [Kubectl](https://kubernetes.io/docs/user-guide/kubectl-overview/) (Kubernetes CLI) - 
+    Follow the instructions [here](https://kubernetes.io/docs/tasks/tools/install-kubectl/) to install it onto your platform.
+    - [Helm](https://github.com/kubernetes/helm) (Kubernetes package manager) - 
+    Follow the instructions [here](https://github.com/kubernetes/helm/blob/master/docs/install.md) to install it onto your platform.
+    - [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) - 
+    To create a single node virtual cluster on your workstation. 
+    Follow the instructions [here](https://kubernetes.io/docs/tasks/tools/install-minikube/) to get Minikube installed onto your workstation.
 
-Finally, we must create a Kubernetes Cluster. As already said before, we are going to use Minikube:
-
-- [Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) - Create a single node virtual cluster on your workstation. Follow the instructions [here](https://kubernetes.io/docs/tasks/tools/install-minikube/) to get Minikube installed on your workstation.
-
-We not only recommend to complete the three Minikube installation steps on the link above but also read the [Running Kubernetes Locally via Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) page for getting more familiar with Minikube.
+    We recommend read [Running Kubernetes Locally via Minikube](https://kubernetes.io/docs/getting-started-guides/minikube/) additionally
+    for more knowledge to familiarize yourself with with Minikube, Kubernetes, and Helm.
 
 2. Set Up MYSQL on IBM Cloud Private
 
-To set up MYSQL on IBM Cloud Private, you need to have the following.
+    To set up MYSQL on IBM Cloud Private, you will need to have:
+    - [Helm](https://github.com/kubernetes/helm) (Kubernetes package manager) - Follow the instructions 
+    [here](https://github.com/kubernetes/helm/blob/master/docs/install.md) to install it on your platform.
+    If you're using IBM Cloud Private version 2.1.0.2 or newer, we recommend you follow 
+    these [instructions](https://www.ibm.com/support/knowledgecenter/SSBS6K_2.1.0.2/app_center/create_helm_cli.html) to install helm.
+    - An [IBM Cloud Private Cluster](https://www.ibm.com/cloud/private).
+    Create a Kubernetes cluster in an on-premise data center. The community edition (IBM Cloud private-ce) is free.
+    Follow the instructions [here](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_2.1.0.2/installing/install_containers_CE.html) 
+    to install IBM Cloud private-ce.
 
-[IBM Cloud Private Cluster](https://www.ibm.com/cloud/private)
+#### Run Minikube and start the container using Helm Charts
 
-Create a Kubernetes cluster in an on-premise datacenter. The community edition (IBM Cloud private-ce) is free of charge.
-Follow the instructions [here](https://www.ibm.com/support/knowledgecenter/en/SSBS6K_2.1.0.2/installing/install_containers_CE.html) to install IBM Cloud private-ce.
+1. Start up minikube. Run the command below:
 
-[Helm](https://github.com/kubernetes/helm) (Kubernetes package manager)
+    ```
+    $ minikube start
+    ```
 
-Follow the instructions [here](https://github.com/kubernetes/helm/blob/master/docs/install.md) to install it on your platform.
-If using IBM Cloud Private version 2.1.0.2 or newer, we recommend you follow these [instructions](https://www.ibm.com/support/knowledgecenter/SSBS6K_2.1.0.2/app_center/create_helm_cli.html) to install helm.
+    You will see similar output to this:
 
-#### Set Up MYSQL on Minikube
+    ```
+    Setting up certs...
+    Connecting to cluster...
+    Setting up kubeconfig...
+    Starting cluster components...
+    Kubectl is now configured to use the cluster.
+    ```
+    
+    Note, if running the application, it is recommended to provision 8GB over the default 2GB amount:
+    ```
+    $ minikube start --memory 8192
+    ```
 
-1. Start your minikube. Run the command below:
+2. To install Tiller, which is a server side component of Helm, we must first initialize helm using:
+    ```
+    $ helm init
+    ```
+    
+    You will see simialr output to this:
+    ```
+    $HELM_HOME has been configured at /Users/user@ibm.com/.helm.
+    
+    Tiller (the helm server side component) has been installed into your Kubernetes Cluster.
+    Happy Helming!
+    ```
+    
+3. Check if your tiller is available with:
+    ```
+    kubectl get deployment tiller-deploy --namespace kube-system
+    ``` 
+     
+    You can verify its status with the output message.
+    
+    ```
+    NAME            DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    tiller-deploy   1         1         1            1           1m
+    ```
 
-`minikube start`
+4. Verify your helm before proceeding like below:
+    ```
+    helm version
+    ```
 
-You will see output similar to this.
+    If your helm server version is below 2.5.0, please run command below:
 
-```
-Setting up certs...
-Connecting to cluster...
-Setting up kubeconfig...
-Starting cluster components...
-Kubectl is now configured to use the cluster.
-```
-2. To install Tiller which is a server side component of Helm, initialize helm. Run the command below:
+    ```
+    helm init --upgrade --tiller-image gcr.io/kubernetes-helm/tiller:v2.5.0
+    ```
 
-`helm init`
+    Make sure your versions by testing the versions.
+    You will see similar output.
 
-If it is successful, you will see the below output.
+    ```
+    Client: &version.Version{SemVer:"v2.4.2", GitCommit:"82d8e9498d96535cc6787a6a9194a76161d29b4c", GitTreeState:"clean"}
+    Server: &version.Version{SemVer:"v2.5.0", GitCommit:"012cb0ac1a1b2f888144ef5a67b8dab6c2d45be6", GitTreeState:"clean"}
+    ```
 
-```
-$HELM_HOME has been configured at /Users/user@ibm.com/.helm.
+5. Set the docker environment and build the docker image:
 
-Tiller (the helm server side component) has been installed into your Kubernetes Cluster.
-Happy Helming!
-```
-3. Check if your tiller is available. Run the command below:
+    Before we build the docker image, we must first set the docker environment so that it builds to Minikube's Docker.
+    
+    Run the following command:
+    ```
+    $ eval $(minikube docker-env)
+    ```
 
-`kubectl get deployment tiller-deploy --namespace kube-system`
+    Now we can run docker build.
 
-If it available, you can see the availability as below.
+    ```
+    cd mysql
+    docker build -t ordersdb:v1.0.0 .
+    ```
 
-```
-NAME            DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-tiller-deploy   1         1         1            1           1m
-```
+    A success will output a similar message:
+    
+    ```
+    Successfully built 27e132d3c908
+    Successfully tagged ordersdb:v1.0.0
+    ```
+    Then run `cd ..`
 
-4. Verify your helm before proceeding like below.
+6. Run the helm chart as below:
 
-`helm version`
-
-If your helm server version is below 2.5.0, please run command below:
-
-`helm init --upgrade --tiller-image gcr.io/kubernetes-helm/tiller:v2.5.0`
-
-Make sure your versions by testing the versions.
-
-You will see similar output.
-
-```
-Client: &version.Version{SemVer:"v2.4.2", GitCommit:"82d8e9498d96535cc6787a6a9194a76161d29b4c", GitTreeState:"clean"}
-Server: &version.Version{SemVer:"v2.5.0", GitCommit:"012cb0ac1a1b2f888144ef5a67b8dab6c2d45be6", GitTreeState:"clean"}
-```
-
-5. Build the docker image.
-
-Before building the docker image, set the docker environment.
-
-- Run the command below.
-
-`minikube docker-env`
-
-You will see the output similar to this.
-
-```
-export DOCKER_TLS_VERIFY="1"
-export DOCKER_HOST="tcp://192.168.99.100:2376"
-export DOCKER_CERT_PATH="/Users/user@ibm.com/.minikube/certs"
-export DOCKER_API_VERSION="1.23"
-# Run this command to configure your shell:
-# eval $(minikube docker-env)
-```
-- For configuring your shell, run the command below:
-
-`eval $(minikube docker-env)`
-
-- Now run the docker build.
-
-```
-cd mysql
-docker build -t ordersdb:v1.0.0 .
-```
-
-If it is a success, you will see similar output below:
-
-```
-Successfully built 27e132d3c908
-Successfully tagged ordersdb:v1.0.0
-```
-Then run ` cd ..`
-
-6. Run the helm chart as below.
-
-`helm install --name=ordersdb chart/ordersdb`
-
-7. Make sure your deployment is ready. To verify run this command and you should see the availability.
-
-`kubectl get deployments`
-
-Yow will see message like below.
-
-```
-NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-bluecompute-ordersdb                        1         1         1            1           5m
-```
+    ```
+    helm install --name=ordersdb chart/ordersdb
+    ```
+    
+7. Make sure your deployment is ready. To verify run this command and you should see the availability:
+    
+    ```
+    kubectl get deployments
+    ```
+    
+    Yow will see a similar message:
+    ```
+    NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    bluecompute-ordersdb                        1         1         1            1           5m
+    ```
 
 #### Set Up MYSQL on IBM Cloud Private
 
@@ -322,104 +357,96 @@ bluecompute-ordersdb                        1         1         1            1  
 
 2. Log in to the IBM Cloud Private. 
 
-<p align="center">
-    <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/icp_dashboard.png">
-</p>
+    <p align="center">
+        <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/icp_dashboard.png">
+    </p>
 
 3. Go to `admin > Configure Client`.
 
-<p align="center">
-    <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/client_config.png">
-</p>
+    <p align="center">
+        <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/client_config.png">
+    </p>
 
 4. Grab the kubectl configuration commands.
 
-<p align="center">
-    <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/kube_cmds.png">
-</p>
+    <p align="center">
+        <img src="https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/static/imgs/kube_cmds.png">
+    </p>
 
 5. Run those commands in your terminal.
 
 6. If successful, you should see something like below.
-```
-Switched to context "xxx-cluster.icp-context".
-```
-7. Run the below command.
+    ```
+    Switched to context "xxx-cluster.icp-context".
+    ```
+    
+7. Run the below command:
+    ```
+    $ helm init --client-only
+    ```
 
-`helm init --client-only`
+    You will see a similar message to below:
+    ```
+    $HELM_HOME has been configured at /Users/user@ibm.com/.helm.
+    Not installing Tiller due to 'client-only' flag having been set
+    Happy Helming!
+    ```
 
-You will see the below
+8. Verify the helm version:
 
-```
-$HELM_HOME has been configured at /Users/user@ibm.com/.helm.
-Not installing Tiller due to 'client-only' flag having been set
-Happy Helming!
-```
+    ```
+    $ helm version --tls
+    ```
 
-8. Verify the helm version
+    You will see a similar message to below:
+    ```
+    Client: &version.Version{SemVer:"v2.7.2+icp", GitCommit:"d41a5c2da480efc555ddca57d3972bcad3351801", GitTreeState:"dirty"}
+    Server: &version.Version{SemVer:"v2.7.2+icp", GitCommit:"d41a5c2da480efc555ddca57d3972bcad3351801", GitTreeState:"dirty"}
+    ```
 
-`helm version --tls`
+9. Set the docker environment and build the docker image:
 
-You will see something like below.
+    Before we build the docker image, we must first set the docker environment so that it builds to Minikube's Docker.
+    
+    Run the following command:
+    ```
+    $ eval $(minikube docker-env)
+    ```
 
-```
-Client: &version.Version{SemVer:"v2.7.2+icp", GitCommit:"d41a5c2da480efc555ddca57d3972bcad3351801", GitTreeState:"dirty"}
-Server: &version.Version{SemVer:"v2.7.2+icp", GitCommit:"d41a5c2da480efc555ddca57d3972bcad3351801", GitTreeState:"dirty"}
-```
+    Now we can run docker build.
 
-9. Build the docker image.
+    ```
+    cd mysql
+    docker build -t ordersdb:v1.0.0 .
+    ```
 
-Before building the docker image, set the docker environment.
+    A success will output a similar message:
+    
+    ```
+    Successfully built 27e132d3c908
+    Successfully tagged ordersdb:v1.0.0
+    ```
+    Then run `cd ..`
 
-- Run the command below.
+10. Run the helm chart as below:
+    ```
+    helm install --name=ordersdb chart/ordersdb --tls
+    ```
 
-`minikube docker-env`
+11. Make sure your deployment is ready. To verify run this command and you should see the availability:
+        
+    ```
+    kubectl get deployments
+    ```
+    
+    Yow will see a similar message:
+    ```
+    NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
+    bluecompute-ordersdb                        1         1         1            1           5m
+    ```
+           
+    **NOTE**: If you are using a version of ICP older than 2.1.0.2, you don't need to add the --tls at the end of the helm command.
 
-You will see the output similar to this.
-
-```
-export DOCKER_TLS_VERIFY="1"
-export DOCKER_HOST="tcp://192.168.99.100:2376"
-export DOCKER_CERT_PATH="/Users/user@ibm.com/.minikube/certs"
-export DOCKER_API_VERSION="1.23"
-# Run this command to configure your shell:
-# eval $(minikube docker-env)
-```
-- For configuring your shell, run the command below:
-
-`eval $(minikube docker-env)`
-
-- Now run the docker build.
-
-```
-cd mysql
-docker build -t ordersdb:v1.0.0 .
-```
-
-If it is a success, you will see similar output below:
-
-```
-Successfully built 27e132d3c908
-Successfully tagged ordersdb:v1.0.0
-```
-Then run ` cd ..`
-
-10. Run the helm chart as below.
-
-`helm install --name=ordersdb chart/ordersdb --tls`
-
-11. Make sure your deployment is ready. To verify run this command and you should see the availability.
-
-`kubectl get deployments`
-
-Yow will see message like below.
-
-```
-NAME                                        DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-bluecompute-ordersdb                        1         1         1            1           9m
-```
-
-**NOTE**: If you are using a version of ICP older than 2.1.0.2, you don't need to add the --tls at the end of the helm command.
 
 ### Setting up RabbitMQ
 
