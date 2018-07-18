@@ -93,26 +93,29 @@ On success, `HTTP 201` is returned with the ID of the created order in the `Loca
 #### [MicroProfile](https://microprofile.io/)
 
 MicroProfile is an open platform that optimizes the Enterprise Java for microservices architecture. In this application, 
-we use [**MicroProfile 1.2**](https://github.com/eclipse/microprofile-bom). This includes:
+we use [**MicroProfile 1.3**](https://github.com/eclipse/microprofile-bom). This includes:
 
 - MicroProfile 1.0 ([JAX-RS 2.0](https://jcp.org/en/jsr/detail?id=339), [CDI 1.2](https://jcp.org/en/jsr/detail?id=346), 
 and [JSON-P 1.0](https://jcp.org/en/jsr/detail?id=353))
-- MicroProfile 1.1 (MicroProfile 1.0, [MicroProfile Config 1.0.](https://github.com/eclipse/microprofile-config))
-- [MicroProfile Config 1.1](https://github.com/eclipse/microprofile-config) (supercedes MicroProfile Config 1.0), 
+- MicroProfile 1.2 (MicroProfile 1.0,
 [MicroProfile Fault Tolerance 1.0](https://github.com/eclipse/microprofile-fault-tolerance), 
-[MicroProfile Health Check 1.0](https://github.com/eclipse/microprofile-health), 
-[MicroProfile Metrics 1.0](https://github.com/eclipse/microprofile-metrics), 
-[MicroProfile JWT Authentication 1.0](https://github.com/eclipse/microprofile-jwt-auth).
+[MicroProfile Health Check 1.0](https://github.com/eclipse/microprofile-health),  
+[MicroProfile JWT Authentication 1.0](https://github.com/eclipse/microprofile-jwt-auth).)
+- MicroProfile 1.3 (
+[MicroProfile Open Tracing 1.0](https://github.com/eclipse/microprofile-opentracing),
+[MicroProfile Open API 1.0](https://github.com/eclipse/microprofile-open-api),
+[MicroProfile Metrics 1.1](https://github.com/eclipse/microprofile-metrics),
+[MicroProfile Config 1.2](https://github.com/eclipse/microprofile-config))
 
 You can make use of this feature by including this dependency in Maven.
 
 ```
 <dependency>
-<groupId>org.eclipse.microprofile</groupId>
-<artifactId>microprofile</artifactId>
-<version>1.2</version>
-<type>pom</type>
-<scope>provided</scope>
+    <groupId>org.eclipse.microprofile</groupId>
+    <artifactId>microprofile</artifactId>
+    <version>1.3</version>
+    <type>pom</type>
+    <scope>provided</scope>
 </dependency>
 ```
 
@@ -122,7 +125,7 @@ You should also include a feature in [server.xml](https://github.com/ibm-cloud-a
 <server description="Sample Liberty server">
 
   <featureManager>
-      <feature>microprofile-1.2</feature>
+      <feature>microprofile-1.3</feature>
   </featureManager>
 
   <httpEndpoint httpPort="${default.http.port}" httpsPort="${default.https.port}"
@@ -157,14 +160,25 @@ This allows the system to verify, authorize and authenticate the user based the 
 
 6. MicroProfile Health Check 1.0 - For MicroProfile implementations, 
 this feature helps us determine the status of the service as well as its availability. 
-This helps us to identify if the service is healthy or not. If the service is down, we can investigate the reasons behind its termination or shutdown. 
+This helps us to identify if the service is healthy or not. If the service is down, 
+we can investigate the reasons behind its termination or shutdown. 
 
     In our sample application, we injected this `/health` endpoint in our liveness probes.
 
 7. MicroProfile OpenAPI 1.0 - This feature helps us to expose the API documentation for the RESTful services. 
 It allows the developers to produce OpenAPI v3 documents for their JAX-RS applications.
 
-    In our sample application we used @OpenAPIDefinition, @Info, @Contact, @License, @APIResponses, @APIResponse, @Content, @Schema and @Operation annotations.
+    In our sample application we used @OpenAPIDefinition, @Info, @Contact, @License, @APIResponses, 
+    @APIResponse, @Content, @Schema, @Operation and @Parameter annotations.
+
+8. MicroProfile OpenTracing 1.0 - Enables and allows for custom tracing of JAX-RS and non-JAX-RS methods. View traces and logs
+on the Zipkin server (when running the entire parent application).
+
+    In our sample application, we use @Traced and an ActiveSpan object to retrieve messages.
+    
+9. MicroProfile Metrics 1.1 - Used to help monitor essential system parameters and the performance of well-known endpoints.
+    
+    In our sample application, we use @Timed, @Counted, @Metered.
 
 ### Building the app
 
