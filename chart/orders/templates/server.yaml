@@ -76,6 +76,8 @@ spec:
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP"
           - name: jwksUser
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
+          - name: administratorRealm
+            value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: jdbcURL
             value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3306/ordersdb?useSSL=false"
           - name: inventory_url

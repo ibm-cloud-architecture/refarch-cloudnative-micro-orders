@@ -14,6 +14,7 @@
         <jwt.id>myMpJwt</jwt.id>
         <jwksUri>https://auth:9443/oidc/endpoint/OP/jwk</jwksUri>
         <jwksIssuer>https://auth:9443/oidc/endpoint/OP</jwksIssuer>
+        <administratorRealm>user:https://auth:9443/oidc/endpoint/OP</administratorRealm>
         <version.download-maven-plugin>1.4.1</version.download-maven-plugin>
 
         <app.name>orders</app.name>

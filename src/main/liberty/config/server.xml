@@ -25,6 +25,11 @@
        issuer="${env.jwksIssuer}">
     </mpJwt>
 
+    <!--Credentials necessary to authorize user-->
+    <administrator-role>
+        <user-access-id>${env.administratorRealm}</user-access-id>
+    </administrator-role>
+
     <ssl id="defaultSSLConfig" keyStoreRef="bcKeyStore" trustStoreRef="bcTrustStore"/>
     <keyStore id="bcKeyStore" location="/etc/keystorevol/BCKeyStoreFile.jks" type="JKS" password="password"/>
     <keyStore id="bcTrustStore" location="/etc/keystorevol/truststore.jks" type="JKS" password="password"/>
