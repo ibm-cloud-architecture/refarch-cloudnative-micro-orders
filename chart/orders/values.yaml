@@ -6,7 +6,7 @@ image:
   #repository: registry.csplab.cloudns.cx/microprofile/orders-mp
   repository: ibmcase/orders-mp
   #repository: orders-mp
-  tag: v3.0.0
+  tag: v4.0.0
   pullPolicy: IfNotPresent
   resources:
     requests:
