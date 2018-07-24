@@ -128,7 +128,7 @@ You can find the instructions and more details
 1. Start your server.
 
     ```
-    $ mvn liberty:start-server -DtestServerHttpPort=9081
+    $ mvn liberty:start-server -DtestServerHttpPort=9083
     ```
 
     You will see something similar to the below messages.
@@ -150,7 +150,7 @@ You can find the instructions and more details
 
 2. Validate the orders service. You should get a list of all orders items.
     ```
-    curl http://localhost:9081/orders/rest/orders
+    curl http://localhost:9083/orders/rest/orders
     ```
 
 3. If you are done accessing the application, you can stop your server using the following command.
