@@ -131,11 +131,13 @@ You should also include a feature in [server.xml](https://github.com/ibm-cloud-a
 
 1. Java SE 8 - Used Java Programming language
 
-2. CDI 1.2 - Used CDI for typesafe dependency injection
+2. [CDI 1.2](https://jcp.org/en/jsr/detail?id=346) - Used CDI for typesafe dependency injection
 
-3. JAX-RS 2.0.1 - JAX-RS is used for providing both standard client and server APIs for RESTful communication by the MicroProfile applications.
+3. [JAX-RS 2.0.1](https://jcp.org/en/jsr/detail?id=339) - 
+JAX-RS is used for providing both standard client and server APIs for RESTful communication by the MicroProfile applications.
 
-4. Eclipse MicroProfile Config 1.1 - Configuration data comes from different sources like system properties, 
+4. [Eclipse MicroProfile Config](https://github.com/eclipse/microprofile-config) - 
+Configuration data comes from different sources like system properties, 
 system environment variables, *.properties etc. These values may change dynamically. 
 This feature enables us to pick up configured values immediately after they got changed.
 
@@ -148,30 +150,34 @@ This feature enables us to pick up configured values immediately after they got 
 
     In our sample application, we obtained the configuration programmatically.
 
-5. MicroProfile JWT Authentication 1.0 - MicroProfile JWT Authentication for token based authentication. 
+5. [MicroProfile JWT Authentication](https://github.com/eclipse/microprofile-jwt-auth) - 
+MicroProfile JWT Authentication for token based authentication. 
 It uses OpenIDConnect based JSON Web Tokens (JWT) for role based access control to our REST endpoints. 
 This allows the system to verify, authorize and authenticate the user based the security token given.
 
-6. MicroProfile Health Check 1.0 - For MicroProfile implementations, 
+6. [MicroProfile Health Check](https://github.com/eclipse/microprofile-open-api) - For MicroProfile implementations, 
 this feature helps us determine the status of the service as well as its availability. 
 This helps us to identify if the service is healthy or not. If the service is down, 
 we can investigate the reasons behind its termination or shutdown. 
 
     In our sample application, we injected this `/health` endpoint in our liveness probes.
 
-7. MicroProfile OpenAPI 1.0 - This feature helps us to expose the API documentation for the RESTful services. 
+7. [MicroProfile OpenAPI](https://github.com/eclipse/microprofile-open-api) - 
+This feature helps us to expose the API documentation for the RESTful services. 
 It allows the developers to produce OpenAPI v3 documents for their JAX-RS applications.
 
     In our sample application we used @OpenAPIDefinition, @Info, @Contact, @License, @APIResponses, 
     @APIResponse, @Content, @Schema, @Operation and @Parameter annotations.
 
-8. MicroProfile OpenTracing 1.0 - Enables and allows for custom tracing of JAX-RS and non-JAX-RS methods. It helps us 
+8. [MicroProfile OpenTracing](https://github.com/eclipse/microprofile-opentracing) - 
+Enables and allows for custom tracing of JAX-RS and non-JAX-RS methods. It helps us 
 to analyze the transaction flow so that the we can easily debug the problematic services and fix them.
 
     In our sample application, we used [Zipkin](https://zipkin.io/) as our distributed tracing system. We used @Traced 
     and an ActiveSpan object to retrieve messages.
     
-9. MicroProfile Metrics 1.1 - Used to help monitor essential system parameters and the performance of well-known endpoints.
+9. [MicroProfile Metrics](https://github.com/eclipse/microprofile-metrics) - 
+Used to help monitor essential system parameters and the performance of well-known endpoints.
     
     In our sample application, we use @Timed, @Counted, @Metered.
 
