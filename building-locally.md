@@ -118,11 +118,14 @@ You can find the instructions and more details
 
 ### Running the app and stopping it
 
-1. Setup environment variables.
+A few steps must be done before Orders can start with full features. Please refer to steps 1 and 2.
 
-    Set the JDBC URL before you start your application. The host and port depends on the service you use. 
-    You can run the MySQL server locally on your system using the MySQL docker container or use the 
-    [MySQL Compose](https://www.ibm.com/cloud/compose/mysql) available in [IBM Cloud](https://www.ibm.com/cloud/).
+
+1. Set some environment variables.
+
+    Set the JDBC URL and few other environment variables before you start your application. The host and port depends 
+    on the service you use. You can run the MySQL server locally on your system using the MySQL docker container or use 
+    the [MySQL Compose](https://www.ibm.com/cloud/compose/mysql) available in [IBM Cloud](https://www.ibm.com/cloud/).
     
     ```
     $ export jdbcURL=jdbc:mysql://<Your host>:<Port>/ordersdb?useSSL=false
@@ -144,6 +147,9 @@ You can find the instructions and more details
     $ export zipkinHost=localhost
     $ export zipkinPort=9411
     ``` 
+    
+2. To enable authentication, the [Auth MicroService](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) 
+must be running and the keystore must be set up. Please refer to the link for further instructions.
 
 1. Start your server.
 
