@@ -57,7 +57,7 @@ In this task, you use Maven to build the project.
 
 ### Setting up MySQL
 
-To set up MySQL locally, we will need to run it in a docker container. 
+To set up MySQL, the database used in this service, in a local environment, we will need to run it in a docker container. 
 You need [Docker](https://www.docker.com/) as a prerequisite.
 
 1. To run MySQL on docker locally, run the below commands:
@@ -84,6 +84,26 @@ You need [Docker](https://www.docker.com/) as a prerequisite.
     ```
     $ cd ..
     ```
+
+### Setting up RabbitMQ
+
+RabbitMQ is an open source messaging client used in our application to communicate between MicroServices. That said,
+you only need to setup RabbitMQ if deploying multiple services locally, such as Inventory and Orders.
+
+RabbitMQ will also need to run in a docker container. Fortunately, we can simply pull the image from Dockerhub.
+
+1. Pull the image:
+
+    ```
+    $ docker pull rabbitmq
+    ```
+    
+2. Run the container.
+
+    ```
+    $ docker run -p 5672:5672 -d --name rabbitmq
+    ```
+
 
 ### Setting up Zipkin 
 
