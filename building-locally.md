@@ -4,7 +4,7 @@
 
 * [Building the app](#building-the-app)
 * [Setting up MySQL](#setting-up-mysql)
-* [Setting up RabbitMQ](#setting-up-rabbitmq)
+* [Setting up RabbitMQ](#setting-up-rabbitmq) 
 * [Setting up Zipkin](#setting-up-zipkin) (Optional)
 * [Running the app and stopping it](#running-the-app-and-stopping-it)
 
@@ -17,20 +17,20 @@ In this task, you use Maven to build the project.
 1. Clone this repository and navigate into it.
 
    ```
-   $ git clone https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git
-   $ cd refarch-cloudnative-micro-orders/
+   git clone https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git
+   cd refarch-cloudnative-micro-orders/
    ```
 
 2. Checkout the MicroProfile branch.
 
    ```
-   $ git checkout microprofile
+   git checkout microprofile
    ```
 
 3. Use Maven to build and install the project.
 
    ```
-   $ mvn install
+   mvn install
    ```
    
    Optionally, you may use `maven clean install` to ensure a clean working directory before you build.
@@ -63,26 +63,26 @@ You need [Docker](https://www.docker.com/) as a prerequisite.
 1. To run MySQL on docker locally, run the below commands:
 
     ```
-    $ cd mysql
+    cd mysql
     ```
 
 2. Build the docker image.
 
     ```
-    $ docker build -t mysql .
+    docker build -t mysql .
     ```
 
 3. Run the container.
 
     ```
-    $ docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=password mysql
+    docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=password mysql
     ```
 
 
 4. It creates the `orders` table and loads the sample data.
 
     ```
-    $ cd ..
+    cd ..
     ```
 
 ### Setting up RabbitMQ
@@ -95,13 +95,13 @@ RabbitMQ will also need to run in a docker container. Fortunately, we can simply
 1. Pull the image:
 
     ```
-    $ docker pull rabbitmq
+    docker pull rabbitmq
     ```
     
 2. Run the container.
 
     ```
-    $ docker run -p 5672:5672 -d --name rabbitmq
+    docker run -p 5672:5672 -d --name rabbitmq
     ```
 
 
@@ -118,7 +118,7 @@ You can find the instructions and more details
 
 ### Running the app and stopping it
 
-A few steps must be done before Orders can start with full features. Please refer to steps 1 and 2.
+A few steps must be done before Orders can operate with full features and are described in steps 1 and 2.
 
 
 1. Set some environment variables.
@@ -128,24 +128,29 @@ A few steps must be done before Orders can start with full features. Please refe
     the [MySQL Compose](https://www.ibm.com/cloud/compose/mysql) available in [IBM Cloud](https://www.ibm.com/cloud/).
     
     ```
-    $ export jdbcURL=jdbc:mysql://<Your host>:<Port>/ordersdb?useSSL=false
-    $ export dbuser=<DB_USER_NAME>
-    $ export dbpassword=<PASSWORD>
+    export jdbcURL=jdbc:mysql://<Your host>:<Port>/ordersdb?useSSL=false
+    export dbuser=<DB_USER_NAME>
+    export dbpassword=<PASSWORD>
     ```
     
-    If you've been following along, your environment variables should be:
+    If you've been following along, your JDBC environment variables should be:
         
     ```
-    $ export jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
-    $ export dbuser=root
-    $ export dbpassword=password
+    export jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
+    export dbuser=root
+    export dbpassword=password
+    ```
+    
+    We must also indicate that RabbitMQ is running locally.
+    ```
+    export rabbit=localhost
     ```
     
     Also set the Zipkin host and port to defaults.
     
     ```
-    $ export zipkinHost=localhost
-    $ export zipkinPort=9411
+    export zipkinHost=localhost
+    export zipkinPort=9411
     ``` 
     
 2. To enable authentication, the [Auth MicroService](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) 
@@ -154,7 +159,7 @@ must be running and the keystore must be set up. Please refer to the link for fu
 1. Start your server.
 
     ```
-    $ mvn liberty:start-server -DtestServerHttpPort=9083
+    mvn liberty:start-server -DtestServerHttpPort=9083 -DtestServerhttpsPort=9446
     ```
 
     You will see something similar to the below messages.
@@ -174,9 +179,14 @@ must be running and the keystore must be set up. Please refer to the link for fu
     [INFO] ------------------------------------------------------------------------
     ```
 
-2. Validate the orders service. You should get a list of all orders items.
+2. Retrieve the JWT from the Auth Service to authorize secure REST calls (TODO):
     ```
-    curl http://localhost:9083/orders/rest/orders
+    curl auth
+    ```
+
+2. Validate the orders service. You should get a list of all orders items. (Correct this)
+    ```
+    curl http://localhost:9446/orders/rest/orders
     ```
 
 3. If you are done accessing the application, you can stop your server using the following command.
