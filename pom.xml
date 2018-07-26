@@ -143,6 +143,10 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
+                    <install>
+                        <runtimeUrl>https://public.dhe.ibm.com/ibmdl/export/pub/software/websphere/wasdev/downloads/wlp/18.0.0.2/wlp-webProfile8-18.0.0.2.zip</runtimeUrl>
+                    </install>
+                    <stripVersion>true</stripVersion>
                     <configFile>${basedir}/src/main/liberty/config/server.xml</configFile>
                     <serverEnv>${basedir}/src/main/liberty/config/server.env</serverEnv>
                     <jvmOptionsFile>${basedir}/src/main/liberty/config/jvm.options</jvmOptionsFile>
