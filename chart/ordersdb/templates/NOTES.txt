@@ -13,10 +13,10 @@ To connect to your database:
 
 2. Install the mysql client:
 
-    apt-get update && apt-get install mysql-client -y
+    $ apt-get update && apt-get install mysql-client -y
 
 3. Connect using the mysql cli, then provide your password:
-    mysql -h {{ template "ordersdb.fullname" . }} -p
+    $ mysql -h {{ template "ordersdb.fullname" . }} -p
 
 To connect to your database directly from outside the K8s cluster:
     {{- if contains "NodePort" .Values.service.type }}
