@@ -28,7 +28,7 @@ imageTag: "v2.0.0"
 ## It's recommended to change this to 'Always' if the image tag is 'latest'
 ## ref: http://kubernetes.io/docs/user-guide/images/#updating-images
 ##
-imagePullPolicy: IfNotPresent
+imagePullPolicy: Always
 
 ## Node selector
 ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
