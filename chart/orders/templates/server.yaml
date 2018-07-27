@@ -48,7 +48,7 @@ spec:
       # Liberty Server Container
       - name: "{{ .Chart.Name }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: {{ .Values.image.imagePullPolicy }}
+        imagePullPolicy: Always
         readinessProbe:
           httpGet:
             path: /

@@ -27,30 +27,30 @@ import utils.JDBCConnection;
 @ApplicationScoped
 
 public class HealthEndpoint implements HealthCheck {
-	
+
 	private final static String QUEUE_NAME = "ordershealth";
 	String health = "orders_health_check";
-	
+
     private Config config = ConfigProvider.getConfig();
-	
+
 	private String inv_url = config.getValue("inventory_health", String.class);
 	private String auth_url = config.getValue("auth_health", String.class);
-	
+
     public boolean isOrdersDbReady(){
 	   //Checking if Orders database is UP
-		
+
         JDBCConnection jdbcConnection = new JDBCConnection();
-		
+
 		java.sql.Connection connection = jdbcConnection.getConnection();
-		
-		if(connection!=null) 
+
+		if(connection!=null)
 			return true;
 		else
 		return false;
 	}
 
 	public boolean isRabbitMQReady() {
-		
+
 		//Checking if RabbitMQ is UP
 
 		boolean msgStatus = sendMessage();
@@ -61,7 +61,7 @@ public class HealthEndpoint implements HealthCheck {
 		return false;
 
 	}
-	
+
 	public boolean sendMessage(){
 		try
 		{
@@ -106,14 +106,14 @@ public class HealthEndpoint implements HealthCheck {
 			return false;
 		}
 		}
-	
+
     public boolean isAuthReady() {
-		
+
 		//Checking if Auth service is UP
 
     	URL url;
 		try {
-			url = new URL(auth_url); 
+			url = new URL(auth_url);
 			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
 			if(con!=null){
 				if(con.getResponseMessage().equals("OK"))
@@ -133,14 +133,14 @@ public class HealthEndpoint implements HealthCheck {
 		return false;
 
 	}
-    
+
     public boolean isInventoryReady() {
-		
+
 		//Checking if Inventory service is UP
-    	
+
     	URL url;
 		try {
-			url = new URL(inv_url); 
+			url = new URL(inv_url);
 			HttpURLConnection con = (HttpURLConnection)url.openConnection();
 			if(con!=null){
 				if(con.getResponseMessage().equals("OK"))
@@ -167,7 +167,7 @@ public class HealthEndpoint implements HealthCheck {
 		// TODO Auto-generated method stub
 		if (!isOrdersDbReady()) {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
-		                                .withData("Inventory Database", "DOWN").down()
+		                                .withData("Orders Database", "DOWN").down()
 		                                .build();
 		    }
 
@@ -177,19 +177,19 @@ public class HealthEndpoint implements HealthCheck {
 			                             .withData("RabbitMQ", "DOWN").down()
 			                             .build();
 			}
-		
+
 		if (!isAuthReady()) {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
 		                                .withData("Auth Service", "DOWN").down()
 		                                .build();
 		    }
-		
+
 		if (!isInventoryReady()) {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
 		                                .withData("Inventory Service", "DOWN").down()
 		                                .build();
 		    }
-		
+
 		return HealthCheckResponse.named(OrderService.class.getSimpleName()).withData("Order Service", "UP").up().build();
 	}
 
