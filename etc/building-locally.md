@@ -169,7 +169,7 @@ must be running and the keystore must be set up. Please refer to the link for fu
 1. Start your server.
 
     ```
-    mvn liberty:start-server -DtestServerHttpPort=9083 -DtestServerhttpsPort=9446
+    mvn liberty:start-server -DtestServerHttpPort=9083 -DtestServerHttpsPort=9446
     ```
 
     You will see something similar to the below messages.
