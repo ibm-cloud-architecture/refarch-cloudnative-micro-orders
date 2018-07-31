@@ -149,14 +149,21 @@ A few steps must be done before Orders can operate with full features which are 
     export rabbit=localhost
     ```
     
-    Also set the Zipkin host and port to defaults.
+    We must set the Zipkin host and port to defaults to suppress some missing config messages.
     
     ```
     export zipkinHost=localhost
     export zipkinPort=9411
     ``` 
     
-    And here are optional exports if Auth or Inventory are running.
+    If hitting the secure REST endpoints, such as `orders/rest/orders`, we must set some JWKS vars.
+    ```
+    export jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
+    export jwksIssuer=https://localhost:9443/oidc/endpoint/OP
+    export administratorRealm=https://localhost:9443/oidc/endpoint/OP
+    ```
+    
+    And lastly here are optional exports if Auth or Inventory are running.
     ```
     export auth_health=https://localhost:9443/health
     export inventory_url=http://localhost:9081/inventory/rest/inventory/stock

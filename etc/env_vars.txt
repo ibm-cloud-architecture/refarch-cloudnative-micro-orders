@@ -1,7 +1,14 @@
+# COPY AND PASTE THESE TO YOUR CONSOLE
+
 # JDBC environment variables
 export jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
 export dbuser=root
 export dbpassword=password
+
+# JWT
+export jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
+export jwksIssuer=https://localhost:9443/oidc/endpoint/OP
+export administratorRealm=https://localhost:9443/oidc/endpoint/OP
 
 # RabbitMQ
 export rabbit=localhost
@@ -15,3 +22,32 @@ export zipkinPort=9411
 export auth_health=https://localhost:9443/health
 export inventory_url=http://localhost:9081/inventory/rest/inventory/stock
 export inventory_health=http://localhost:9081/health
+
+
+
+# COPY AND PASTE THESE TO YOUR SERVER.ENV
+
+# JDBC environment variables
+jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
+dbuser=root
+dbpassword=password
+
+# JWT
+jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
+jwksIssuer=https://localhost:9443/oidc/endpoint/OP
+administratorRealm=https://localhost:9443/oidc/endpoint/OP
+
+# RabbitMQ
+rabbit=localhost
+
+# Zipkin
+# Although optional, defining this will prevent warning and error messages
+zipkinHost=localhost
+zipkinPort=9411
+
+
+# Some environment variables in preparation for communicating with other MicroServices, although not necessary
+# This is under the assumption the entire app is running locally and defined by their appropriate guides.
+auth_health=https://localhost:9443/health
+inventory_url=http://localhost:9081/inventory/rest/inventory/stock
+inventory_health=http://localhost:9081/health
