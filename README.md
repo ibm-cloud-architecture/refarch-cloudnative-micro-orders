@@ -202,7 +202,7 @@ To deploy it on Minikube, please follow the instructions provided
 ### Run Orders Service locally
 
 To deploy the app locally and test the individual service, please follow the instructions provided 
-[here](building-locally.md).
+[here](etc/building-locally.md).
 
 
 ### References

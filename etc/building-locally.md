@@ -75,7 +75,7 @@ You need [Docker](https://www.docker.com/) as a prerequisite.
 3. Run the container.
 
     ```
-    docker run -p 9041:3306 -d --name mysql -e MYSQL_ROOT_PASSWORD=password mysql
+    docker run -p 9041:3306 -d -e MYSQL_ROOT_PASSWORD=password mysql
     ```
 
 
@@ -101,7 +101,7 @@ RabbitMQ will also need to run in a docker container. Fortunately, we can simply
 2. Run the container.
 
     ```
-    docker run -p 5672:5672 -d --name rabbitmq
+    docker run -p 5672:5672 -d rabbitmq
     ```
 
 
@@ -113,15 +113,18 @@ In our sample application, we used Zipkin as our distributed tracing system.
 
 If you want to access the traces for orders service, run Zipkin as a docker container locally. 
 You can find the instructions and more details 
-[here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/Zipkin/README.md)
+[here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/Zipkin/README.md).
 
 
 ### Running the app and stopping it
 
-A few steps must be done before Orders can operate with full features and are described in steps 1 and 2.
+A few steps must be done before Orders can operate with full features which are described in steps 1 and 2.
 
 
 1. Set some environment variables.
+
+    **NOTE:** [Here](env_vars.txt) contains the file for simpler copy paste. You can also paste these into your 
+    `server.env` belonging to the server.
 
     Set the JDBC URL and few other environment variables before you start your application. The host and port depends 
     on the service you use. You can run the MySQL server locally on your system using the MySQL docker container or use 
@@ -141,7 +144,7 @@ A few steps must be done before Orders can operate with full features and are de
     export dbpassword=password
     ```
     
-    We must also indicate that RabbitMQ is running locally.
+    We must set variables to notify the app RabbitMQ is running locally.
     ```
     export rabbit=localhost
     ```
@@ -152,6 +155,13 @@ A few steps must be done before Orders can operate with full features and are de
     export zipkinHost=localhost
     export zipkinPort=9411
     ``` 
+    
+    And here are optional exports if Auth or Inventory are running.
+    ```
+    export auth_health=https://localhost:9443/health
+    export inventory_url=http://localhost:9081/inventory/rest/inventory/stock
+    export inventory_health=http://localhost:9081/health
+    ```
     
 2. To enable authentication, the [Auth MicroService](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/microprofile) 
 must be running and the keystore must be set up. Please refer to the link for further instructions.
@@ -178,15 +188,23 @@ must be running and the keystore must be set up. Please refer to the link for fu
     [INFO] Final Memory: 14M/309M
     [INFO] ------------------------------------------------------------------------
     ```
+    
+    From here, you may access the Orders' endpoints, like `/health` or `/openapi/ui`. 
+    To hit secure REST endpoints, like `/orders/rest/orders` to retrieve our list of orders, we need to 
+    authenticate our calls appropriately. Please refer [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/blob/microprofile/building-locally.md) 
+    for further details.
 
-2. Retrieve the JWT from the Auth Service to authorize secure REST calls (TODO):
+2. Retrieve the JWT from the Auth Service to authorize secure REST calls:
     ```
-    curl auth
+    curl -k -d 'grant_type=password&client_id=bluecomputeweb&client_secret=bluecomputewebs3cret&username=user&password=password&scope=openid' https://localhost:9443/oidc/endpoint/OP/token
     ```
-
-2. Validate the orders service. You should get a list of all orders items. (Correct this)
+    You should see something similar to this:
+    ![jwt_example](jwt_example.png)
+    
+3. Setup your [keystore](about:blank) <-- TODO (Waiting for JJ's changes)
+    
+2. Validate the orders service. Insert your given JWT and you should get a list of all orders items. <-- TODO
     ```
-    curl http://localhost:9446/orders/rest/orders
     ```
 
 3. If you are done accessing the application, you can stop your server using the following command.
