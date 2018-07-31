@@ -203,8 +203,12 @@ must be running and the keystore must be set up. Please refer to the link for fu
     
 3. Setup your [keystore](about:blank) <-- TODO (Waiting for JJ's changes)
     
-2. Validate the orders service. Insert your given JWT and you should get a list of all orders items. <-- TODO
+2. Validate the orders service. Insert your given JWT and you should get a list of items.
     ```
+    curl -k --request GET \
+      --url https://localhost:9446/orders/rest/orders \
+      --header 'Authorization: Bearer <Insert Token Here>
+      --header 'Content-Type: application/json'
     ```
 
 3. If you are done accessing the application, you can stop your server using the following command.
