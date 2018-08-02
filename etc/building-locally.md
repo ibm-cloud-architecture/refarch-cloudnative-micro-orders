@@ -26,8 +26,19 @@ In this task, you use Maven to build the project.
    ```
    git checkout microprofile
    ```
+   
+3. Create the [auth keystore and truststore](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile/Keystore)
+, and then correct their locations in your server.xml
+    ```
+    <ssl id="defaultSSLConfig" keyStoreRef="KeystorebcKeyStore" trustStoreRef="bcTrustStore"/>
+    <keyStore id="bcKeyStore" location="<Path to BCKeyStoreFile.jks>" type="JKS" password="password"/>
+    <keyStore id="bcTrustStore" location="<Path to truststore.jks>" type="JKS" password="password"/>
+    ```
+    
+4. **Optional**: If running locally, copy [environment variables](env_vars.txt) into your `server.env` to save effort 
+exporting them later. This step will be covered again before running the app.
 
-3. Use Maven to build and install the project.
+5. Use Maven to build and install the project.
 
    ```
    mvn install
@@ -75,7 +86,7 @@ You need [Docker](https://www.docker.com/) as a prerequisite.
 3. Run the container.
 
     ```
-    docker run -p 9041:3306 -d -e MYSQL_ROOT_PASSWORD=password mysql
+    docker run -p 9039:3306 -d -e MYSQL_ROOT_PASSWORD=password mysql
     ```
 
 
@@ -124,7 +135,8 @@ A few steps must be done before Orders can operate with full features which are 
 1. Set some environment variables.
 
     **NOTE:** [Here](env_vars.txt) contains the file for simpler copy paste. You can also paste these into your 
-    `server.env` belonging to the server.
+    `server.env` belonging to the server. Otherwise, you can copy it into `src/main/liberty/config` but this requires a
+    rebuild.
 
     Set the JDBC URL and few other environment variables before you start your application. The host and port depends 
     on the service you use. You can run the MySQL server locally on your system using the MySQL docker container or use 
@@ -208,13 +220,20 @@ must be running and the keystore must be set up. Please refer to the link for fu
     You should see something similar to this:
     ![jwt_example](jwt_example.png)
     
-3. Setup your [keystore](about:blank) <-- TODO (Waiting for JJ's changes)
+3. Create an order with a POST command so we can retrieve it later.
+    ```
+    curl -k -X POST \
+      --url https://localhost:9446/orders/rest/orders \
+      --header "Content-Type: application/json" \
+      --header "Authorization: Bearer <Insert Token Here>" \
+      -d '{"itemId":13401, "count":1}' 
+    ```
     
 2. Validate the orders service. Insert your given JWT and you should get a list of items.
     ```
     curl -k --request GET \
       --url https://localhost:9446/orders/rest/orders \
-      --header 'Authorization: Bearer <Insert Token Here>
+      --header 'Authorization: Bearer <Insert Token Here>'
       --header 'Content-Type: application/json'
     ```
 
