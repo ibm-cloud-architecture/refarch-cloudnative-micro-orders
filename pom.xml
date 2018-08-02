@@ -143,7 +143,6 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
-                    <stripVersion>true</stripVersion>
                     <configFile>${basedir}/src/main/liberty/config/server.xml</configFile>
                     <serverEnv>${basedir}/src/main/liberty/config/server.env</serverEnv>
                     <jvmOptionsFile>${basedir}/src/main/liberty/config/jvm.options</jvmOptionsFile>
