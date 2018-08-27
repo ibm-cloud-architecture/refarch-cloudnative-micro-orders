@@ -2,7 +2,7 @@
 source scripts/max_heap.sh
 source scripts/parse_mysql.sh
 
-#set -x;
+set -x;
 # Set Max Heap
 export JAVA_OPTS="${JAVA_OPTS} -Xmx${max_heap}m"
 
