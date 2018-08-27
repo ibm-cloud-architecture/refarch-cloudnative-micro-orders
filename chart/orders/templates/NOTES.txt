@@ -1,0 +1,35 @@
+##########################################################
+######     Orders was successfully installed!!!      #####
+##########################################################
+
+To access the Orders Microservice API, please follow the steps below:
+
+1. To get the IP Address for the Orders Application, run one the following commands based on your environment:
+  IBM Cloud Container Service:
+  NODE_IP=$(bx cs workers $YOUR_CLUSTER_NAME | grep -v '^*' | egrep -v "(ID|OK)" | awk '{print $2;}' | head -n1)
+
+  IBM Cloud Private:
+  NODE_IP=$PROXY_NODE_EXTERNAL_IP
+
+  Minikube:
+  NODE_IP=$(minikube ip)
+
+  Others:
+  NODE_IP=$(kubectl get nodes -o jsonpath='{.items[*].status.addresses[?(@.type=="ExternalIP")].address}' | awk '{print $1}')
+
+2. To get the Port for the Orders Application, run the following command:
+  PORT=$(kubectl --namespace {{ .Release.Namespace }} get service {{ .Release.Name }}-{{ .Chart.Name }} -o jsonpath='{.spec.ports[0].nodePort}')
+
+3. Generate an "blue" scoped JWT token to use the API
+  # Get the HS256 Key
+  HS256_KEY=$(kubectl get secrets {{ template "orders.hs256key.secretName" . }} -o jsonpath='{.data.key}' | base64 --decode)
+
+  # JWT Header
+  jwt1=$(echo -n '{"alg":"HS256","typ":"JWT"}' | openssl enc -base64);
+  jwt2=$(echo -n '{"scope":["blue"],"user_name":"{{ .Values.testUser.username }}"}' | openssl enc -base64);
+  jwt3=$(echo -n "${jwt1}.${jwt2}" | tr '+\/' '-_' | tr -d '=' | tr -d '\r\n');
+  jwt4=$(echo -n "${jwt3}" | openssl dgst -binary -sha256 -hmac "${HS256_KEY}" | openssl enc -base64 | tr '+\/' '-_' | tr -d '=' | tr -d '\r\n');
+  jwt=$(echo -n "${jwt3}.${jwt4}");
+
+4. To get the entire URL for the Orders Application, run the following command:
+  curl -s -X GET "http://${NODE_IP}:${PORT}/micro/orders/search?username={{ .Values.testUser.username }}" -H 'Content-type: application/json' -H "Authorization: Bearer ${jwt}"

@@ -5,7 +5,7 @@ replicaCount: 1
 
 image:
   repository: ibmcase/bluecompute-orders
-  tag: latest
+  tag: 0.5.0
   pullPolicy: Always
 
 service:
@@ -13,12 +13,12 @@ service:
   type: ClusterIP
   externalPort: 8080
   internalPort: 8080
+  nodePort: 31383
 
 ingress:
   enabled: false
   hostname: orders.bluecompute.com
   path: /micro/orders
-  loadBalancerID: ENTER_PRIVATE_LOAD_BALANCER_ID
 
 tls:
   enabled: false
@@ -26,26 +26,38 @@ tls:
   crt: ENTER_BASE64_ENCODED_CERTIFICATE
   key: ENTER_BASE64_ENCODED_KEY
 
+# Included Community MySQL Chart.
+# - Even if disabled, these fields are used to provide information
+#   for external MySQL deployments.
+# - Also, the MySQL docker image is used in load_data.yaml to load
+#   MySQL deployment (internal or not) with some static orders data
+ordersmysql:
+  enabled: true
+  image: "mysql"
+  imageTag: "5.7.14"
+  imagePullPolicy: IfNotPresent
+  # If chart is not enabled, this field can be used as external mysql host
+  fullnameOverride: bluecompute-orders-mysql
+  mysqlRootPassword: admin123
+  mysqlUser: dbuser
+  mysqlPassword: password
+  mysqlDatabase: ordersdb
+  service:
+    port: 3306
+  persistence:
+    enabled: false
+
 hs256key:
-  skipDelete: true
-  secretName: hs256-key
-  secret:
+  # If there is an existing secret with the key, provide it here
+  secretName:
+  secret: E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
+
+global:
+  hs256key:
+    secretName:
 
 resources:
   limits:
     memory: 384Mi
   requests:
-    memory: 128Mi
-
-dataloader:
-  image:
-    repository: ibmcase/bluecompute-dataloader
-    tag: latest
-
-ordersmysql:
-  binding:
-    name: binding-orders-mysql
-
-messagehub:
-  binding:
-    name:
+    memory: 64Mi
