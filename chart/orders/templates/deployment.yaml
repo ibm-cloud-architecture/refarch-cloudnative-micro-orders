@@ -22,5 +22,6 @@ spec:
           protocol: TCP
         env:
         {{- include "orders.mysql.environmentvariables" . | indent 8 }}
+        {{- include "orders.hs256key.environmentvariables" . | indent 8 }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}

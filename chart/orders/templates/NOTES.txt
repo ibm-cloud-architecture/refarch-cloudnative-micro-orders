@@ -26,10 +26,13 @@ To access the Orders Microservice API, please follow the steps below:
 
   # JWT Header
   jwt1=$(echo -n '{"alg":"HS256","typ":"JWT"}' | openssl enc -base64);
-  jwt2=$(echo -n '{"scope":["blue"],"user_name":"{{ .Values.testUser.username }}"}' | openssl enc -base64);
+  jwt2=$(echo -n '{"scope":["blue"],"user_name":"admin"}' | openssl enc -base64);
   jwt3=$(echo -n "${jwt1}.${jwt2}" | tr '+\/' '-_' | tr -d '=' | tr -d '\r\n');
   jwt4=$(echo -n "${jwt3}" | openssl dgst -binary -sha256 -hmac "${HS256_KEY}" | openssl enc -base64 | tr '+\/' '-_' | tr -d '=' | tr -d '\r\n');
   jwt=$(echo -n "${jwt3}.${jwt4}");
 
-4. To get the entire URL for the Orders Application, run the following command:
-  curl -s -X GET "http://${NODE_IP}:${PORT}/micro/orders/search?username={{ .Values.testUser.username }}" -H 'Content-type: application/json' -H "Authorization: Bearer ${jwt}"
+4. To create an order, run the following command:
+  curl -i -X POST -H 'Content-Type: application/json' -H "Authorization: Bearer ${jwt}" -d '{"itemId":13401,"count":1}' "http://${NODE_IP}:${PORT}/micro/orders"
+
+4. To get all created orders, run the following command:
+  curl -H "Authorization: Bearer ${jwt}" "http://${NODE_IP}:${PORT}/micro/orders"

@@ -13,7 +13,7 @@ export JAVA_OPTS="${JAVA_OPTS} -Djava.security.egd=file:/dev/./urandom"
 parse_mysql
 
 # Parse messagehub
-if [ -n ${messagehub+x} ]; then 
+if [ -n "${messagehub}" ]; then 
     echo "Found messagehub secret"
 
     # Construct messagehub environment variables
