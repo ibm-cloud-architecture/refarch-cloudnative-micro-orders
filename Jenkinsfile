@@ -1,75 +1,95 @@
-podTemplate(
-    label: 'mypod',
-    volumes: [
-      hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock'),
-      secretVolume(secretName: 'registry-account', mountPath: '/var/run/secrets/registry-account'),
-      configMapVolume(configMapName: 'registry-config', mountPath: '/var/run/configs/registry-config')
-    ],
+/*
+    To learn how to use this sample pipeline, follow the guide below and enter the
+    corresponding values for your environment and for this repository:
+    - https://github.com/ibm-cloud-architecture/refarch-cloudnative-devops-kubernetes
+*/
 
+// Pod Template
+def podLabel = "orders"
+def cloud = env.CLOUD ?: "kubernetes"
+def registryCredsID = env.REGISTRY_CREDENTIALS ?: "registry-credentials-id"
+def serviceAccount = env.SERVICE_ACCOUNT ?: "jenkins"
+
+// Pod Environment Variables
+def namespace = env.NAMESPACE ?: "default"
+def registry = env.REGISTRY ?: "docker.io"
+def imageName = env.IMAGE_NAME ?: "ibmcase/bluecompute-orders"
+def deploymentLabels = env.DEPLOYMENT_LABELS ?: "app=bluecompute,tier=backend,micro=orders"
+def podName = env.POD_NAME ?: "orders"
+
+podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, namespace: namespace, envVars: [
+        envVar(key: 'NAMESPACE', value: namespace),
+        envVar(key: 'REGISTRY', value: registry),
+        envVar(key: 'IMAGE_NAME', value: imageName),
+        envVar(key: 'DEPLOYMENT_LABELS', value: deploymentLabels),
+        envVar(key: 'POD_NAME', value: podName)
+    ],
+    volumes: [
+        hostPathVolume(hostPath: '/etc/docker/certs.d', mountPath: '/etc/docker/certs.d'),
+        hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
+    ],
     containers: [
-        containerTemplate(name: 'gradle', image: 'ibmcase/gradle:jdk8-alpine', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'kubectl', image: 'lachlanevenson/k8s-kubectl', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'docker' , image: 'docker:17.06.1-ce', ttyEnabled: true, command: 'cat')
-    ],
-) {
-    node ('mypod') {
-        checkout scm
-        container('gradle') {
-            stage('Build Gradle Project') {
-                sh """
-                #!/bin/sh
-                gradle build -x test
-                gradle docker
-                """
-            }
-        }
-        container('docker') {
-            stage ('Build Docker Image') {
-                sh """
-                    #!/bin/bash
-                    NAMESPACE=`cat /var/run/configs/registry-config/namespace`
-                    REGISTRY=`cat /var/run/configs/registry-config/registry`
+  ]) {
 
-                    cd docker
-                    docker build -t \${REGISTRY}/\${NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER} .                    
-                """
-            }
-            stage ('Push Docker Image to Registry') {
+    node(podLabel) {
+        checkout scm
+        container('docker') {
+            stage('Build Docker Image') {
                 sh """
                 #!/bin/bash
-                NAMESPACE=`cat /var/run/configs/registry-config/namespace`
-                REGISTRY=`cat /var/run/configs/registry-config/registry`
-
-                set +x
-                DOCKER_USER=`cat /var/run/secrets/registry-account/username`
-                DOCKER_PASSWORD=`cat /var/run/secrets/registry-account/password`
-                docker login -u=\${DOCKER_USER} -p=\${DOCKER_PASSWORD} \${REGISTRY}
-                set -x
-
-                docker push \${REGISTRY}/\${NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER}
+                if [ "${env.REGISTRY}" = "docker.io" ]; then
+                    echo 'Building Docker Hub Image'
+                    docker build -t ${env.IMAGE_NAME}:${env.BUILD_NUMBER} .
+                else
+                    echo 'Building Private Registry Image'
+                    docker build -t ${env.REGISTRY}/${env.NAMESPACE}/${env.IMAGE_NAME}:${env.BUILD_NUMBER} .
+                fi
                 """
+            }
+            stage('Push Docker Image to Registry') {
+                withCredentials([usernamePassword(credentialsId: registryCredsID,
+                                               usernameVariable: 'USERNAME',
+                                               passwordVariable: 'PASSWORD')]) {
+                    sh """
+                    #!/bin/bash\
+
+                    docker login -u ${USERNAME} -p ${PASSWORD} ${env.REGISTRY}
+
+                    if [ "${env.REGISTRY}" = "docker.io" ]; then
+                        echo 'Pushing to Docker Hub'
+                        docker push ${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                    else
+                        echo 'Pushing to Private Registry'
+                        docker push ${env.REGISTRY}/${env.NAMESPACE}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                    fi
+                    """
+                }
             }
         }
         container('kubectl') {
             stage('Deploy new Docker Image') {
                 sh """
                 #!/bin/bash
-                set +e
-                NAMESPACE=`cat /var/run/configs/registry-config/namespace`
-                REGISTRY=`cat /var/run/configs/registry-config/registry`
-                DEPLOYMENT=`kubectl --namespace=\${NAMESPACE} get deployments -l app=bluecompute,tier=backend,micro=orders -o name`
-
-                kubectl --namespace=\${NAMESPACE} get \${DEPLOYMENT}
-
+                DEPLOYMENT=`kubectl --namespace=${env.NAMESPACE} get deployments -l ${env.DEPLOYMENT_LABELS} -o name`
+                kubectl --namespace=${env.NAMESPACE} get \${DEPLOYMENT}
                 if [ \${?} -ne "0" ]; then
                     # No deployment to update
                     echo 'No deployment to update'
                     exit 1
                 fi
 
-                # Update Deployment
-                kubectl --namespace=\${NAMESPACE} set image \${DEPLOYMENT} orders=\${REGISTRY}/\${NAMESPACE}/bluecompute-orders:${env.BUILD_NUMBER}
-                kubectl --namespace=\${NAMESPACE} rollout status \${DEPLOYMENT}
+                # Get image
+                if [ "${env.REGISTRY}" = "docker.io" ]; then
+                    IMAGE=${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                else
+                    IMAGE=${env.REGISTRY}/${env.NAMESPACE}/${env.IMAGE_NAME}:${env.BUILD_NUMBER}
+                fi
+
+                # Update deployment and check rollout status
+                kubectl --namespace=${env.NAMESPACE} set image \${DEPLOYMENT} ${env.POD_NAME}=\${IMAGE}
+                kubectl --namespace=${env.NAMESPACE} rollout status \${DEPLOYMENT}
                 """
             }
         }
