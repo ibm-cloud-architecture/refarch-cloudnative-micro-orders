@@ -30,12 +30,12 @@ jobs:
           - $HOME/.gradle/wrapper/
       before_script:
       # Start MySQL Container
-      - docker run --name ordersmysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD -e MYSQL_DATABASE=${MYSQL_DATABASE} -p 3306:3306 -d mysql:5.7.14
+      - docker run --name ordersmysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -p 3306:3306 -d mysql:5.7.14
       script:
       # Gradle Build
       - ./gradlew build -x test
       # Start Application
-      - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/ordersdb -Dspring.datasource.username=dbuser -Dspring.datasource.password=password -Dspring.datasource.port=3306 -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
+      - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@localhost:3306/${MYSQL_DATABASE} -Dspring.datasource.username=${MYSQL_USER} -Dspring.datasource.password=${MYSQL_PASSWORD} -Dspring.datasource.port=3306 -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
@@ -48,14 +48,14 @@ jobs:
         - true
       before_script:
       # Start MySQL Container
-      - docker run --name ordersmysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD -e MYSQL_DATABASE=${MYSQL_DATABASE} -p 3306:3306 -d mysql:5.7.14
+      - docker run --name ordersmysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -p 3306:3306 -d mysql:5.7.14
       # Get IP Address for CouchDB
       - MYSQL_IP=$(docker inspect ordersmysql | jq -r '.[0].NetworkSettings.IPAddress')
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_IP}:3306/${MYSQL_DATABASE" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_IP}:3306/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
