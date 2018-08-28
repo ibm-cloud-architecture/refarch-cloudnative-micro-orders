@@ -31,6 +31,8 @@ jobs:
       before_script:
       # Wait MySQL
       - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      # Create ordersdb database
+      - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
       # Gradle Build
       - ./gradlew build -x test
@@ -49,6 +51,8 @@ jobs:
       before_script:
       # Wait MySQL
       - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      # Create ordersdb database
+      - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
