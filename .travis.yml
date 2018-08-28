@@ -8,11 +8,10 @@ env:
     - RELEASE_NAME=orders
     - TAG=travis-latest
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
-    - MYSQL_ROOT_PASSWORD=admin123
-    - MYSQL_USER=dbuser
-    - MYSQL_PASSWORD=password
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=
     - MYSQL_DATABASE=ordersdb
-    - MYSQL_PORT=3307
+    - MYSQL_PORT=3306
 stages:
   - local build and test
   - docker build, deploy, and test
@@ -21,7 +20,7 @@ jobs:
   include:
     - stage: local build and test
       services:
-      - docker
+      - mysql
       before_cache:
         - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
         - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
@@ -30,8 +29,8 @@ jobs:
           - $HOME/.gradle/caches/
           - $HOME/.gradle/wrapper/
       before_script:
-      # Start MySQL Container
-      - docker run --name ordersmysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -p ${MYSQL_PORT}:3306 -d mysql:5.7.14
+      # Wait MySQL
+      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       script:
       # Gradle Build
       - ./gradlew build -x test
@@ -43,21 +42,18 @@ jobs:
       - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
     - stage: docker build, deploy, and test
       services:
+      - mysql
       - docker
       install:
         - true
       before_script:
-      # Start MySQL Container
-      - docker run --name ordersmysql -e MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD} -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -p ${MYSQL_PORT}:3306 -d mysql:5.7.14
-      # Get IP Address for CouchDB
-      - MYSQL_IP=$(docker inspect ordersmysql | jq -r '.[0].NetworkSettings.IPAddress')
+      # Wait MySQL
+      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Check MySQL Status
-      - mysql -h 127.0.0.1 -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e status
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@${MYSQL_IP}:3306/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
