@@ -121,5 +121,5 @@ jobs:
       - sleep 35
       # Run Orders API Test
       - MINIKUBE_IP=$(minikube ip)
-      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-customer -o=jsonpath='{.spec.ports[0].nodePort}')
+      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-orders -o=jsonpath='{.spec.ports[0].nodePort}')
       - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT $HS256_KEY
