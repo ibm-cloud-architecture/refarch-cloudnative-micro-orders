@@ -1,5 +1,5 @@
 # STAGE: Build
-FROM gradle:jdk8-alpine as builder
+FROM gradle:4.9.0-jdk8-alpine as builder
 
 # Create Working Directory
 ENV BUILD_DIR=/home/gradle/app/
