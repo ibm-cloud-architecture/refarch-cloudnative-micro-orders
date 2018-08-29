@@ -70,18 +70,6 @@ test {
     }
 }
 
-task docker {
-    doLast {
-        copy {
-            from 'build/libs/micro-orders-0.0.1.jar'
-            into 'docker'
-        }
-        file("docker/micro-orders-0.0.1.jar").renameTo(file("docker/app.jar"))
-
-    }
-}
-
 task wrapper(type: Wrapper) {
     gradleVersion = '3.2'
 }
-

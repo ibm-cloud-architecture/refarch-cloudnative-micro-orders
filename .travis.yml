@@ -1,13 +1,125 @@
+sudo: required
 language: java
-jdk: 
-- oraclejdk8
-
-## If we want to test against database and docker we can use these later
-#services:
-#- mysql
-#- docker
-
- 
-script: 
-- ./gradlew build
-- ./gradlew docker
+jdk:
+  - openjdk8
+env:
+  global:
+    - IMAGE_NAME=bluecompute-orders
+    - RELEASE_NAME=orders
+    - TAG=travis-latest
+    - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
+    - MYSQL_USER=root
+    - MYSQL_PASSWORD=
+    - MYSQL_DATABASE=ordersdb
+    - MYSQL_PORT=3306
+stages:
+  - local build and test
+  - docker build, deploy, and test
+  - kubernetes build, deploy, and test
+jobs:
+  include:
+    - stage: local build and test
+      services:
+      - mysql
+      before_cache:
+        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
+        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
+      cache:
+        directories:
+          - $HOME/.gradle/caches/
+          - $HOME/.gradle/wrapper/
+      before_script:
+      # Wait MySQL
+      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      # Create ordersdb database
+      - mysql -u root -e "create database ${MYSQL_DATABASE}"
+      script:
+      # Gradle Build
+      - ./gradlew build -x test
+      # Start Application
+      - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE} -Dspring.datasource.username=${MYSQL_USER} -Dspring.datasource.password=${MYSQL_PASSWORD} -Dspring.datasource.port=${MYSQL_PORT} -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
+      # Wait for the Orders container to start accepting connections
+      - sleep 25
+      # Run Orders API Test
+      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
+    - stage: docker build, deploy, and test
+      services:
+      - mysql
+      - docker
+      install:
+        - true
+      before_script:
+      # Wait MySQL
+      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      # Create ordersdb database
+      - mysql -u root -e "create database ${MYSQL_DATABASE}"
+      script:
+      # Build Docker image
+      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      # Start Orders Container and Connect to local MySQL Service
+      - docker run --net=host --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      # Wait for the Orders container to start accepting connections
+      - sleep 25
+      # Check that the Orders container is running
+      - docker ps
+      # Check logs to see if it started properly
+      - docker logs orders
+      # Run Orders API Test
+      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
+    - stage: kubernetes build, deploy, and test
+      services:
+      - docker
+      env:
+      - CHANGE_MINIKUBE_NONE_USER=true
+      install:
+        - true
+      before_script:
+      # Install nsenter, which is needed for minikube to work
+      - bash scripts/install_nsenter.sh 
+      # Download kubectl, which is a requirement for using minikube.
+      - curl -LO https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl && chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+      # Download minikube.
+      - curl -Lo minikube https://storage.googleapis.com/minikube/releases/v0.25.2/minikube-linux-amd64 && chmod +x minikube && sudo mv minikube /usr/local/bin/
+      - sudo minikube start --vm-driver=none --kubernetes-version=v1.9.0
+      # Fix the kubectl context, as it's often stale.
+      - minikube update-context
+      # Getting ip for testing
+      - minikube ip
+      # Wait for Minikube to be up and ready.
+      - JSONPATH='{range .items[*]}{@.metadata.name}:{range @.status.conditions[*]}{@.type}={@.status};{end}{end}'; until kubectl get nodes -o jsonpath="$JSONPATH" 2>&1 | grep -q "Ready=True"; do sleep 1; done
+      # Set minikube Docker Registry to be the local one
+      #- minikube docker-env
+      #- eval $(minikube docker-env)
+      # Download Helm CLI
+      - curl https://raw.githubusercontent.com/kubernetes/helm/master/scripts/get > get_helm.sh && chmod 700 get_helm.sh && ./get_helm.sh && rm get_helm.sh
+      # Create Tiller Service Account
+      - kubectl -n kube-system create sa tiller && kubectl create clusterrolebinding tiller --clusterrole cluster-admin --serviceaccount=kube-system:tiller
+      # Install Helm on Minikube
+      - helm init --service-account tiller
+      # Wait for helm to be ready
+      - until helm list; do echo "waiting for helm to be ready"; sleep 1; done
+      script:
+      # Get cluster info
+      - kubectl cluster-info
+      # Build Docker image
+      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      # Download Orders chart dependencies (MySQL)
+      - cd chart/orders; helm dependency update; cd ../..
+      # helm lint
+      - helm lint chart/orders
+      # helm package
+      - helm package chart/orders
+      # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
+      - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
+      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
+      # Wait for Orders to be ready
+      - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
+      - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
+      - echo $READY
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for orders to be ready"; sleep 10; done
+      # Wait for Orders deployment to start accepting connections
+      - sleep 35
+      # Run Orders API Test
+      - MINIKUBE_IP=$(minikube ip)
+      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-orders -o=jsonpath='{.spec.ports[0].nodePort}')
+      - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT $HS256_KEY

@@ -1,17 +1,11 @@
+{{ if and (not .Values.global.hs256key.secretName) (not .Values.hs256key.secretName) }}
 apiVersion: v1
-data:
-  {{ if .Values.hs256key.secret }}
-  key: {{ .Values.hs256key.secret | b64enc }}
-  {{ else }}
-  key: {{ (.Values.hs256key.secret | default (randAlphaNum 256)) | b64enc }}
-  {{ end }}
 kind: Secret
 metadata:
+  name: {{ template "orders.hs256key.secretName" . }}
   labels:
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}"
-    app: bluecompute
-    tier: backend
-    micro: orders
-  name: "{{ .Release.Name }}-{{ .Values.hs256key.secretName }}"
-  namespace: {{ .Release.Namespace }}
+    {{- include "orders.labels" . | indent 4 }}
+data:
+  key: {{ (.Values.hs256key.secret | default (randAlphaNum 256)) | b64enc }}
 type: Opaque
+{{ end }}
