@@ -14,16 +14,16 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* MySQL Init Container Template */}}
 {{- define "orders.mariadb.initcontainer" }}
-- name: test-mysql
+- name: test-mariadb
   image: {{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}
   imagePullPolicy: {{ .Values.mysql.imagePullPolicy }}
   command:
   - "/bin/bash"
   - "-c"
   {{- if .Values.mariadb.db.password }}
-  - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e status; do echo waiting for mysql; sleep 1; done"
+  - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e status; do echo waiting for mariadb; sleep 1; done"
   {{- else }}
-  - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -e status; do echo waiting for mysql; sleep 1; done"
+  - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -e status; do echo waiting for mariadb; sleep 1; done"
   {{- end }}
   env:
   {{- include "orders.mariadb.environmentvariables" . | indent 2 }}
@@ -43,7 +43,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 - name: MYSQL_PASSWORD
   valueFrom:
     secretKeyRef:
-      name: {{ template "orders.mariadb.secret.name" . }}
+      name: {{ template "orders.mariadb.secretName" . }}
       key: mariadb-password
 {{- end }}
 {{- end }}
@@ -58,13 +58,13 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end -}}
 
 {{/* MariaDB Secret Name */}}
-{{- define "orders.mariadb.secret.name" -}}
-  {{- if .Values.mariadb.enabled -}}
-    {{ .Release.Name }}-{{ .Values.mariadb.nameOverride }}
+{{- define "orders.mariadb.secretName" }}
+  {{- if .Values.mariadb.enabled }}
+    {{- printf "%s-%s" .Release.Name .Values.mariadb.nameOverride -}}
   {{- else -}}
-    {{ .Values.mariadb.nameOverride }}-secret
-  {{- end -}}
-{{- end -}}
+    {{ template "orders.fullname" . }}-mariadb-secret
+  {{- end }}
+{{- end }}
 
 {{/* Orders HS256KEY Environment Variables */}}
 {{- define "orders.hs256key.environmentvariables" }}
