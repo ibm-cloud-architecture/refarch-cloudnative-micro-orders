@@ -12,7 +12,7 @@ spec:
         {{- include "orders.labels" . | indent 8 }}
     spec:
       initContainers:
-      {{- include "orders.mysql.initcontainer" . | indent 6 }}
+      {{- include "orders.mariadb.initcontainer" . | indent 6 }}
       containers:
       - name: orders
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -21,7 +21,7 @@ spec:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
         env:
-        {{- include "orders.mysql.environmentvariables" . | indent 8 }}
+        {{- include "orders.mariadb.environmentvariables" . | indent 8 }}
         {{- include "orders.hs256key.environmentvariables" . | indent 8 }}
         resources:
 {{ toYaml .Values.resources | indent 10 }}
