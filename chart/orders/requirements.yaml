@@ -1,6 +1,5 @@
 dependencies:
-  - name: mysql
-    alias: ordersmysql
-    version: 0.8.2
+  - name: mariadb
+    version: 4.4.2
     repository: https://kubernetes-charts.storage.googleapis.com
-    condition: ordersmysql.enabled
+    condition: mariadb.enabled

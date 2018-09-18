@@ -15,6 +15,8 @@ ingress:
   enabled: false
   hostname: orders.bluecompute.com
   path: /micro/orders
+  ibmCloud:
+    redirectToHTTPS: false
 
 tls:
   enabled: false
@@ -27,21 +29,37 @@ tls:
 #   for external MySQL deployments.
 # - Also, the MySQL docker image is used in load_data.yaml to load
 #   MySQL deployment (internal or not) with some static orders data
-ordersmysql:
+mariadb:
   enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/mariadb
+    tag: 10.1.36-debian-9
+    pullPolicy: IfNotPresent
+  service:
+    port: 3306
+  rootUser:
+    password: admin123
+  nameOverride: bluecompute-orders-mysql
+  db:
+    user: dbuser
+    password: password
+    name: ordersdb
+  replication:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+  slave:
+    replicas: 1
+    persistence:
+      enabled: false
+
+# Used to check that MariaDB deployment is ready
+mysql:
   image: "mysql"
   imageTag: "5.7.14"
   imagePullPolicy: IfNotPresent
-  # If chart is not enabled, this field can be used as external mysql host
-  fullnameOverride: bluecompute-orders-mysql
-  mysqlRootPassword: admin123
-  mysqlUser: dbuser
-  mysqlPassword: password
-  mysqlDatabase: ordersdb
-  service:
-    port: 3306
-  persistence:
-    enabled: false
 
 hs256key:
   # If there is an existing secret with the key, provide it here
