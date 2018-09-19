@@ -76,13 +76,24 @@ $ cd refarch-cloudnative-micro-orders
 ## Deploy Orders Application to Kubernetes Cluster
 In this section, we are going to deploy the Orders Application, along with a MySQL service, to a Kubernetes cluster using Helm. To do so, follow the instructions below:
 ```bash
+# Install MariaDB Chart
+$ helm upgrade --install orders-mariadb \
+  --version 4.4.2 \
+  --set nameOverride=orders-mariadb \
+  --set rootUser.password=admin123 \
+  --set db.user=dbuser \
+  --set db.password=password \
+  --set db.name=ordersdb \
+  --set replication.enabled=false \
+  --set master.persistence.enabled=false \
+  --set slave.replicas=1 \
+  --set slave.persistence.enabled=false \
+  stable/mariadb
+
 # Go to Chart Directory
 $ cd chart/orders
 
-# Download MySQL Dependency Chart
-$ helm dependency update
-
-# Deploy Orders and MySQL to Kubernetes cluster
+# Deploy Orders and MariaDB to Kubernetes cluster
 $ helm upgrade --install orders --set service.type=NodePort .
 ```
 
@@ -94,7 +105,7 @@ To check and wait for the deployment status, you can run the following command:
 ```bash
 $ kubectl get deployments -w
 NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-orders-orders   	  1         1         1            1           10h
+orders-orders   	    1         1         1            1           10h
 ```
 
 The `-w` flag is so that the command above not only retrieves the deployment but also listens for changes. If you a 1 under the `CURRENT` column, that means that the orders app deployment is ready.

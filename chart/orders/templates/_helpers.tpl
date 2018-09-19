@@ -24,7 +24,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   command:
   - "/bin/bash"
   - "-c"
-  {{- if .Values.mariadb.db.password }}
+  {{- if .Values.mariadb.password }}
   - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e status; do echo waiting for mariadb; sleep 1; done"
   {{- else }}
   - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -e status; do echo waiting for mariadb; sleep 1; done"
@@ -36,14 +36,14 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{/* Orders MySQL Environment Variables */}}
 {{- define "orders.mariadb.environmentvariables" }}
 - name: MYSQL_HOST
-  value: {{ template "orders.mariadb.name" . }}
+  value: {{ .Values.mariadb.host | quote }}
 - name: MYSQL_PORT
-  value: {{ .Values.mariadb.service.port | quote }}
+  value: {{ .Values.mariadb.port | quote }}
 - name: MYSQL_DATABASE
-  value: {{ .Values.mariadb.db.name | quote }}
+  value: {{ .Values.mariadb.database | quote }}
 - name: MYSQL_USER
-  value: {{ .Values.mariadb.db.user | quote }}
-{{- if .Values.mariadb.db.password }}
+  value: {{ .Values.mariadb.user | quote }}
+{{- if or .Values.mariadb.password .Values.mariadb.existingSecret }}
 - name: MYSQL_PASSWORD
   valueFrom:
     secretKeyRef:
@@ -52,19 +52,10 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end }}
 {{- end }}
 
-{{/* MariaDB Name */}}
-{{- define "orders.mariadb.name" -}}
-  {{- if .Values.mariadb.enabled -}}
-    {{ .Release.Name }}-{{ .Values.mariadb.nameOverride }}
-  {{- else -}}
-    {{ .Values.mariadb.nameOverride }}
-  {{- end -}}
-{{- end -}}
-
 {{/* MariaDB Secret Name */}}
 {{- define "orders.mariadb.secretName" }}
-  {{- if .Values.mariadb.enabled }}
-    {{- printf "%s-%s" .Release.Name .Values.mariadb.nameOverride -}}
+  {{- if .Values.mariadb.existingSecret }}
+    {{- .Values.mariadb.existingSecret }}
   {{- else -}}
     {{ template "orders.fullname" . }}-mariadb-secret
   {{- end }}
