@@ -93,7 +93,7 @@ $ helm upgrade --install orders-mariadb \
 # Go to Chart Directory
 $ cd chart/orders
 
-# Deploy Orders and MariaDB to Kubernetes cluster
+# Deploy Orders to Kubernetes cluster
 $ helm upgrade --install orders --set service.type=NodePort .
 ```
 
