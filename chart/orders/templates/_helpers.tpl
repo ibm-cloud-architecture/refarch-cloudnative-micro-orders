@@ -36,7 +36,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{/* Orders MySQL Environment Variables */}}
 {{- define "orders.mariadb.environmentvariables" }}
 - name: MYSQL_HOST
-  value: {{ .Values.mariadb.host | quote }}
+  value: {{ template "orders.mariadb.host" . }}
 - name: MYSQL_PORT
   value: {{ .Values.mariadb.port | quote }}
 - name: MYSQL_DATABASE
@@ -50,6 +50,16 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
       name: {{ template "orders.mariadb.secretName" . }}
       key: mariadb-password
 {{- end }}
+{{- end }}
+
+{{/* MariaDB Host */}}
+{{- define "orders.mariadb.host" }}
+  {{- if .Values.mariadb.host }}
+    {{- .Values.mariadb.host }}
+  {{- else -}}
+    {{/* Assume orders-mariadb as nameOverride for MariaDB */}}
+    {{- .Release.Name }}-orders-mariadb
+  {{- end }}
 {{- end }}
 
 {{/* MariaDB Secret Name */}}
