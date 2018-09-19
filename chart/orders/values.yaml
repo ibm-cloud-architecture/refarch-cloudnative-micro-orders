@@ -40,7 +40,7 @@ mariadb:
     port: 3306
   rootUser:
     password: admin123
-  nameOverride: bluecompute-orders-mysql
+  nameOverride: bluecompute-orders-mariadb
   db:
     user: dbuser
     password: password
