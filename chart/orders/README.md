@@ -45,15 +45,26 @@ The Orders Microservice REST API is OAuth 2.0 protected and identifies and valid
 ## Deploy Orders Application to Kubernetes Cluster from CLI
 To deploy the Orders Chart and its MariaDB dependency Chart to a Kubernetes cluster using Helm CLI, follow the instructions below:
 ```bash
+# Install MariaDB Chart
+$ helm upgrade --install orders-mariadb \
+  --version 4.4.2 \
+  --set nameOverride=orders-mariadb \
+  --set rootUser.password=admin123 \
+  --set db.user=dbuser \
+  --set db.password=password \
+  --set db.name=ordersdb \
+  --set replication.enabled=false \
+  --set master.persistence.enabled=false \
+  --set slave.replicas=1 \
+  --set slave.persistence.enabled=false \
+  stable/mariadb
+
 # Clone orders repository:
 $ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git
 
 # Go to Chart Directory
 $ cd refarch-cloudnative-micro-orders/chart/orders
 
-# Download MariaDB Dependency Chart
-$ helm dependency update
-
-# Deploy Orders and MariaDB to Kubernetes cluster
+# Deploy Orders to Kubernetes cluster
 $ helm upgrade --install orders --set service.type=NodePort .
 ```
