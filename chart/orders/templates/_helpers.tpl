@@ -1,5 +1,9 @@
 {{- define "orders.fullname" -}}
-  {{- .Release.Name }}-{{ .Chart.Name -}}
+  {{- if .Values.fullnameOverride -}}
+    {{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" -}}
+  {{- else -}}
+    {{- printf "%s-%s" .Release.Name .Chart.Name -}}
+  {{- end -}}
 {{- end -}}
 
 {{/* MySQL Init Container Template */}}
