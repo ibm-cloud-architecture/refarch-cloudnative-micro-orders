@@ -9,7 +9,7 @@ eureka:
 # Server configuration
 server:
   context-path: /micro
-  port: 8080
+  port: 8084
 
 # Spring properties
 spring:
@@ -40,7 +40,7 @@ spring:
     url: jdbc:mysql://127.0.0.1/ordersdb
     username: 
     password: 
-    port: 3306
+    port: 3307
     max-active: 4
     testOnBorrow: true
     validationQuery: SELECT 1

@@ -126,7 +126,7 @@ $ export ORDERS_PORT=${PORT}
 
 # If using Docker or running locally
 $ export ORDERS_HOST=localhost
-$ export ORDERS_PORT=8080
+$ export ORDERS_PORT=8084
 ```
 
 Where:
@@ -178,8 +178,8 @@ $ curl -i -H "Content-Type: application/json" -H "Authorization: Bearer ${jwt}" 
 
 HTTP/1.1 201 Created
 Date: Wed, 29 Aug 2018 15:08:32 GMT
-X-Application-Context: orders-microservice:8080
-Location: http://localhost:8080/micro/orders/4028e381658639fb0165863a9b140000
+X-Application-Context: orders-microservice:8084
+Location: http://localhost:8084/micro/orders/4028e381658639fb0165863a9b140000
 X-Content-Type-Options: nosniff
 X-XSS-Protection: 1; mode=block
 Cache-Control: no-cache, no-store, max-age=0, must-revalidate
@@ -214,7 +214,7 @@ $ docker run --name ordersmysql \
     -e MYSQL_USER=dbuser \
     -e MYSQL_PASSWORD=password \
     -e MYSQL_DATABASE=ordersdb \
-    -p 3306:3306 \
+    -p 3307:3307 \
     -d mysql:5.7.14
 
 # Get the MySQL Container's IP Address
@@ -234,12 +234,12 @@ $ docker build -t orders .
 # Start the Orders Container
 $ docker run --name orders \
     -e MYSQL_HOST=${MYSQL_IP_ADDRESS} \
-    -e MYSQL_PORT=3306 \
+    -e MYSQL_PORT=3307 \
     -e MYSQL_USER=dbuser \
     -e MYSQL_PASSWORD=password \
     -e MYSQL_DATABASE=ordersdb \
     -e HS256_KEY=${HS256_KEY} \
-    -p 8080:8080 \
+    -p 8084:8084 \
     -d orders
 ```
 
@@ -261,10 +261,10 @@ $ ./gradlew build -x test
 ```bash
 $ java -Deureka.client.fetchRegistry=false \
 	-Deureka.client.registerWithEureka=false \
-	-Dspring.datasource.url=jdbc:mysql://127.0.0.1:3306/ordersdb \
+	-Dspring.datasource.url=jdbc:mysql://127.0.0.1:3307/ordersdb \
 	-Dspring.datasource.username=dbuser \
 	-Dspring.datasource.password=password \
-	-Dspring.datasource.port=3306 \
+	-Dspring.datasource.port=3307 \
 	-Djwt.sharedSecret=${HS256_KEY} \
 	-jar build/libs/micro-orders-0.0.1.jar
 ```

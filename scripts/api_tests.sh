@@ -23,7 +23,7 @@ function parse_arguments() {
 
 	if [ -z "${ORDERS_PORT}" ]; then
 		echo "ORDERS_PORT not set. Using default key";
-		ORDERS_PORT=8080;
+		ORDERS_PORT=8084;
 	fi
 
 	# HS256_KEY
