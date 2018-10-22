@@ -48,7 +48,7 @@ public class OrdersController {
      * check
      */
     @RequestMapping("/check")
-    @ResponseBody String check() {
+    protected @ResponseBody String check() {
         return "it works!";
     }
     
@@ -56,7 +56,7 @@ public class OrdersController {
      * @return customer by username
      */
     @RequestMapping(value = "/orders", method = RequestMethod.GET)
-    @ResponseBody ResponseEntity<?> getOrders() {
+    protected @ResponseBody ResponseEntity<?> getOrders() {
         try {
          	final String customerId = getCustomerId();
         	if (customerId == null) {
@@ -98,7 +98,7 @@ public class OrdersController {
      * @return customer by id
      */
     @RequestMapping(value = "/orders/{id}", method = RequestMethod.GET)
-    ResponseEntity<?> getById(@RequestHeader Map<String, String> headers, @PathVariable String id) {
+    protected ResponseEntity<?> getById(@RequestHeader Map<String, String> headers, @PathVariable String id) {
 		final String customerId = getCustomerId();
 		if (customerId == null) {
 			// if no user passed in, this is a bad request
@@ -121,7 +121,7 @@ public class OrdersController {
      * @return transaction status
      */
     @RequestMapping(value = "/orders", method = RequestMethod.POST, consumes = "application/json")
-    ResponseEntity<?> create(@RequestBody Order payload) {
+    protected ResponseEntity<?> create(@RequestBody Order payload) {
         try {
 			
     		final String customerId = getCustomerId();
