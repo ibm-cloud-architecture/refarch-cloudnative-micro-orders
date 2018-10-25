@@ -23,6 +23,9 @@
         <warContext>${app.name}</warContext>
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
+        <groupId.liberty-runtime>com.ibm.websphere.appserver.runtime</groupId.liberty-runtime>
+        <artifactId.liberty-runtime>wlp-webProfile7</artifactId.liberty-runtime>
+        <version.liberty-runtime>18.0.0.3</version.liberty-runtime>
     </properties>
 
     <dependencies>
@@ -143,6 +146,12 @@
                 <artifactId>liberty-maven-plugin</artifactId>
                 <version>2.4.2</version>
                 <configuration>
+                    <assemblyArtifact>
+                      <groupId>${groupId.liberty-runtime}</groupId>
+                      <artifactId>${artifactId.liberty-runtime}</artifactId>
+                      <version>${version.liberty-runtime}</version>
+                      <type>zip</type>
+                    </assemblyArtifact>
                     <configFile>${basedir}/src/main/liberty/config/server.xml</configFile>
                     <serverEnv>${basedir}/src/main/liberty/config/server.env</serverEnv>
                     <jvmOptionsFile>${basedir}/src/main/liberty/config/jvm.options</jvmOptionsFile>
@@ -264,6 +273,14 @@
             <properties>
                 <package.file>${project.build.directory}/${app.name}.jar</package.file>
                 <packaging.type>runnable</packaging.type>
+            </properties>
+        </profile>
+        <profile>
+            <id>openliberty</id>
+            <properties>
+                <groupId.liberty-runtime>io.openliberty</groupId.liberty-runtime>
+                <artifactId.liberty-runtime>openliberty-runtime</artifactId.liberty-runtime>
+                <version.liberty-runtime>RELEASE</version.liberty-runtime>
             </properties>
         </profile>
     </profiles>
