@@ -63,6 +63,27 @@ exporting them later. This step will be covered again before running the app.
     [INFO] Final Memory: 21M/250M
     [INFO] ------------------------------------------------------------------------
     ```
+By default, the application runs on [WebSphere Liberty with Web Profile](https://developer.ibm.com/wasdev/websphere-liberty/). You can also run it on [Open Liberty](https://openliberty.io/) as follows.
+
+`mvn clean install -Popenliberty`
+
+ If this runs successfully, you will be able to see the below messages.
+ 
+ ```
+[INFO] --- maven-failsafe-plugin:2.18.1:verify (verify-results) @ orders ---
+[INFO] Failsafe report directory: /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders/target/test-reports/it
+[INFO]
+[INFO] --- maven-install-plugin:2.4:install (default-install) @ orders ---
+[INFO] Installing /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders/target/orders-1.0-SNAPSHOT.war to /Users/user@ibm.com/.m2/repository/projects/orders/1.0-SNAPSHOT/orders-1.0-SNAPSHOT.war
+[INFO] Installing /Users/user@ibm.com/BlueCompute/refarch-cloudnative-micro-orders/pom.xml to /Users/user@ibm.com/.m2/repository/projects/orders/1.0-SNAPSHOT/orders-1.0-SNAPSHOT.pom
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 29.996 s
+[INFO] Finished at: 2018-10-25T15:06:54-05:00
+[INFO] Final Memory: 29M/453M
+[INFO] ------------------------------------------------------------------------
+ ```
 
 **NOTE:** We will not setup RabbitMQ as that service is used to speak with other services, such as inventory.
 
@@ -151,7 +172,7 @@ A few steps must be done before Orders can operate with full features which are 
     If you've been following along, your JDBC environment variables should be:
         
     ```
-    export jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
+    export jdbcURL=jdbc:mysql://localhost:9039/ordersdb?useSSL=false
     export dbuser=root
     export dbpassword=password
     ```
