@@ -20,7 +20,7 @@ This repository contains the **MicroProfile** implementation of the **Orders Ser
 * [Deploying the App](#deploying-the-app)
     + [IBM Cloud Private](#ibm-cloud-private)
     + [Minikube](#minikube)
-    + [Run Inventory Service locally](#run-orders-service-locally)
+    + [Run Orders Service locally](#run-orders-service-locally)
 * [References](#references)
 
 ### Introduction
