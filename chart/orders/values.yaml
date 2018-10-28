@@ -7,8 +7,8 @@ image:
 
 service:
   type: ClusterIP
-  externalPort: 8080
-  internalPort: 8080
+  externalPort: 8084
+  internalPort: 8084
   nodePort: 31384
 
 ingress:
@@ -26,7 +26,7 @@ tls:
 
 mariadb:
   host: orders-mariadb-orders-mariadb
-  port: 3306
+  port: 3307
   existingSecret:
   user: dbuser
   password: password
@@ -52,3 +52,8 @@ resources:
     memory: 384Mi
   requests:
     memory: 64Mi
+
+labels:
+  app: orders
+  version: v1
+  tier: backend

@@ -41,7 +41,7 @@ jobs:
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
+      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
     - stage: docker build, deploy, and test
       services:
       - mysql
@@ -57,7 +57,7 @@ jobs:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -65,7 +65,7 @@ jobs:
       # Check logs to see if it started properly
       - docker logs orders
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
+      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
     - stage: kubernetes build, deploy, and test
       services:
       - docker
@@ -77,7 +77,7 @@ jobs:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
       # Install MariaDB Chart
-      - helm upgrade --install orders-mariadb --version 4.4.2 --set nameOverride=orders-mariadb,rootUser.password=admin123,db.user=dbuser,db.password=password,db.name=ordersdb,replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false \
+      - helm upgrade --install orders-mariadb --version 4.4.2 --set service.port=3307,nameOverride=orders-mariadb,rootUser.password=admin123,db.user=dbuser,db.password=password,db.name=ordersdb,replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false \
         stable/mariadb
       script:
       # Build Docker image

@@ -8,9 +8,9 @@
 
 {{/* MySQL Init Container Template */}}
 {{- define "orders.labels" }}
-app: bluecompute
-micro: orders
-tier: backend
+{{- range $key, $value := .Values.labels }}
+{{ $key }}: {{ $value | quote }}
+{{- end }}
 heritage: {{ .Release.Service | quote }}
 release: {{ .Release.Name | quote }}
 chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
