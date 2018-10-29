@@ -6,7 +6,8 @@ env:
   global:
     - IMAGE_NAME=bluecompute-orders
     - RELEASE_NAME=orders
-    - TAG=travis-latest
+    - GRADLE_TAG=gradle-travis
+    - MVN_TAG=mvn-travis
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
@@ -22,20 +23,15 @@ jobs:
       services:
       - mysql
       before_cache:
-        - rm -f  $HOME/.gradle/caches/modules-2/modules-2.lock
-        - rm -fr $HOME/.gradle/caches/*/plugin-resolution/
-      cache:
-        directories:
-          - $HOME/.gradle/caches/
-          - $HOME/.gradle/wrapper/
+        - rm -fr $HOME/.m2
       before_script:
       # Wait MySQL
       - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       # Create ordersdb database
       - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
-      # Gradle Build
-      - ./gradlew build -x test
+      # Maven Build
+      - mvn clean install -DskipTests=true
       # Start Application
       - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE} -Dspring.datasource.username=${MYSQL_USER} -Dspring.datasource.password=${MYSQL_PASSWORD} -Dspring.datasource.port=${MYSQL_PORT} -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
       # Wait for the Orders container to start accepting connections
@@ -55,9 +51,9 @@ jobs:
       - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
       # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      - docker build -f dockerfiles/Dockerfile-Maven -t "${IMAGE_NAME}:${MVN_TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${MVN_TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -81,7 +77,7 @@ jobs:
         stable/mariadb
       script:
       # Build Docker image
-      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      - docker build -f dockerfiles/Dockerfile-Maven -t "${IMAGE_NAME}:${MVN_TAG}" .
       # Download Orders chart dependencies (MySQL)
       - cd chart/orders; helm dependency update; cd ../..
       # helm lint
@@ -90,7 +86,7 @@ jobs:
       - helm package chart/orders
       # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
       - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
+      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${MAVEN-TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')

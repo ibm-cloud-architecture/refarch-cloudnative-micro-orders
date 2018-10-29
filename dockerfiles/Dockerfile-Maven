@@ -1,18 +1,15 @@
 # STAGE: Build
-FROM gradle:4.9.0-jdk8-alpine as builder
+FROM maven:3.5.4-ibmjava-8-alpine as builder
 
 # Create Working Directory
-ENV BUILD_DIR=/home/gradle/app/
-RUN mkdir $BUILD_DIR
+ENV BUILD_DIR=/home/maven/app/
+RUN mkdir -p $BUILD_DIR
 WORKDIR $BUILD_DIR
-
-# Download Dependencies
-COPY build.gradle $BUILD_DIR
-RUN gradle build -x :bootRepackage -x test --continue
+COPY pom.xml $BUILD_DIR
 
 # Copy Code Over and Build jar
 COPY src src
-RUN gradle build -x test
+RUN mvn clean install -DskipTests=true
 
 # STAGE: Deploy
 FROM openjdk:8-jre-alpine
@@ -27,7 +24,7 @@ RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 # Copy jar file over from builder stage
-COPY --from=builder /home/gradle/app/build/libs/micro-orders-0.0.1.jar $APP_HOME
+COPY --from=builder /home/maven/app/target/micro-orders-0.0.1.jar $APP_HOME
 RUN mv ./micro-orders-0.0.1.jar app.jar
 
 COPY startup.sh startup.sh
