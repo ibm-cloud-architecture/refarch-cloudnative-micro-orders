@@ -5,11 +5,11 @@ FROM maven:3.5.4-ibmjava-8-alpine as builder
 ENV BUILD_DIR=/home/maven/app/
 RUN mkdir -p $BUILD_DIR
 WORKDIR $BUILD_DIR
-COPY pom.xml $BUILD_DIR
 
 # Copy Code Over and Build jar
+COPY pom.xml $BUILD_DIR
 COPY src src
-RUN mvn clean install -DskipTests=true
+RUN mvn clean install
 
 # STAGE: Deploy
 FROM openjdk:8-jre-alpine
