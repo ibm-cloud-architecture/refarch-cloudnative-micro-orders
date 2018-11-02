@@ -1,4 +1,4 @@
-FROM open-liberty
+FROM open-liberty:microProfile1
 
 MAINTAINER IBM Java engineering at IBM Cloud
 
