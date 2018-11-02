@@ -47,8 +47,9 @@ To deploy the Orders Chart and its MariaDB dependency Chart to a Kubernetes clus
 ```bash
 # Install MariaDB Chart
 $ helm upgrade --install orders-mariadb \
-  --version 4.4.2 \
+  --version 5.2.2 \
   --set nameOverride=orders-mariadb \
+  --set service.port=3307 \
   --set rootUser.password=admin123 \
   --set db.user=dbuser \
   --set db.password=password \
