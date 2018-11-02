@@ -25,7 +25,7 @@ tls:
   key: ENTER_BASE64_ENCODED_KEY
 
 mariadb:
-  host: orders-mariadb-mariadb
+  host: orders-mariadb-orders-mariadb
   port: 3307
   existingSecret:
   user: dbuser
