@@ -47,4 +47,4 @@ spring:
 
 
 jwt:
-  sharedSecret:
+  sharedSecret: ${HS256_KEY}
