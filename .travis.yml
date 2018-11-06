@@ -37,7 +37,7 @@ jobs:
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
+      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
     - stage: docker build, deploy, and test
       services:
       - mysql
@@ -53,7 +53,7 @@ jobs:
       # Build Docker image
       - docker build -f dockerfiles/Dockerfile-Maven -t "${IMAGE_NAME}:${MVN_TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" -e spring.datasource.username=${MYSQL_USER} -e spring.datasource.password=${MYSQL_PASSWORD} "${IMAGE_NAME}:${MVN_TAG}"
+      - docker run --net=host --name orders -d -p 8080:8080 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" -e spring.datasource.username=${MYSQL_USER} -e spring.datasource.password=${MYSQL_PASSWORD} "${IMAGE_NAME}:${MVN_TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -61,7 +61,7 @@ jobs:
       # Check logs to see if it started properly
       - docker logs orders
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
+      - bash scripts/api_tests.sh 127.0.0.1 8080 $HS256_KEY
     - stage: kubernetes build, deploy, and test
       services:
       - docker
