@@ -18,6 +18,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* MySQL Init Container Template */}}
 {{- define "orders.mariadb.initcontainer" }}
+{{- if not (or .Values.global.istio.enabled .Values.istio.enabled) }}
 - name: test-mariadb
   image: {{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}
   imagePullPolicy: {{ .Values.mysql.imagePullPolicy }}
@@ -31,6 +32,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   {{- end }}
   env:
   {{- include "orders.mariadb.environmentvariables" . | indent 2 }}
+{{- end }}
 {{- end }}
 
 {{/* Orders MySQL Environment Variables */}}

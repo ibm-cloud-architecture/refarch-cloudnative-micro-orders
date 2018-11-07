@@ -78,7 +78,8 @@ In this section, we are going to deploy the Orders Application, along with a MyS
 ```bash
 # Install MariaDB Chart
 $ helm upgrade --install orders-mariadb \
-  --version 4.4.2 \
+  --version 5.2.2 \
+  --set service.port=3307 \
   --set nameOverride=orders-mariadb \
   --set rootUser.password=admin123 \
   --set db.user=dbuser \
