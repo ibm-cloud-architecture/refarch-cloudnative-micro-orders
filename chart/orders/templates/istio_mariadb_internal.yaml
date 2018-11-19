@@ -1,0 +1,15 @@
+{{ if .Values.istio.enabled }}
+# MariaDB
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: {{ .Values.mariadb.host }}
+spec:
+  host: {{ .Values.mariadb.host }}.{{ .Release.Namespace }}.svc.cluster.local
+  trafficPolicy:
+    portLevelSettings:
+    - port:
+        number: {{ .Values.mariadb.port }}
+      tls:
+        mode: DISABLE
+{{ end }}
