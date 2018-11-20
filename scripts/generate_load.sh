@@ -1,28 +1,14 @@
 #!/bin/bash
-HOST="localhost";
-PORT="8084";
-URL="http://${HOST}:${PORT}";
-DEPLOYMENT="orders-orders";
+URL="$1";
 SERVICE_PATH="micro/orders";
 
 HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a;
 ITEM_ID=13401
 
-# trap ctrl-c and call ctrl_c() to stop port forwarding
-trap ctrl_c INT
-
-function ctrl_c() {
-	echo "** Trapped CTRL-C... Killing Port Forwarding and Stopping Load";
-	killall kubectl;
-	exit 0;
-}
-
-function start_port_forwarding() {
-	echo "Forwarding service port ${PORT}";
-	kubectl port-forward deployment/${DEPLOYMENT} ${PORT}:${PORT} --pod-running-timeout=1h &
-	echo "Sleeping for 3 seconds while connection is established...";
-	sleep 3;
-}
+if [ -z "$URL" ]; then
+	URL="http://localhost:8084"
+	echo "No URL provided! Using ${URL}"
+fi
 
 function create_jwt_blue() {
 	# Secret Key
@@ -41,14 +27,12 @@ function create_jwt_blue() {
 	#echo $jwt_blue
 }
 
-# Port Forwarding
-start_port_forwarding
-
 # Load Generation
-echo "Generating load..."
+echo "Generating load on ${URL}/${SERVICE_PATH}"
 create_jwt_blue
 
 while true; do
 	curl -s -H "Authorization: Bearer ${jwt_blue}" ${URL}/${SERVICE_PATH} > /dev/null;
+	echo -n .;
 	sleep 0.2;
 done
