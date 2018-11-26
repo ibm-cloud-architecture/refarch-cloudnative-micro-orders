@@ -6,7 +6,6 @@
   {{- end -}}
 {{- end -}}
 
-{{/* MySQL Init Container Template */}}
 {{- define "orders.labels" }}
 {{- range $key, $value := .Values.labels }}
 {{ $key }}: {{ $value | quote }}
@@ -92,3 +91,17 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- .Release.Name }}-{{ .Chart.Name }}-hs256key
   {{- end }}
 {{- end -}}
+
+{{/* Istio Gateway */}}
+{{- define "orders.istio.gateway" }}
+  {{- if or .Values.global.istio.gateway.name .Values.istio.gateway.enabled .Values.istio.gateway.name }}
+  gateways:
+  {{ if .Values.global.istio.gateway.name -}}
+  - {{ .Values.global.istio.gateway.name }}
+  {{- else if .Values.istio.gateway.enabled }}
+  - {{ template "orders.fullname" . }}-gateway
+  {{ else if .Values.istio.gateway.name -}}
+  - {{ .Values.istio.gateway.name }}
+  {{ end }}
+  {{- end }}
+{{- end }}
