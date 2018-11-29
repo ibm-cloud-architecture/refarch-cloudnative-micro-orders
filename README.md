@@ -22,7 +22,7 @@ https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/sp
     * [Deploy the MySQL Docker Container](#deploy-the-mysql-docker-container)
     * [Deploy the Orders Docker Container](#deploy-the-orders-docker-container)
   * [Run Orders Service application on localhost](#run-orders-service-application-on-localhost)
-  * [Deploy Orders Application on Open Liberty](#deploy-customer-application-on-openliberty)
+  * [Deploy Orders Application on Open Liberty](#deploy-orders-application-on-openliberty)
   * [Optional: Setup CI/CD Pipeline](#optional-setup-cicd-pipeline)
   * [Conclusion](#conclusion)
   * [Contributing](#contributing)
