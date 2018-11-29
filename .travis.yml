@@ -6,21 +6,19 @@ env:
   global:
     - IMAGE_NAME=bluecompute-orders
     - RELEASE_NAME=orders
-    - GRADLE-TAG=gradle-travis
-    - MVN-TAG=mvn-travis
+    - TAG=travis-latest
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
     - MYSQL_USER=root
     - MYSQL_PASSWORD=
     - MYSQL_DATABASE=ordersdb
     - MYSQL_PORT=3306
 stages:
-  - local build and test (Gradle)
-  - local build and test (Maven)
+  - local build and test
   - docker build, deploy, and test
   - kubernetes build, deploy, and test
 jobs:
   include:
-    - stage: local build and test (Gradle)
+    - stage: local build and test
       services:
       - mysql
       before_cache:
@@ -44,26 +42,7 @@ jobs:
       - sleep 25
       # Run Orders API Test
       - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
-    - stage: local build and test (Maven)
-      services:
-      - mysql
-      before_cache:
-        - rm -fr $HOME/.m2
-      before_script:
-      # Wait MySQL
-      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
-      # Create ordersdb database
-      - mysql -u root -e "create database ${MYSQL_DATABASE}"
-      script:
-      # Maven Build
-      - mvn clean install -DskipTests=true
-      # Start Application
-      - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE} -Dspring.datasource.username=${MYSQL_USER} -Dspring.datasource.password=${MYSQL_PASSWORD} -Dspring.datasource.port=${MYSQL_PORT} -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
-      # Wait for the Orders container to start accepting connections
-      - sleep 25
-      # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
-    - stage: docker build, deploy, and test (Gradle)
+    - stage: docker build, deploy, and test
       services:
       - mysql
       - docker
@@ -76,9 +55,9 @@ jobs:
       - mysql -u root -e "create database ${MYSQL_DATABASE}"
       script:
       # Build Docker image
-      - docker build -f dockerfiles/Dockerfile-Gradle -t "${IMAGE_NAME}:${GRADLE-TAG}" .
+      - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${GRADLE-TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -87,67 +66,7 @@ jobs:
       - docker logs orders
       # Run Orders API Test
       - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
-    - stage: docker build, deploy, and test (Maven)
-      services:
-      - mysql
-      - docker
-      install:
-        - true
-      before_script:
-      # Wait MySQL
-      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
-      # Create ordersdb database
-      - mysql -u root -e "create database ${MYSQL_DATABASE}"
-      script:
-      # Build Docker image
-      - docker build -f dockerfiles/Dockerfile-Maven -t "${IMAGE_NAME}:${MVN-TAG}" .
-      # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${MVN-TAG}"
-      # Wait for the Orders container to start accepting connections
-      - sleep 25
-      # Check that the Orders container is running
-      - docker ps
-      # Check logs to see if it started properly
-      - docker logs orders
-      # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
-    - stage: kubernetes build, deploy, and test (Gradle)
-      services:
-      - docker
-      env:
-      - CHANGE_MINIKUBE_NONE_USER=true
-      install:
-        - true
-      before_script:
-      # Install nsenter, which is needed for minikube to work
-      - bash scripts/install_minikube_and_helm.sh
-      # Install MariaDB Chart
-      - helm upgrade --install orders-mariadb --version 4.4.2 --set nameOverride=orders-mariadb,rootUser.password=admin123,db.user=dbuser,db.password=password,db.name=ordersdb,replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false \
-        stable/mariadb
-      script:
-      # Build Docker image
-      - docker build -f dockerfiles/Dockerfile-Gradle -t "${IMAGE_NAME}:${GRADLE-TAG}" .
-      # Download Orders chart dependencies (MySQL)
-      - cd chart/orders; helm dependency update; cd ../..
-      # helm lint
-      - helm lint chart/orders
-      # helm package
-      - helm package chart/orders
-      # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
-      - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${GRADLE-TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
-      # Wait for Orders to be ready
-      - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
-      - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
-      - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for orders to be ready"; sleep 10; done
-      # Wait for Orders deployment to start accepting connections
-      - sleep 35
-      # Run Orders API Test
-      - MINIKUBE_IP=$(minikube ip)
-      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-orders -o=jsonpath='{.spec.ports[0].nodePort}')
-      - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT $HS256_KEY
-    - stage: kubernetes build, deploy, and test (Maven)
+    - stage: kubernetes build, deploy, and test
       services:
       - docker
       env:
@@ -161,7 +80,7 @@ jobs:
       - helm upgrade --install orders-mariadb --version 5.2.2 --set service.port=3307,nameOverride=orders-mariadb,rootUser.password=admin123,db.user=dbuser,db.password=password,db.name=ordersdb,replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false stable/mariadb
       script:
       # Build Docker image
-      - docker build -f dockerfiles/Dockerfile-Maven -t "${IMAGE_NAME}:${MVN-TAG}" .
+      - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Download Orders chart dependencies (MySQL)
       - cd chart/orders; helm dependency update; cd ../..
       # helm lint
@@ -170,7 +89,7 @@ jobs:
       - helm package chart/orders
       # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
       - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${MAVEN-TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
+      - helm upgrade --install orders --set service.type=NodePort,image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
