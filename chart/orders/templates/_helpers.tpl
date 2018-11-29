@@ -6,7 +6,6 @@
   {{- end -}}
 {{- end -}}
 
-{{/* MySQL Init Container Template */}}
 {{- define "orders.labels" }}
 {{- range $key, $value := .Values.labels }}
 {{ $key }}: {{ $value | quote }}
@@ -18,6 +17,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 
 {{/* MySQL Init Container Template */}}
 {{- define "orders.mariadb.initcontainer" }}
+{{- if not (or .Values.global.istio.enabled .Values.istio.enabled) }}
 - name: test-mariadb
   image: {{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}
   imagePullPolicy: {{ .Values.mysql.imagePullPolicy }}
@@ -31,6 +31,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   {{- end }}
   env:
   {{- include "orders.mariadb.environmentvariables" . | indent 2 }}
+{{- end }}
 {{- end }}
 
 {{/* Orders MySQL Environment Variables */}}
@@ -90,3 +91,17 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- .Release.Name }}-{{ .Chart.Name }}-hs256key
   {{- end }}
 {{- end -}}
+
+{{/* Istio Gateway */}}
+{{- define "orders.istio.gateway" }}
+  {{- if or .Values.global.istio.gateway.name .Values.istio.gateway.enabled .Values.istio.gateway.name }}
+  gateways:
+  {{ if .Values.global.istio.gateway.name -}}
+  - {{ .Values.global.istio.gateway.name }}
+  {{- else if .Values.istio.gateway.enabled }}
+  - {{ template "orders.fullname" . }}-gateway
+  {{ else if .Values.istio.gateway.name -}}
+  - {{ .Values.istio.gateway.name }}
+  {{ end }}
+  {{- end }}
+{{- end }}

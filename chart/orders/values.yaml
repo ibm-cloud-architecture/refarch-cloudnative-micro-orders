@@ -13,16 +13,15 @@ service:
 
 ingress:
   enabled: false
-  hostname: orders.bluecompute.com
+  hostname: "orders.bluecompute.com"
   path: /micro/orders
-  ibmCloud:
-    redirectToHTTPS: false
-
-tls:
-  enabled: false
-  secretName:
-  crt: ENTER_BASE64_ENCODED_CERTIFICATE
-  key: ENTER_BASE64_ENCODED_KEY
+  annotations:
+    ingress.bluemix.net/redirect-to-https: "True"
+  enableTLS: false
+  TLS:
+  - secretName: orders.bluecompute.com
+    hosts:
+      - orders.bluecompute.com
 
 mariadb:
   host: orders-mariadb-orders-mariadb
@@ -46,6 +45,10 @@ hs256key:
 global:
   hs256key:
     secretName:
+  istio:
+    enabled:
+    gateway:
+      name:
 
 resources:
   limits:
@@ -57,3 +60,23 @@ labels:
   app: orders
   version: v1
   tier: backend
+
+istio:
+  enabled: false
+  # ISTIO_MUTUAL, SIMPLE, DISABLE
+  mTLS: ISTIO_MUTUAL
+  # LEAST_CONN, ROUND_ROBIN
+  loadBalancer: LEAST_CONN
+  gateway:
+    enabled: false
+    name:
+    hosts:
+      - "orders.bluecompute.com"
+    TLS:
+      enabled: false
+      # SIMPLE, MUTUAL
+      mode: SIMPLE
+      httpsRedirect: false
+      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+      privateKey: /etc/istio/ingressgateway-certs/tls.key
+      caCertificates: /etc/istio/ingressgateway-ca-certs/ca-chain.cert.pem
