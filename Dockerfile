@@ -3,7 +3,7 @@ FROM gradle:4.9.0-jdk8-alpine as builder
 
 # Create Working Directory
 ENV BUILD_DIR=/home/gradle/app/
-RUN mkdir $BUILD_DIR
+RUN mkdir -p $BUILD_DIR
 WORKDIR $BUILD_DIR
 
 # Download Dependencies
@@ -23,7 +23,7 @@ RUN apk --no-cache update \
 
 # Create app directory
 ENV APP_HOME=/
-RUN mkdir $APP_HOME
+RUN mkdir -p $APP_HOME
 WORKDIR $APP_HOME
 
 # Copy jar file over from builder stage
