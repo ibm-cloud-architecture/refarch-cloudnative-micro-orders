@@ -106,7 +106,7 @@ To check and wait for the deployment status, you can run the following command:
 ```bash
 kubectl get deployments -w
 NAME                  DESIRED   CURRENT   UP-TO-DATE   AVAILABLE   AGE
-orders-orders   	    1         1         1            1           10h
+orders-orders         1         1         1            1           10h
 ```
 
 The `-w` flag is so that the command above not only retrieves the deployment but also listens for changes. If you a 1 under the `CURRENT` column, that means that the orders app deployment is ready.
