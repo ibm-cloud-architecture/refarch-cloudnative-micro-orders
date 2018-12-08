@@ -37,7 +37,7 @@ jobs:
       # Gradle Build
       - ./gradlew build -x test
       # Start Application
-      - java -Deureka.client.fetchRegistry=false -Deureka.client.registerWithEureka=false -Dspring.datasource.url=jdbc:mysql://127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE} -Dspring.datasource.username=${MYSQL_USER} -Dspring.datasource.password=${MYSQL_PASSWORD} -Dspring.datasource.port=${MYSQL_PORT} -Djwt.sharedSecret=${HS256_KEY} -jar build/libs/micro-orders-0.0.1.jar &
+      - java -jar build/libs/micro-orders-0.0.1.jar &
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
@@ -57,7 +57,7 @@ jobs:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_URI="mysql://root@127.0.0.1:${MYSQL_PORT}/${MYSQL_DATABASE}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_PORT="${MYSQL_PORT}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running

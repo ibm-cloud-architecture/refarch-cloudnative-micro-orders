@@ -1,32 +1,30 @@
 eureka:
-  instance:
-     preferIpAddress: true
   client:
     enabled: false
-    serviceUrl:
-       defaultZone: http://microservices-refapp-eureka-chrisking.mybluemix.net/eureka/
+    registerWithEureka: false
+  fetchRegistry: false
 
 # Server configuration
 server:
   context-path: /micro
-  port: 8084
+  port: ${SERVICE_PORT:8084}
 
 # Spring properties
 spring:
   application:
-    name: orders-microservice
-     
-    # Message Hub properties
-    messagehub:
-      topic: orders
-      user:
-      password:
-      api_key:
-      kafka_rest_url:
-      # Add all brokers listed in Message Hub Credentials
-      kafka_brokers_sasl:
-        -
-    
+    name: orders
+
+  # MySQL Data source configuration
+  datasource:
+    driverClassName: com.mysql.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:127.0.0.1}:${MYSQL_PORT:3307}/${MYSQL_DATABASE:ordersdb}
+    username: ${MYSQL_USER:root}
+    password: ${MYSQL_PASSWORD}
+    port: ${MYSQL_PORT:3307}
+    max-active: 4
+    testOnBorrow: true
+    validationQuery: SELECT 1
+
   jpa:
     database: MYSQL
     show-sql: true
@@ -34,17 +32,5 @@ spring:
       ddl-auto: update
       naming-strategy: org.hibernate.cfg.EJB3NamingStrategy
 
-  # MySQL Data source configuration
-  datasource:
-    driverClassName: com.mysql.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1/ordersdb
-    username: 
-    password: 
-    port: 3307
-    max-active: 4
-    testOnBorrow: true
-    validationQuery: SELECT 1
-
-
 jwt:
-  sharedSecret:
+  sharedSecret: ${HS256_KEY}
