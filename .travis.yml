@@ -78,11 +78,10 @@ jobs:
     - stage: kubernetes build, deploy, and test
       services:
       - docker
-      env:
-      - CHANGE_MINIKUBE_NONE_USER=true
       install:
         - true
       env:
+        - CHANGE_MINIKUBE_NONE_USER=true
         - MYSQL_ROOT_PASSWORD=admin123
         - MYSQL_PORT=3307
         - MYSQL_USER=dbuser
