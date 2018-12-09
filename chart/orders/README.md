@@ -11,8 +11,8 @@ Here is an overview of the project's features:
 - Uses [`MariaDB`](https://mariadb.org/) as the orders database.
 - OAuth 2.0 protected APIs using Spring Security framework.
 - Uses [`Docker`](https://docs.docker.com/) to package application binary and its dependencies.
-- Uses [`Helm`](https://helm.sh/) to package application and MariaDB deployment configuration and deploy to a [`Kubernetes`](https://kubernetes.io/) cluster. 
-- When retrieving orders using the OAuth 2.0 protected APIs, return only orders belonging to the user identity encoded in the `user_name` claim in the JWT payload. 
+- Uses [`Helm`](https://helm.sh/) to package application and MariaDB deployment configuration and deploy to a [`Kubernetes`](https://kubernetes.io/) cluster.
+- When retrieving orders using the OAuth 2.0 protected APIs, return only orders belonging to the user identity encoded in the `user_name` claim in the JWT payload.
   - See the [Authentication microservice](https://github.com/ibm-cloud-architecture/refarch-cloudnative-auth/tree/spring) for more details on how identity is propagated.
 
 ## Chart Source
@@ -23,7 +23,7 @@ The source for the `MariaDB` chart can be found at:
 * https://github.com/helm/charts/tree/master/stable/mariadb
 
 ## REST APIs
-The Orders Microservice REST API is OAuth 2.0 protected and identifies and validates the caller using signed JWT tokens.  
+The Orders Microservice REST API is OAuth 2.0 protected and identifies and validates the caller using signed JWT tokens.
 
 - `GET /micro/orders`
   - Returns all orders.  The caller of this API must pass a valid OAuth token.  The OAuth token is a JWT with the orders ID of the caller encoded in the `user_name` claim.  A JSON object array is returned consisting of only orders created by the orders ID.
@@ -46,7 +46,7 @@ The Orders Microservice REST API is OAuth 2.0 protected and identifies and valid
 To deploy the Orders Chart and its MariaDB dependency Chart to a Kubernetes cluster using Helm CLI, follow the instructions below:
 ```bash
 # Install MariaDB Chart
-$ helm upgrade --install orders-mariadb \
+helm upgrade --install orders-mariadb \
   --version 5.2.2 \
   --set nameOverride=orders-mariadb \
   --set service.port=3307 \
@@ -61,11 +61,11 @@ $ helm upgrade --install orders-mariadb \
   stable/mariadb
 
 # Clone orders repository:
-$ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git
+git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders.git
 
 # Go to Chart Directory
-$ cd refarch-cloudnative-micro-orders/chart/orders
+cd refarch-cloudnative-micro-orders/chart/orders
 
 # Deploy Orders to Kubernetes cluster
-$ helm upgrade --install orders --set service.type=NodePort .
+helm upgrade --install orders --set service.type=NodePort .
 ```

@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install 
+# Install
 sudo apt-get install build-essential libncurses5-dev libslang2-dev gettext zlib1g-dev \
 libselinux1-dev debhelper lsb-release pkg-config po-debconf autoconf \
 automake autopoint libtool python2.7-dev

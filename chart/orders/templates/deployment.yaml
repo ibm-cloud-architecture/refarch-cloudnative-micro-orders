@@ -21,6 +21,7 @@ spec:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
         env:
+        {{- include "orders.environmentvariables" . | indent 8 }}
         {{- include "orders.mariadb.environmentvariables" . | indent 8 }}
         {{- include "orders.hs256key.environmentvariables" . | indent 8 }}
         resources:

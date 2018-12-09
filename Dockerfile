@@ -19,7 +19,8 @@ FROM openjdk:8-jre-alpine
 
 # Install Extra Packages
 RUN apk --no-cache update \
- && apk add jq bash bc
+ && apk add jq bash bc ca-certificates curl \
+ && update-ca-certificates
 
 # Create app directory
 ENV APP_HOME=/

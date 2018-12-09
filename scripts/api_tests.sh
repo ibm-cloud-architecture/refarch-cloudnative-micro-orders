@@ -54,7 +54,7 @@ function create_jwt_admin() {
 	# Complete JWT
 	jwt=$(echo -n "${jwt3}.${jwt4}");
 
-	#echo $jwt	
+	#echo $jwt
 }
 
 function create_jwt_blue() {
@@ -81,7 +81,7 @@ function create_order() {
 	if [ "$CURL" != "201" ]; then
 		printf "create_order: ❌ \n${CURL}\n";
         exit 1;
-    else 
+    else
     	echo "create_order: ✅";
     fi
 }
@@ -93,7 +93,7 @@ function get_order() {
 	if [ "$CURL" != "$ITEM_ID" ]; then
 		echo "get_order: ❌ could not find itemId";
         exit 1;
-    else 
+    else
     	echo "get_order: ✅";
     fi
 }
