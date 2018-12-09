@@ -9,7 +9,6 @@ env:
     - TAG=travis-latest
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
     - MYSQL_USER=root
-    - MYSQL_PASSWORD=
     - MYSQL_DATABASE=ordersdb
     - MYSQL_PORT=3306
 stages:
@@ -30,9 +29,9 @@ jobs:
           - $HOME/.gradle/wrapper/
       before_script:
       # Wait MySQL
-      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      - until mysql -h 127.0.0.1 -P ${MYSQL_PORT} -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       # Create ordersdb database
-      - mysql -u root -e "create database ${MYSQL_DATABASE}"
+      - mysql -u ${MYSQL_USER} -e "create database ${MYSQL_DATABASE}"
       script:
       # Gradle Build
       - ./gradlew build -x test
@@ -50,14 +49,14 @@ jobs:
         - true
       before_script:
       # Wait MySQL
-      - until mysql -h 127.0.0.1 -P 3306 -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      - until mysql -h 127.0.0.1 -P ${MYSQL_PORT} -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       # Create ordersdb database
-      - mysql -u root -e "create database ${MYSQL_DATABASE}"
+      - mysql -u ${MYSQL_USER} -e "create database ${MYSQL_DATABASE}"
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_PORT="${MYSQL_PORT}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084  -e MYSQL_HOST="127.0.0.1" -e MYSQL_PORT="${MYSQL_PORT}" -e MYSQL_USER="${MYSQL_USER}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -77,7 +76,7 @@ jobs:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
       # Install MariaDB Chart
-      - helm upgrade --install orders-mariadb --version 5.2.2 --set service.port=3307,nameOverride=orders-mariadb,rootUser.password=admin123,db.user=dbuser,db.password=password,db.name=ordersdb,replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false stable/mariadb
+      - helm upgrade --install orders-mariadb --version 5.2.2 --set service.port=3307,nameOverride=orders-mariadb,rootUser.password=admin123,db.user=dbuser,db.password=password,db.name=${MYSQL_DATABASE},replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false stable/mariadb
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
