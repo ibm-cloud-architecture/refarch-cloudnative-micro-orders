@@ -8,6 +8,7 @@ env:
     - RELEASE_NAME=orders
     - TAG=travis-latest
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
+    - MYSQL_HOST=127.0.0.1
     - MYSQL_USER=root
     - MYSQL_DATABASE=ordersdb
     - MYSQL_PORT=3306
@@ -29,18 +30,18 @@ jobs:
           - $HOME/.gradle/wrapper/
       before_script:
       # Wait MySQL
-      - until mysql -h 127.0.0.1 -P ${MYSQL_PORT} -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      - until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       # Create ordersdb database
       - mysql -u ${MYSQL_USER} -e "create database ${MYSQL_DATABASE}"
       script:
       # Gradle Build
       - ./gradlew build -x test
       # Start Application
-      - java -jar build/libs/micro-orders-0.0.1.jar &
+      - java -Dspring.datasource.port="${MYSQL_PORT}" -Dspring.datasource.url="jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}" -jar build/libs/micro-orders-0.0.1.jar &
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
+      - bash scripts/api_tests.sh ${MYSQL_HOST} 8084 ${HS256_KEY}
     - stage: docker build, deploy, and test
       services:
       - mysql
@@ -49,14 +50,14 @@ jobs:
         - true
       before_script:
       # Wait MySQL
-      - until mysql -h 127.0.0.1 -P ${MYSQL_PORT} -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
+      - until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -uroot -e status; do echo "waiting for mysql"; sleep 1; done; echo "MySQL Started"
       # Create ordersdb database
       - mysql -u ${MYSQL_USER} -e "create database ${MYSQL_DATABASE}"
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Start Orders Container and Connect to local MySQL Service
-      - docker run --net=host --name orders -d -p 8084:8084  -e MYSQL_HOST="127.0.0.1" -e MYSQL_PORT="${MYSQL_PORT}" -e MYSQL_USER="${MYSQL_USER}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      - docker run --net=host --name orders -d -p 8084:8084 -e MYSQL_HOST="${MYSQL_HOST}" -e MYSQL_PORT="${MYSQL_PORT}" -e MYSQL_USER="${MYSQL_USER}" -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Check that the Orders container is running
@@ -64,7 +65,7 @@ jobs:
       # Check logs to see if it started properly
       - docker logs orders
       # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 $HS256_KEY
+      - bash scripts/api_tests.sh ${MYSQL_HOST} 8084 ${HS256_KEY}
     - stage: kubernetes build, deploy, and test
       services:
       - docker
@@ -97,6 +98,6 @@ jobs:
       # Wait for Orders deployment to start accepting connections
       - sleep 35
       # Run Orders API Test
-      - MINIKUBE_IP=$(minikube ip)
-      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-orders -o=jsonpath='{.spec.ports[0].nodePort}')
-      - bash scripts/api_tests.sh $MINIKUBE_IP $NODE_PORT $HS256_KEY
+      - ${MINIKUBE_IP}=$(minikube ip)
+      - ${NODE_PORT}=$(kubectl get service ${RELEASE_NAME}-orders -o=jsonpath='{.spec.ports[0].nodePort}')
+      - bash scripts/api_tests.sh $${MINIKUBE_IP} $${NODE_PORT} ${HS256_KEY}
