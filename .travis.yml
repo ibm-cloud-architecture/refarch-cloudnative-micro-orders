@@ -37,6 +37,7 @@ jobs:
       # Gradle Build
       - ./gradlew build -x test
       # Start Application
+      - printenv | grep MYSQL
       - java -Dspring.datasource.port="${MYSQL_PORT}" -Dspring.datasource.url="jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}" -jar build/libs/micro-orders-0.0.1.jar &
       # Wait for the Orders container to start accepting connections
       - sleep 25
