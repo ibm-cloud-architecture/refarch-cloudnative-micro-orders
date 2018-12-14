@@ -20,6 +20,20 @@ spec:
         ports:
         - containerPort: {{ .Values.service.internalPort }}
           protocol: TCP
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.managementPort }}
+          initialDelaySeconds: 20
+          periodSeconds: 10
+          failureThreshold: 6
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: {{ .Values.service.managementPort }}
+          initialDelaySeconds: 35
+          periodSeconds: 20
+          failureThreshold: 6
         env:
         {{- include "orders.environmentvariables" . | indent 8 }}
         {{- include "orders.mariadb.environmentvariables" . | indent 8 }}

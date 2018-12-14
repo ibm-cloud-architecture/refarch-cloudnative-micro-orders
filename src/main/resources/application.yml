@@ -9,6 +9,9 @@ server:
   context-path: /micro
   port: ${SERVICE_PORT:8084}
 
+management:
+  port: ${MANAGEMENT_PORT:8094}
+
 # Spring properties
 spring:
   application:

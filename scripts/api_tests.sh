@@ -3,7 +3,6 @@
 ITEM_ID=13401
 
 function parse_arguments() {
-	#set -x;
 	# ORDERS_HOST
 	if [ -z "${ORDERS_HOST}" ]; then
 		echo "ORDERS_HOST not set. Using parameter \"$1\"";
@@ -37,7 +36,7 @@ function parse_arguments() {
 		HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a;
 	fi
 
-	#set +x;
+	echo "Using http://${MICROSERVICE_HOST}:${MICROSERVICE_PORT}"
 }
 
 function create_jwt_admin() {
@@ -76,9 +75,10 @@ function create_jwt_blue() {
 
 function create_order() {
 	CURL=$(curl --write-out %{http_code} --silent --output /dev/null --max-time 5 -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${jwt_blue}" -d "{\"itemId\":${ITEM_ID},\"count\":1}" http://${ORDERS_HOST}:${ORDERS_PORT}/micro/orders);
+	echo "create_user status code: \"${CURL}\""
 
 	# Check for 201 Status Code
-	if [ "$CURL" != "201" ]; then
+	if [ -z "${CURL}" ] || [ "$CURL" != "201" ]; then
 		printf "create_order: ❌ \n${CURL}\n";
         exit 1;
     else
@@ -88,9 +88,9 @@ function create_order() {
 
 function get_order() {
 	CURL=$(curl -s --max-time 5 -H "Authorization: Bearer ${jwt_blue}" http://${ORDERS_HOST}:${ORDERS_PORT}/micro/orders | jq -r '.[0].itemId' | grep ${ITEM_ID});
-	#echo "Found order with itemId: \"${CURL}\""
+	echo "Found order with itemId: \"${CURL}\""
 
-	if [ "$CURL" != "$ITEM_ID" ]; then
+	if [ -z "${CURL}" ] || [ "$CURL" != "$ITEM_ID" ]; then
 		echo "get_order: ❌ could not find itemId";
         exit 1;
     else
