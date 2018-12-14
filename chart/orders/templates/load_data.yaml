@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-{{ .Values.service.name }}-job
+  labels:
+    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    release: {{ .Release.Name }}
+    implementation: microprofile
+spec:
+  template:
+    metadata:
+      name: {{ .Release.Name }}-{{ .Values.service.name }}-job
+      labels:
+        chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+        release: {{ .Release.Name }}
+        implementation: microprofile
+    spec:
+      restartPolicy: Never
+      initContainers:
+      {{- include "orders.mariadb.initcontainer" . | indent 6 }}
+      containers:
+      - name: populate-mysql
+        image: {{ .Values.mysql.image }}:{{ .Values.mysql.imageTag }}
+        imagePullPolicy: {{ .Values.mysql.imagePullPolicy }}
+        volumeMounts:
+        - mountPath: /orders-data
+          name: orders-data
+          readOnly: false
+        command: ["/bin/bash", "-c"]
+        {{- if or .Values.mariadb.password .Values.mariadb.existingSecret }}
+        args: ["cp /orders-data/mysql_data.sql .; sed -i \"s/ordersdb/${MYSQL_DATABASE}/g\" mysql_data.sql; until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} <mysql_data.sql; do echo \"waiting for mysql\"; sleep 1; done; echo \"Loaded data into database\";"]
+        {{- else }}
+        args: ["cp /orders-data/mysql_data.sql .; sed -i \"s/ordersdb/${MYSQL_DATABASE}/g\" mysql_data.sql; until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER}                     <mysql_data.sql; do echo \"waiting for mysql\"; sleep 1; done; echo \"Loaded data into database\";"]
+        {{- end }}
+        env:
+        {{- include "orders.mariadb.environmentvariables" . | indent 8 }}
+      volumes:
+      - name: orders-data
+        configMap:
+          name: {{ .Release.Name }}-{{ .Values.service.name }}-data
