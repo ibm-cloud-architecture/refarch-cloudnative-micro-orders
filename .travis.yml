@@ -7,9 +7,10 @@ env:
     - IMAGE_NAME=bluecompute-orders
     - RELEASE_NAME=orders
     - TAG=travis-latest
+    - SERVICE_PORT=8084
+    - MANAGEMENT_PORT=8094
     - HS256_KEY=E6526VJkKYhyTFRFMC0pTECpHcZ7TGcq8pKsVVgz9KtESVpheEO284qKzfzg8HpWNBPeHOxNGlyudUHi6i8tFQJXC8PiI48RUpMh23vPDLGD35pCM0417gf58z5xlmRNii56fwRCmIhhV7hDsm3KO2jRv4EBVz7HrYbzFeqI45CaStkMYNipzSm2duuer7zRdMjEKIdqsby0JfpQpykHmC5L6hxkX0BT7XWqztTr6xHCwqst26O0g8r7bXSYjp4a
     - MYSQL_DATABASE=ordersdb
-
 stages:
   - local build and test
   - docker build, deploy, and test
@@ -38,13 +39,13 @@ jobs:
       - mysql -u ${MYSQL_USER} -e "create database ${MYSQL_DATABASE}"
       script:
       # Gradle Build
-      - ./gradlew build -x test
+      - ./gradlew build
       # Start Application
-      - java -jar build/libs/micro-orders-0.0.1.jar &
-      # Wait for the Orders container to start accepting connections
-      - sleep 25
-      # Run Orders API Test
-      - bash scripts/api_tests.sh ${MYSQL_HOST} 8084 ${HS256_KEY}
+      - java -jar build/libs/micro-${RELEASE_NAME}-0.0.1.jar &
+      # Let the application start
+      - bash scripts/health_check.sh
+      # Run API Test
+      - bash scripts/api_tests.sh 127.0.0.1 ${SERVICE_PORT} ${HS256_KEY}
     - stage: docker build, deploy, and test
       services:
       - docker
@@ -65,52 +66,54 @@ jobs:
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Start Orders Container and Connect to local MySQL Service
-      - docker run --name orders -p 8084:8084 -d -e MYSQL_HOST=${MYSQL_HOST} -e MYSQL_PORT=3306 -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
-      # Wait for the Orders container to start accepting connections
-      - sleep 25
-      # Check that the Orders container is running
+      # Start Container and Connect to local MySQL Service
+      - docker run --name ${RELEASE_NAME} -d -p ${SERVICE_PORT}:${SERVICE_PORT} -p ${MANAGEMENT_PORT}:${MANAGEMENT_PORT} -e MYSQL_HOST=${MYSQL_HOST} -e MYSQL_PORT=3306 -e MYSQL_USER=${MYSQL_USER} -e MYSQL_PASSWORD=${MYSQL_PASSWORD} -e MYSQL_DATABASE=${MYSQL_DATABASE} -e HS256_KEY="${HS256_KEY}" "${IMAGE_NAME}:${TAG}"
+      # Check that the container is running
       - docker ps
       # Check logs to see if it started properly
-      - docker logs orders
-      # Run Orders API Test
-      - bash scripts/api_tests.sh 127.0.0.1 8084 ${HS256_KEY}
+      - docker logs -f ${RELEASE_NAME} &
+      # Let the application start
+      - bash scripts/health_check.sh
+      # Run API Test
+      - bash scripts/api_tests.sh 127.0.0.1 ${SERVICE_PORT} ${HS256_KEY}
     - stage: kubernetes build, deploy, and test
       services:
       - docker
       install:
         - true
       env:
-        - CHANGE_MINIKUBE_NONE_USER=true
-        - MYSQL_ROOT_PASSWORD=admin123
-        - MYSQL_PORT=3307
-        - MYSQL_USER=dbuser
-        - MYSQL_PASSWORD=password
+      - CHANGE_MINIKUBE_NONE_USER=true
+      - CHART_NAME=orders
+      - MYSQL_ROOT_PASSWORD=admin123
+      - MYSQL_PORT=3307
+      - MYSQL_USER=dbuser
+      - MYSQL_PASSWORD=password
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
       # Install MariaDB Chart
-      - helm upgrade --install orders-mariadb --version 5.2.2 --set service.port=${MYSQL_PORT},nameOverride=orders-mariadb,rootUser.password=${MYSQL_ROOT_PASSWORD},db.user=${MYSQL_USER},db.password=${MYSQL_PASSWORD},db.name=${MYSQL_DATABASE},replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false stable/mariadb
+      - helm upgrade --install orders-mariadb --version 5.2.2 --set service.port=${MYSQL_PORT},nameOverride=${RELEASE_NAME}-mariadb,rootUser.password=${MYSQL_ROOT_PASSWORD},db.user=${MYSQL_USER},db.password=${MYSQL_PASSWORD},db.name=${MYSQL_DATABASE},replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false stable/mariadb
       script:
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Download Orders chart dependencies (MySQL)
-      - cd chart/orders; helm dependency update; cd ../..
       # helm lint
-      - helm lint chart/orders
+      - helm lint chart/${CHART_NAME}
       # helm package
-      - helm package chart/orders
-      # helm install Orders from packaged chart. Use pullPolicy=Never so it uses local docker image
-      - CHART_VERSION="$(cat chart/orders/Chart.yaml | grep version | awk '{print $2}')"
-      - helm upgrade --install orders --set service.type=NodePort,mariadb.user=${MYSQL_USER},mariadb.password=${MYSQL_PASSWORD},mariadb.database=${MYSQL_DATABASE},image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never orders-${CHART_VERSION}.tgz
-      # Wait for Orders to be ready
-      - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
-      - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
-      - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for orders to be ready"; sleep 10; done
-      # Wait for Orders deployment to start accepting connections
-      - sleep 35
-      # Run Orders API Test
-      - MINIKUBE_IP=$(minikube ip)
-      - NODE_PORT=$(kubectl get service ${RELEASE_NAME}-orders -o=jsonpath='{.spec.ports[0].nodePort}')
-      - bash scripts/api_tests.sh ${MINIKUBE_IP} ${NODE_PORT} ${HS256_KEY}
+      - helm package chart/${CHART_NAME}
+      # helm install from packaged chart. Use pullPolicy=Never so it uses local docker image
+      - CHART_VERSION="$(cat chart/${CHART_NAME}/Chart.yaml | grep version | awk '{print $2}')"
+      - helm upgrade --install ${RELEASE_NAME} --set image.repository="${IMAGE_NAME}",image.tag="${TAG}",image.pullPolicy=Never,mariadb.user=${MYSQL_USER},mariadb.password=${MYSQL_PASSWORD},mariadb.database=${MYSQL_DATABASE} ${CHART_NAME}-${CHART_VERSION}.tgz
+      # Get Deployment Name
+      - DEPLOYMENT="deployment/${RELEASE_NAME}-${CHART_NAME}"
+      # Wait for deployment to be ready
+      - kubectl rollout status ${DEPLOYMENT}
+      # Get logs
+      - kubectl logs -f ${DEPLOYMENT} &
+      # Port Forwarding
+      - kubectl port-forward ${DEPLOYMENT} ${SERVICE_PORT} ${MANAGEMENT_PORT} &
+      - echo "Sleeping for 3 seconds while connection is established..."
+      - sleep 3
+      # Let the application start
+      - bash scripts/health_check.sh
+      # Run API Test
+      - bash scripts/api_tests.sh
