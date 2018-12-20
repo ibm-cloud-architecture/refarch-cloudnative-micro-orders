@@ -14,7 +14,7 @@ spec:
       initContainers:
       {{- include "orders.mariadb.initcontainer" . | indent 6 }}
       containers:
-      - name: orders
+      - name: {{ .Chart.Name | quote }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: "{{ .Values.image.pullPolicy }}"
         ports:
