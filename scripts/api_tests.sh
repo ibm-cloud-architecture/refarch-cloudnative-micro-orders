@@ -84,5 +84,6 @@ get_token
 
 # API Tests
 echo "Starting Tests"
+get_order
 create_order
 get_order
