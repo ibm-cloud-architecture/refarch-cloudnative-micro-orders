@@ -53,7 +53,7 @@ jobs:
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
-      - bash scripts/api_tests.sh ${MYSQL_HOST} 8084 ${HS256_KEY}
+      - bash scripts/api_tests.sh
 
     # - stage: docker build, deploy, and test
     #   services:
