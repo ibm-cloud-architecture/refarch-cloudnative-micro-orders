@@ -27,6 +27,9 @@ jobs:
         - dbpassword=password
         - auth_health=https://localhost:9443/health
         - rabbit=localhost
+        - jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
+        - jwksIssuer=https://localhost:9443/oidc/endpoint/OP
+        - administratorRealm=https://localhost:9443/oidc/endpoint/OP
         - MYSQL_HOST=127.0.0.1
         - MYSQL_PORT=3306
         - MYSQL_USER=root
