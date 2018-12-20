@@ -19,6 +19,7 @@ def serviceAccount = env.SERVICE_ACCOUNT ?: "jenkins"
 def namespace = env.NAMESPACE ?: "default"
 def registry = env.REGISTRY ?: "docker.io"
 def imageName = env.IMAGE_NAME ?: "ibmcase/bluecompute-orders"
+def imageTag = env.IMAGE_TAG ?: "latest"
 def serviceLabels = env.SERVICE_LABELS ?: "app=orders,tier=backend" //,version=v1"
 def microServiceName = env.MICROSERVICE_NAME ?: "orders"
 def servicePort = env.MICROSERVICE_PORT ?: "8084"
@@ -47,6 +48,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'NAMESPACE', value: namespace),
         envVar(key: 'REGISTRY', value: registry),
         envVar(key: 'IMAGE_NAME', value: imageName),
+        envVar(key: 'IMAGE_TAG', value: imageTag),
         envVar(key: 'SERVICE_LABELS', value: serviceLabels),
         envVar(key: 'MICROSERVICE_NAME', value: microServiceName),
         envVar(key: 'MICROSERVICE_PORT', value: servicePort),
@@ -57,143 +59,12 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
         envVar(key: 'HS256_KEY', value: hs256Key),
         envVar(key: 'HELM_HOME', value: helmHome)
     ],
-    volumes: [
-        hostPathVolume(mountPath: '/home/gradle/.gradle', hostPath: '/tmp/jenkins/.gradle'),
-        hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
-    ],
     containers: [
-        containerTemplate(name: 'jdk', image: 'ibmcase/openjdk-bash:alpine', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'docker' , image: 'ibmcase/docker-bash:1', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'kubernetes', image: 'ibmcase/jenkins-slave-utils:1', ttyEnabled: true, command: 'cat')
   ]) {
 
     node(podLabel) {
         checkout scm
-
-        // Local
-        container(name:'jdk', shell:'/bin/bash') {
-            stage('Local - Build and Unit Test') {
-                sh """
-                #!/bin/bash
-                ./gradlew build
-                """
-            }
-            stage('Local - Run and Test') {
-                sh """
-                #!/bin/bash
-
-                JAVA_OPTS="-Dspring.datasource.url=jdbc:mysql://${MYSQL_HOST}:${MYSQL_PORT}/${MYSQL_DATABASE}"
-                JAVA_OPTS="\${JAVA_OPTS} -Dspring.datasource.port=${MYSQL_PORT}"
-                JAVA_OPTS="\${JAVA_OPTS} -Dserver.port=${MICROSERVICE_PORT}"
-
-                java \${JAVA_OPTS} -jar build/libs/micro-orders-0.0.1.jar &
-
-                PID=`echo \$!`
-
-                # Let the application start
-                bash scripts/health_check.sh "http://127.0.0.1:${MANAGEMENT_PORT}"
-
-                # Run tests
-                bash scripts/api_tests.sh 127.0.0.1 ${MICROSERVICE_PORT}
-
-                # Kill process
-                kill \${PID}
-                """
-            }
-        }
-
-        // Docker
-        container(name:'docker', shell:'/bin/bash') {
-            stage('Docker - Build Image') {
-                sh """
-                #!/bin/bash
-
-                # Get image
-                if [ "${REGISTRY}" == "docker.io" ]; then
-                    IMAGE=${IMAGE_NAME}:${env.BUILD_NUMBER}
-                else
-                    IMAGE=${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${env.BUILD_NUMBER}
-                fi
-
-                docker build -t \${IMAGE} .
-                """
-            }
-            stage('Docker - Run and Test') {
-                sh """
-                #!/bin/bash
-
-                # Get image
-                if [ "${REGISTRY}" == "docker.io" ]; then
-                    IMAGE=${IMAGE_NAME}:${env.BUILD_NUMBER}
-                else
-                    IMAGE=${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${env.BUILD_NUMBER}
-                fi
-
-                # Kill Container if it already exists
-                docker kill ${MICROSERVICE_NAME} || true
-                docker rm ${MICROSERVICE_NAME} || true
-
-                # Start Container
-                echo "Starting ${MICROSERVICE_NAME} container"
-                set +x
-                docker run --name ${MICROSERVICE_NAME} -d \
-                    -p ${MICROSERVICE_PORT}:${MICROSERVICE_PORT} \
-                    -p ${MANAGEMENT_PORT}:${MANAGEMENT_PORT} \
-                    -e SERVICE_PORT=${MICROSERVICE_PORT} \
-                    -e MYSQL_HOST=${MYSQL_HOST} \
-                    -e MYSQL_PORT=${MYSQL_PORT} \
-                    -e MYSQL_USER=${MYSQL_USER} \
-                    -e MYSQL_PASSWORD=${MYSQL_PASSWORD} \
-                    -e MYSQL_DATABASE=${MYSQL_DATABASE} \
-                    -e HS256_KEY=${HS256_KEY} \
-                    \${IMAGE}
-                set -x
-
-                # Check that application started successfully
-                docker ps
-
-                # Check the logs
-                docker logs -f ${MICROSERVICE_NAME} &
-                PID=`echo \$!`
-
-                # Get the container IP Address
-                CONTAINER_IP=`docker inspect ${MICROSERVICE_NAME} | jq -r '.[0].NetworkSettings.IPAddress'`
-
-                # Let the application start
-                bash scripts/health_check.sh "http://\${CONTAINER_IP}:${MANAGEMENT_PORT}"
-
-                # Run tests
-                bash scripts/api_tests.sh \${CONTAINER_IP} ${MICROSERVICE_PORT}
-
-                # Kill process
-                kill \${PID}
-
-                # Kill Container
-                docker kill ${MICROSERVICE_NAME} || true
-                docker rm ${MICROSERVICE_NAME} || true
-                """
-            }
-            stage('Docker - Push Image to Registry') {
-                withCredentials([usernamePassword(credentialsId: registryCredsID,
-                                               usernameVariable: 'USERNAME',
-                                               passwordVariable: 'PASSWORD')]) {
-                    sh """
-                    #!/bin/bash
-
-                    # Get image
-                    if [ "${REGISTRY}" == "docker.io" ]; then
-                        IMAGE=${IMAGE_NAME}:${env.BUILD_NUMBER}
-                    else
-                        IMAGE=${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${env.BUILD_NUMBER}
-                    fi
-
-                    docker login -u ${USERNAME} -p ${PASSWORD} ${REGISTRY}
-
-                    docker push \${IMAGE}
-                    """
-                }
-            }
-        }
 
         // Kubernetes
         container(name:'kubernetes', shell:'/bin/bash') {
@@ -203,9 +74,9 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, names
 
                 # Get image
                 if [ "${REGISTRY}" == "docker.io" ]; then
-                    IMAGE=${IMAGE_NAME}:${env.BUILD_NUMBER}
+                    IMAGE=${IMAGE_NAME}:${IMAGE_TAG}
                 else
-                    IMAGE=${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${env.BUILD_NUMBER}
+                    IMAGE=${REGISTRY}/${NAMESPACE}/${IMAGE_NAME}:${IMAGE_TAG}
                 fi
 
                 # Get deployment
