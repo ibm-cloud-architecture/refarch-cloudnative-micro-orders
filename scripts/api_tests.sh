@@ -48,11 +48,6 @@ function parse_arguments {
 	fi
 }
 
-function get_auth {
-	AUTH_CURL=$(curl -k -d 'grant_type=password&client_id=bluecomputeweb&client_secret=bluecomputewebs3cret&username=user&password=password&scope=openid' https://${AUTH_HOST}:${AUTH_PORT}/oidc/endpoint/OP/token)
-	echo $AUTH_CURL
-}
-
 function get_token {
 	ACCESS_TOKEN=$(curl -k -d 'grant_type=password&client_id=bluecomputeweb&client_secret=bluecomputewebs3cret&username=user&password=password&scope=openid' https://${AUTH_HOST}:${AUTH_PORT}/oidc/endpoint/OP/token | jq -r '.access_token')
 	echo $ACCESS_TOKEN

@@ -138,7 +138,7 @@ public class OrderService {
                 // distinguishing lack of jwt from a poorly generated one
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing JWT").build();
             }
-            final String customerId = jwt.getName();
+            final String customerId = jwt.getSubject();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
                 // return "Invalid Bearer Token: Missing customer ID";
@@ -217,7 +217,7 @@ public class OrderService {
                 // distinguishing lack of jwt from a poorly generated one
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing JWT").build();
             }
-            final String customerId = jwt.getName();
+            final String customerId = jwt.getSubject();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
                 //return "Invalid Bearer Token: Missing customer ID";
