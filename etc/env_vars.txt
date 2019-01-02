@@ -1,7 +1,7 @@
 # COPY AND PASTE THESE TO YOUR CONSOLE
 
 # JDBC environment variables
-export jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
+export jdbcURL=jdbc:mysql://localhost:9039/ordersdb?useSSL=false
 export dbuser=root
 export dbpassword=password
 
@@ -28,7 +28,7 @@ export inventory_health=http://localhost:9081/health
 # COPY AND PASTE THESE TO YOUR SERVER.ENV
 
 # JDBC environment variables
-jdbcURL=jdbc:mysql://localhost:9041/ordersdb?useSSL=false
+jdbcURL=jdbc:mysql://localhost:9039/ordersdb?useSSL=false
 dbuser=root
 dbpassword=password
 

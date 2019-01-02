@@ -62,14 +62,14 @@ import utils.OrderDAOImpl;
 @RequestScoped
 @Path("/orders")
 @OpenAPIDefinition(
-        info = @Info(
-                title = "Orders Service",
-                version = "0.0",
-                description = "Orders APIs",
-                contact = @Contact(url = "https://github.com/ibm-cloud-architecture", name = "IBM CASE"),
-                license = @License(name = "License",
-                        url = "https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/blob/microprofile/LICENSE")
-        )
+    info = @Info(
+        title = "Orders Service",
+        version = "0.0",
+        description = "Orders APIs",
+        contact = @Contact(url = "https://github.com/ibm-cloud-architecture", name = "IBM CASE"),
+        license = @License(name = "License",
+            url = "https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/blob/microprofile/LICENSE")
+    )
 )
 public class OrderService {
 
@@ -92,50 +92,52 @@ public class OrderService {
     @Produces(MediaType.APPLICATION_JSON)
     @Fallback(fallbackMethod = "returnDummyOrder")
     @APIResponses(value = {
-            @APIResponse(
-                    responseCode = "400",
-                    description = "Invalid Bearer Token causing a missing customer ID.",
-                    content = @Content(
-                            mediaType = "text/plain"
-                    )
-            ),
-            @APIResponse(
-                    // Possible, but should trigger the Fallback method
-                    responseCode = "500",
-                    description = "Internal Server Error.",
-                    content = @Content(
-                            mediaType = "text/plain"
-                    )
-            ),
-            @APIResponse(
-                    responseCode = "200",
-                    description = "List and retrieve all orders from the database.",
-                    content = @Content(
-                            mediaType = "text/plain"
-                    )
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid Bearer Token causing a missing customer ID.",
+            content = @Content(
+                mediaType = "text/plain"
             )
-    }
-    )
+        ),
+        @APIResponse(
+            // Possible, but should trigger the Fallback method
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content = @Content(
+                mediaType = "text/plain"
+            )
+        ),
+        @APIResponse(
+            responseCode = "200",
+            description = "List and retrieve all orders from the database.",
+            content = @Content(
+                mediaType = "text/plain"
+            )
+        )
+    })
     @Operation(
-            summary = "Get all orders",
-            description = "Retrieve all orders made from the database."
+        summary = "Get all orders",
+        description = "Retrieve all orders made from the database."
     )
     @Timed(name = "getOrders.timer",
-            absolute = true,
-            displayName = "getOrders Timer",
-            description = "Time taken by getOrders.")
+        absolute = true,
+        displayName = "getOrders Timer",
+        description = "Time taken by getOrders.")
     @Counted(name = "getOrders",
-            absolute = true,
-            displayName = "getOrders call count",
-            description = "Number of times we retrieved orders from the database",
-            monotonic = true)
+        absolute = true,
+        displayName = "getOrders call count",
+        description = "Number of times we retrieved orders from the database",
+        monotonic = true)
     @Metered(name = "getOrdersMeter",
-            displayName = "getOrders call frequency",
-            description = "Rate the throughput of getOrders.")
+        displayName = "getOrders call frequency",
+        description = "Rate the throughput of getOrders.")
     @Traced(value = true, operationName = "getOrders.list")
     public Response getOrders() throws Exception {
         try {
-            // System.out.println("I am in getOrders");
+            if (jwt == null) {
+                // distinguishing lack of jwt from a poorly generated one
+                return Response.status(Response.Status.BAD_REQUEST).entity("Missing JWT").build();
+            }
             final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
@@ -163,54 +165,58 @@ public class OrderService {
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
     @APIResponses(value = {
-            @APIResponse(
-                    responseCode = "400",
-                    description = "Invalid Bearer Token causing a missing customer ID.",
-                    content = @Content(
-                            mediaType = "text/plain"
-                    )
-            ),
-            @APIResponse(
-                    responseCode = "500",
-                    description = "Internal Server Error.",
-                    content = @Content(
-                            mediaType = "text/plain"
-                    )
-            ),
-            @APIResponse(
-                    responseCode = "200",
-                    description = "Create a new order to notify Inventory.",
-                    content = @Content(
-                            mediaType = "application/json"
-                    )
-            )}
-    )
+        @APIResponse(
+            responseCode = "400",
+            description = "Invalid Bearer Token causing a missing customer ID.",
+            content = @Content(
+                mediaType = "text/plain"
+            )
+        ),
+        @APIResponse(
+            responseCode = "500",
+            description = "Internal Server Error.",
+            content = @Content(
+                mediaType = "text/plain"
+            )
+        ),
+        @APIResponse(
+            responseCode = "200",
+            description = "Create a new order to notify Inventory.",
+            content = @Content(
+                mediaType = "application/json"
+            )
+        )
+    })
     @Operation(
-            summary = "Create an order",
-            description = "Uses RabbitMQ to notify a new shipping order."
+        summary = "Create an order",
+        description = "Uses RabbitMQ to notify a new shipping order."
     )
     @Timed(name = "createOrders.timer",
-            absolute = true,
-            displayName = "createOrder Timer",
-            description = "Time taken to create an order.")
+        absolute = true,
+        displayName = "createOrder Timer",
+        description = "Time taken to create an order.")
     @Counted(name = "createOrders",
-            absolute = true,
-            displayName = "createOrders call count",
-            description = "Number of times we've called createOrders.",
-            monotonic = true)
+        absolute = true,
+        displayName = "createOrders call count",
+        description = "Number of times we've called createOrders.",
+        monotonic = true)
     @Metered(name = "createOrdersMeter",
-            displayName = "Orders Call Frequency",
-            description = "Rate the throughput of createOrders.")
+        displayName = "Orders Call Frequency",
+        description = "Rate the throughput of createOrders.")
     @Traced(value = true, operationName = "createOrders")
     public Response create(
-            @Parameter(
-                    name = "payload",
-                    in = ParameterIn.HEADER,
-                    description = "A JSON with the information to create an order.",
-                    example = "{\"itemId\":13401, \"count\":1}",
-                    schema = @Schema(type = SchemaType.STRING))
-            Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
+        @Parameter(
+            name = "payload",
+            in = ParameterIn.HEADER,
+            description = "A JSON with the information to create an order.",
+            example = "{\"itemId\":13401, \"count\":1}",
+            schema = @Schema(type = SchemaType.STRING))
+        Order payload, @Context UriInfo uriInfo) throws IOException, TimeoutException {
         try {
+            if (jwt == null) {
+                // distinguishing lack of jwt from a poorly generated one
+                return Response.status(Response.Status.BAD_REQUEST).entity("Missing JWT").build();
+            }
             final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request

@@ -50,7 +50,7 @@ function parse_arguments {
 
 function get_token {
 	ACCESS_TOKEN=$(curl -k -d 'grant_type=password&client_id=bluecomputeweb&client_secret=bluecomputewebs3cret&username=user&password=password&scope=openid' https://${AUTH_HOST}:${AUTH_PORT}/oidc/endpoint/OP/token | jq -r '.access_token')
-	# echo $ACCESS_TOKEN
+	echo $ACCESS_TOKEN
 }
 
 function create_order {
@@ -67,6 +67,7 @@ function create_order {
 }
 
 function get_order {
+	echo $ACCESS_TOKEN
 	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
 	echo "Found order with itemId: \"${CURL}\""
 
