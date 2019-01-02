@@ -138,11 +138,11 @@ public class OrderService {
                 // distinguishing lack of jwt from a poorly generated one
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing JWT").build();
             }
-            final String customerId = jwt.getSubject();
+            final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
                 // return "Invalid Bearer Token: Missing customer ID";
-                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID").build();
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID from jwt: " + jwt.getRawToken()).build();
             }
 
             System.out.println("caller: " + customerId);
@@ -217,11 +217,11 @@ public class OrderService {
                 // distinguishing lack of jwt from a poorly generated one
                 return Response.status(Response.Status.BAD_REQUEST).entity("Missing JWT").build();
             }
-            final String customerId = jwt.getSubject();
+            final String customerId = jwt.getName();
             if (customerId == null) {
                 // if no user passed in, this is a bad request
                 //return "Invalid Bearer Token: Missing customer ID";
-                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID").build();
+                return Response.status(Response.Status.BAD_REQUEST).entity("Invalid Bearer Token: Missing customer ID from jwt: " + jwt.getRawToken()).build();
             }
 
             payload.setDate(Calendar.getInstance().getTime());
