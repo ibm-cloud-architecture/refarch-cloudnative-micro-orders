@@ -79,7 +79,7 @@ spec:
           - name: administratorRealm
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: jdbcURL
-            value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3306/ordersdb?useSSL=false"
+            value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3307/ordersdb?useSSL=false"
           - name: inventory_url
             value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inventory/stock"
           - name: inventory_health

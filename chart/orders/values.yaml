@@ -18,7 +18,7 @@ service:
   servicePort: 9080
   servicePortHttps: 9443
   rabbitmq: rabbitmq
-  ordersdb: ordersdb
+  ordersdb: mariadb
   inventory: inventory
   auth: auth
   zipkinHost: zipkin
@@ -35,7 +35,20 @@ base:
 sql:
   user: root
   password: password
-  port: 3306
+  port: 3307
+
+mysql:
+  image: "mysql"
+  imageTag: "5.7.14"
+  imagePullPolicy: IfNotPresent
+
+mariadb:
+  host: bc-mariadb
+  port: 3307
+  existingSecret:
+  user: root
+  password: password
+  database: ordersdb
 
 jwt:
   id: myMpJwt
