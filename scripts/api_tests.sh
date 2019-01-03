@@ -27,8 +27,8 @@ function parse_arguments {
 
 		# AUTH_HOST
 	if [ -z "${AUTH_HOST}" ]; then
-		echo "AUTH_HOST not set. Using parameter \"$1\"";
-		AUTH_HOST=$1;
+		echo "AUTH_HOST not set. Using parameter \"$3\"";
+		AUTH_HOST=$3;
 	fi
 
 	if [ -z "${AUTH_HOST}" ]; then
@@ -38,14 +38,46 @@ function parse_arguments {
 
 	# AUTH_PORT
 	if [ -z "${AUTH_PORT}" ]; then
-		echo "AUTH_PORT not set. Using parameter \"$2\"";
-		AUTH_PORT=$2;
+		echo "AUTH_PORT not set. Using parameter \"$4\"";
+		AUTH_PORT=$4;
 	fi
 
 	if [ -z "${AUTH_PORT}" ]; then
 		echo "AUTH_PORT not set. Using default key";
 		AUTH_PORT=9443;
 	fi
+
+	# INV_HOST
+	if [ -z "${INV_HOST}" ]; then
+		echo "INV_HOST not set. Using parameter \"$5\"";
+		INV_HOST=$5;
+	fi
+
+	if [ -z "${INV_HOST}" ]; then
+		echo "INV_PORT not set. Using default key";
+		INV_HOST=localhost;
+	fi
+
+	# INV_PORT
+	if [ -z "${INV_PORT}" ]; then
+		echo "INV_PORT not set. Using parameter \"$6\"";
+		INV_PORT=$6;
+	fi
+
+	if [ -z "${INV_PORT}" ]; then
+		echo "INV_PORT not set. Using default key";
+		INV_PORT=9444;
+	fi
+}
+
+function health_auth {
+	CURL=$(curl https://${AUTH_HOST}:${AUTH_PORT}/health)
+	echo $CURL
+}
+
+function health_inv {
+	CURL=$(curl https://${INV_HOST}:${INV_PORT}/health)
+	echo $CURL
 }
 
 function get_token {
@@ -95,6 +127,8 @@ function get_order {
 
 # Setup
 parse_arguments $1 $2 $3 $4 $5
+health_auth
+health_inv
 get_token
 
 # API Tests
