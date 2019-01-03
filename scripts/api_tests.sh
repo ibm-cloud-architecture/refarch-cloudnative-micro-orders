@@ -64,11 +64,12 @@ function create_order {
 	echo $CURL
 
 	echo $(pwd)
+	ls target/liberty/wlp/usr/servers/defaultServer/logs/
 	echo "Printing messages.log"
-	cat ../build/wlp/usr/servers/defaultServer/logs/messages.log
+	cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log
 
 	echo "Printing console.log"
-	cat ../build/wlp/usr/servers/defaultServer/logs/console.log
+	cat target/liberty/wlp/usr/servers/defaultServer/logs/console.log
 
 	# Check for 201 Status Code
 	if [ "$CURL" != "201" ]; then
