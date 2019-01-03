@@ -63,6 +63,12 @@ function create_order {
 	CURL=$(curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
 	echo $CURL
 
+	echo "Printing messages.log"
+	cat build/wlp/usr/servers/defaultServer/logs/messages.log
+
+	echo "Printing console.log"
+	cat build/wlp/usr/servers/defaultServer/logs/console.log
+
 	# Check for 201 Status Code
 	if [ "$CURL" != "201" ]; then
 		printf "create_order: ❌ \n${CURL}\n";
@@ -87,11 +93,10 @@ function get_order {
 
 # Setup
 parse_arguments $1 $2 $3 $4 $5
-./export_local_vars.sh
 get_token
 
 # API Tests
 echo "Starting Tests"
-get_order
+# get_order
 create_order
 get_order
