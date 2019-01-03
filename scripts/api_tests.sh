@@ -11,7 +11,7 @@ function parse_arguments {
 
 	if [ -z "${ORDERS_HOST}" ]; then
 		echo "ORDERS_HOST not set. Using default key";
-		ORDERS_HOST=127.0.0.1;
+		ORDERS_HOST=localhost;
 	fi
 
 	# ORDERS_PORT
@@ -33,7 +33,7 @@ function parse_arguments {
 
 	if [ -z "${AUTH_HOST}" ]; then
 		echo "AUTH_HOST not set. Using default key";
-		AUTH_HOST=127.0.0.1;
+		AUTH_HOST=localhost;
 	fi
 
 	# AUTH_PORT
