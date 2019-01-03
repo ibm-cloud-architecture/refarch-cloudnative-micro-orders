@@ -71,12 +71,14 @@ function parse_arguments {
 }
 
 function health_auth {
-	CURL=$(curl https://${AUTH_HOST}:${AUTH_PORT}/health)
+	echo "Checking Auth Health"
+	CURL=$(curl -k https://${AUTH_HOST}:${AUTH_PORT}/health)
 	echo $CURL
 }
 
 function health_inv {
-	CURL=$(curl https://${INV_HOST}:${INV_PORT}/health)
+	echo "Check Inventory Health"
+	CURL=$(curl -k https://${INV_HOST}:${INV_PORT}/health)
 	echo $CURL
 }
 
