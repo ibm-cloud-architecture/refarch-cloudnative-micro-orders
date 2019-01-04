@@ -44,14 +44,14 @@ jobs:
       - docker create --name auth -p 9443:9443 -p 9080:9080 ibmcase/auth-mp:v3.0.0
       - docker cp keystorevol auth:/etc/
       - docker start auth
-      # Run Inventory, put keystore in, and start it
-      - docker pull ibmcase/inventory-mp:v2.0.0
-      - docker create --name inventory -p 9444:9443 -p 9081:9080 ibmcase/inventory-mp:v2.0.0
-      - docker cp keystorevol inventory:/etc/
-      - docker start inventory
       # Pull and run inventorydb
       - docker pull ibmcase/bc-inventorydb:v2.0.0
-      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password -e jdbcURL=jdbc:mysql://localhost:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password ibmcase/bc-inventorydb:v2.0.0
+      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
+      # Run Inventory, put keystore in, and start it
+      - docker pull ibmcase/inventory-mp:v2.0.0
+      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e jdbcURL=jdbc:mysql://localhost:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password ibmcase/inventory-mp:v2.0.0
+      - docker cp keystorevol inventory:/etc/
+      - docker start inventory
       # Build and run ordersdb
       - cd mysql
       - docker build -t ordersdb .
