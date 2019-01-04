@@ -62,9 +62,8 @@ public class HealthEndpoint implements HealthCheck {
 
 	}
 
-	public boolean sendMessage(){
-		try
-		{
+	public boolean sendMessage() {
+		try {
 			ConnectionFactory factory = new ConnectionFactory();
 			Config config = ConfigProvider.getConfig();
 			String rabbit_host = config.getValue("rabbit", String.class);
@@ -105,13 +104,13 @@ public class HealthEndpoint implements HealthCheck {
 			e.printStackTrace();
 			return false;
 		}
-		}
+	}
 
-    public boolean isAuthReady() {
+	public boolean isAuthReady() {
 
 		//Checking if Auth service is UP
 
-    	URL url;
+		URL url;
 		try {
 			url = new URL(auth_url);
 			HttpsURLConnection con = (HttpsURLConnection)url.openConnection();
@@ -134,11 +133,11 @@ public class HealthEndpoint implements HealthCheck {
 
 	}
 
-    public boolean isInventoryReady() {
+	public boolean isInventoryReady() {
 
 		//Checking if Inventory service is UP
 
-    	URL url;
+		URL url;
 		try {
 			url = new URL(inv_url);
 			HttpURLConnection con = (HttpURLConnection)url.openConnection();
@@ -161,7 +160,6 @@ public class HealthEndpoint implements HealthCheck {
 
 	}
 
-
 	@Override
 	public HealthCheckResponse call() {
 		// TODO Auto-generated method stub
@@ -169,26 +167,25 @@ public class HealthEndpoint implements HealthCheck {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
 		                                .withData("Orders Database", "DOWN").down()
 		                                .build();
-		    }
-
+		}
 
 		if (!isRabbitMQReady()) {
 			  return HealthCheckResponse.named(OrderService.class.getSimpleName())
 			                             .withData("RabbitMQ", "DOWN").down()
 			                             .build();
-			}
+		}
 
 		if (!isAuthReady()) {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
 		                                .withData("Auth Service", "DOWN").down()
 		                                .build();
-		    }
+		}
 
 		if (!isInventoryReady()) {
 		      return HealthCheckResponse.named(OrderService.class.getSimpleName())
 		                                .withData("Inventory Service", "DOWN").down()
 		                                .build();
-		    }
+		}
 
 		return HealthCheckResponse.named(OrderService.class.getSimpleName()).withData("Order Service", "UP").up().build();
 	}
