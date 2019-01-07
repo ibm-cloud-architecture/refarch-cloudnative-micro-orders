@@ -243,6 +243,7 @@ public class OrderService {
             //Using RabbitMQ to update stock
             notifyShipping(payload);
 
+            System.out.println("PIZZA 5");
             return javax.ws.rs.core.Response.created(builder.build()).build();
 
         } catch (Exception ex) {
@@ -269,9 +270,13 @@ public class OrderService {
             channel.basicPublish("", QueueName, null, update.getBytes());
             System.out.println("Sent the message '" + update + "'");
             String inv_url = config.getValue("inventory_url", String.class);
+            System.out.println("PIZZA 1");
             Client client = ClientBuilder.newClient();
+            System.out.println("PIZZA 2");
             WebTarget target = client.target(inv_url);
+            System.out.println("PIZZA 3");
             String s = target.request().get(String.class);
+            System.out.println("PIZZA 4");
             System.out.println(s);
 
             channel.close();
