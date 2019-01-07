@@ -87,6 +87,19 @@ function get_token {
 	echo $ACCESS_TOKEN
 }
 
+function get_order_first {
+	echo $ACCESS_TOKEN
+	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
+	echo "Retrieved orders: ${CURL}"
+
+	if [ "$CURL" != "[]" ]; then
+		echo "get_order: ❌ did not get empty list";
+        exit 1;
+    else
+    	echo "get_order: ✅";
+    fi
+}
+
 function create_order {
 	# echo "Printing 3 variations of Hema's command right now:"
 	# echo curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'
@@ -136,6 +149,6 @@ get_token
 
 # API Tests
 echo "Starting Tests"
+get_order_first
+create_order
 get_order
-# create_order
-# get_order
