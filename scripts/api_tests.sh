@@ -117,7 +117,8 @@ function create_order {
 function get_order {
 	echo $ACCESS_TOKEN
 	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
-	echo "Found order with itemId: \"${CURL}\""
+	echo "CURL returned: ${CURL}"
+	# echo "Found order with itemId: \"${CURL}\""
 
 	# if [ "$CURL" != "$ITEM_ID" ]; then
 	# 	echo "get_order: ❌ could not find itemId";
@@ -135,6 +136,6 @@ get_token
 
 # API Tests
 echo "Starting Tests"
-# get_order
-create_order
 get_order
+# create_order
+# get_order
