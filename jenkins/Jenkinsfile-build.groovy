@@ -63,7 +63,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVa
     ],
     containers: [
         containerTemplate(name: 'jdk', image: 'ibmcase/openjdk-bash:alpine', ttyEnabled: true, command: 'cat'),
-        containerTemplate(name: 'docker' , image: 'ibmcase/docker-bash:1', ttyEnabled: true, command: 'cat')
+        containerTemplate(name: 'docker', image: 'ibmcase/docker:18.09-dind', privileged: true)
   ]) {
 
     node(podLabel) {
