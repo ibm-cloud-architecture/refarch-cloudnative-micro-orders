@@ -14,6 +14,7 @@ def podLabel = "orders"
 def cloud = env.CLOUD ?: "kubernetes"
 def registryCredsID = env.REGISTRY_CREDENTIALS ?: "registry-credentials-id"
 def serviceAccount = env.SERVICE_ACCOUNT ?: "jenkins"
+def dockerSocket = env.DOCKER_SOCKET ?: "/var/run/docker.sock"
 
 // Pod Environment Variables
 def namespace = env.NAMESPACE ?: "default"
@@ -59,7 +60,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVa
     ],
     volumes: [
         hostPathVolume(mountPath: '/home/gradle/.gradle', hostPath: '/tmp/jenkins/.gradle'),
-        hostPathVolume(hostPath: '/var/run/docker.sock', mountPath: '/var/run/docker.sock')
+        hostPathVolume(hostPath: dockerSocket, mountPath: dockerSocket)
     ],
     containers: [
         containerTemplate(name: 'jdk', image: 'ibmcase/openjdk-bash:alpine', ttyEnabled: true, command: 'cat'),
