@@ -274,7 +274,7 @@ public class OrderService {
             Client client = ClientBuilder.newClient();
             System.out.println("PIZZA 2");
             WebTarget target = client.target(inv_url);
-            System.out.println("PIZZA 3");
+            System.out.println("PIZZA 3 " + inv_url);
             String s = target.request().get(String.class);
             System.out.println("PIZZA 4");
             System.out.println(s);
