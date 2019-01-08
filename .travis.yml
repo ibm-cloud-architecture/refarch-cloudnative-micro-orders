@@ -2,15 +2,6 @@ sudo: required
 language: java
 jdk:
   - openjdk8
-env:
-  global:
-    - zipkinHost=localhost
-    - zipkinPort=9411
-    - IMAGE_NAME=orders
-    - RELEASE_NAME=orders
-    - TAG=travis
-    - MYSQL_DATABASE=ordersdb
-
 stages:
   - local build and test
   - docker build, deploy, and test
