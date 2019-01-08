@@ -57,4 +57,4 @@ jobs:
       # Wait for the Orders container to start accepting connections
       - sleep 25
       # Run Orders API Test
-      - bash scripts/api_tests.sh/
+      - bash scripts/api_tests.sh
