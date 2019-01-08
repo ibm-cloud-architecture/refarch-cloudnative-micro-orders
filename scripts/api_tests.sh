@@ -104,15 +104,11 @@ function create_order {
 	# echo "Sending request:"
 	# echo $(curl http://localhost:9081/inventory/rest/inventory/stock)
 	# echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
-	CURL=$(curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
+	CURL=$(curl -w %{http_code} -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
 	echo $CURL
 
-	echo "Trying out Docker logs"
-	docker logs inventory
-
-
-	# Check for 201 Status Code
-	if [ "$CURL" != "201" ]; then
+	# Check for 200 Status Code
+	if [ "$CURL" != "200" ]; then
 		printf "create_order: ❌ \n${CURL}\n";
         exit 1;
     else
@@ -122,7 +118,7 @@ function create_order {
 
 function get_order {
 	echo $ACCESS_TOKEN
-	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
+	CURL=$(curl -w %{http_code} -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
 	echo "CURL returned: ${CURL}"
 	# echo "Found order with itemId: \"${CURL}\""
 
