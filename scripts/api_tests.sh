@@ -102,13 +102,12 @@ function get_order_first {
 
 function create_order {
 	# echo "Sending request:"
-	# echo $(curl http://localhost:9081/inventory/rest/inventory/stock)
 	# echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
 	CURL=$(curl -w %{http_code} -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
 	echo $CURL
 
-	# Check for 200 Status Code
-	if [ "$CURL" != "200" ]; then
+	# Check for 201 Status Code
+	if [ "$CURL" != "201" ]; then
 		printf "create_order: ❌ \n${CURL}\n";
         exit 1;
     else
