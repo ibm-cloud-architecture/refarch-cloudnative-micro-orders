@@ -101,18 +101,15 @@ function get_order_first {
 }
 
 function create_order {
-	echo "Sending request:"
-
-	echo $(curl http://localhost:9081/inventory/rest/inventory/stock)
-
-	echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
+	# echo "Sending request:"
+	# echo $(curl http://localhost:9081/inventory/rest/inventory/stock)
+	# echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
 	CURL=$(curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
 	echo $CURL
 
-	echo "Printing messages.log"
-	cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log
-	echo "Printing console.log"
-	cat target/liberty/wlp/usr/servers/defaultServer/logs/console.log
+	echo "Trying out Docker logs"
+	docker logs inventory
+
 
 	# Check for 201 Status Code
 	if [ "$CURL" != "201" ]; then
