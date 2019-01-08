@@ -55,7 +55,7 @@ jobs:
       - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
       # Run Inventory and start it w/ vars
       - docker pull ibmcase/inventory-mp:v2.0.0
-      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
+      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
       - docker start inventory
       # Build and run ordersdb
       - cd mysql
