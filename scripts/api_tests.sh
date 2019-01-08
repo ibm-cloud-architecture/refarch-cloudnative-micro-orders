@@ -66,7 +66,7 @@ function parse_arguments {
 
 	if [ -z "${INV_PORT}" ]; then
 		echo "INV_PORT not set. Using default key";
-		INV_PORT=9444;
+		INV_PORT=9081;
 	fi
 }
 
@@ -78,17 +78,17 @@ function health_auth {
 
 function health_inv {
 	echo "Check Inventory Health"
-	CURL=$(curl -k https://${INV_HOST}:${INV_PORT}/health)
+	CURL=$(curl -k http://${INV_HOST}:${INV_PORT}/health)
 	echo $CURL
 }
 
 function get_token {
 	ACCESS_TOKEN=$(curl -k -d 'grant_type=password&client_id=bluecomputeweb&client_secret=bluecomputewebs3cret&username=user&password=password&scope=openid' https://${AUTH_HOST}:${AUTH_PORT}/oidc/endpoint/OP/token | jq -r '.access_token')
-	echo $ACCESS_TOKEN
+	# echo $ACCESS_TOKEN
 }
 
 function get_order_first {
-	echo $ACCESS_TOKEN
+	# echo $ACCESS_TOKEN
 	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
 	echo "Retrieved orders: ${CURL}"
 
@@ -101,20 +101,16 @@ function get_order_first {
 }
 
 function create_order {
-	# echo "Printing 3 variations of Hema's command right now:"
-	# echo curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'
 	echo "Sending request:"
-	echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
-	# echo $(curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}')
 
+	echo $(curl http://localhost:9081/inventory/rest/inventory/stock)
+
+	echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
 	CURL=$(curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
 	echo $CURL
 
-	echo $(pwd)
-	ls target/liberty/wlp/usr/servers/defaultServer/logs/
 	echo "Printing messages.log"
 	cat target/liberty/wlp/usr/servers/defaultServer/logs/messages.log
-
 	echo "Printing console.log"
 	cat target/liberty/wlp/usr/servers/defaultServer/logs/console.log
 
@@ -142,7 +138,7 @@ function get_order {
 }
 
 # Setup
-parse_arguments $1 $2 $3 $4 $5
+parse_arguments $1 $2 $3 $4 $5 $6
 health_auth
 health_inv
 get_token

@@ -31,11 +31,17 @@ jobs:
         - jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
         - jwksIssuer=https://localhost:9443/oidc/endpoint/OP
         - administratorRealm=https://localhost:9443/oidc/endpoint/OP
+        - zipkinHost=localhost
+        - zipkinPort=9411
         - MYSQL_HOST=127.0.0.1
         - MYSQL_PORT=3306
         - MYSQL_USER=root
         - MYSQL_PASSWORD=""
       before_script:
+      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
+      # Start RabbitMQ
+      - docker pull rabbitmq
+      - docker run -p 5672:5672 -d rabbitmq
       # Generate the Keystore
       - bash scripts/keygen.sh
       - sudo cp -r keystorevol /etc/
@@ -47,20 +53,15 @@ jobs:
       # Pull and run inventorydb
       - docker pull ibmcase/bc-inventorydb:v2.0.0
       - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
-      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
-      # Run Inventory, put keystore in, and start it w/ vars
+      # Run Inventory and start it w/ vars
       - docker pull ibmcase/inventory-mp:v2.0.0
       - docker create --name inventory -p 9444:9443 -p 9081:9080 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
-      - docker cp keystorevol inventory:/etc/
       - docker start inventory
       # Build and run ordersdb
       - cd mysql
       - docker build -t ordersdb .
       - docker run -p 9039:3306 -d --name ordersdb -e MYSQL_ROOT_PASSWORD=password ordersdb
       - cd -
-      # Start RabbitMQ
-      - docker pull rabbitmq
-      - docker run -p 5672:5672 -d rabbitmq
       script:
       # Maven Build
       - mvn clean install
