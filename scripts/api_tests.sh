@@ -118,7 +118,7 @@ function create_order {
 
 function get_order {
 	echo $ACCESS_TOKEN
-	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json" | jq -r 'itemId')
+	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json" | jq '.[0]' | jq '.itemId')
 	# echo "Found order with itemId: \"${CURL}\""
 
 	# Return created order
