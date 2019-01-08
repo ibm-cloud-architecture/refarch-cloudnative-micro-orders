@@ -92,6 +92,7 @@ function get_order_first {
 	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
 	echo "Retrieved orders: ${CURL}"
 
+	# No orders have been made
 	if [ "$CURL" != "[]" ]; then
 		echo "get_order: ❌ did not get empty list";
         exit 1;
@@ -104,7 +105,7 @@ function create_order {
 	# echo "Sending request:"
 	# echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
 	CURL=$(curl -w %{http_code} -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
-	echo $CURL
+	# echo $CURL
 
 	# Check for 201 Status Code
 	if [ "$CURL" != "201" ]; then
@@ -117,16 +118,16 @@ function create_order {
 
 function get_order {
 	echo $ACCESS_TOKEN
-	CURL=$(curl -w %{http_code} -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
-	echo "CURL returned: ${CURL}"
+	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json" | jq -r 'itemId')
 	# echo "Found order with itemId: \"${CURL}\""
 
-	# if [ "$CURL" != "$ITEM_ID" ]; then
-	# 	echo "get_order: ❌ could not find itemId";
-  #       exit 1;
-  #   else
-  #   	echo "get_order: ✅";
-  #   fi
+	# Return created order
+	if [ "$CURL" != "13401" ]; then
+		echo "get_order: ❌ could not find itemId";
+        exit 1;
+    else
+    	echo "get_order: ✅";
+    fi
 }
 
 # Setup
