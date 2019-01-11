@@ -19,3 +19,6 @@
 src/main/resources/localdev-config.json
 /.apt_generated/
 /bin/
+.gradle/
+build/
+.vscode
