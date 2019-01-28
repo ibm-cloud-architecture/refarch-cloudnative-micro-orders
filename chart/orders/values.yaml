@@ -23,6 +23,8 @@ service:
   auth: auth
   zipkinHost: zipkin
   zipkinPort: 9411
+  minikubeIp: 10.20.0.169 # Will likely change
+  authKubePort: 9443      # Will likely change
 
 services:
 base:
@@ -56,3 +58,5 @@ jwt:
 rabbitmq:
   mainPort: 5672
   managePort: 15672
+
+travis: false

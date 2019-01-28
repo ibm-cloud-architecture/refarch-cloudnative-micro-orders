@@ -48,7 +48,7 @@ spec:
       # Liberty Server Container
       - name: "{{ .Chart.Name }}"
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-        imagePullPolicy: Always
+        imagePullPolicy: IfNotPresent
         readinessProbe:
           httpGet:
             path: /
@@ -64,12 +64,28 @@ spec:
           timeoutSeconds: 500
 
         env:
-          - name: PORT
-            value: "{{ .Values.service.servicePort }}"
-          - name: RELEASE_NAME
-            value: "{{ .Release.Name }}"
-          - name: jwtid
-            value: "{{ .Values.jwt.id }}"
+          {{ if .Values.travis }}
+          - name: auth_health
+            value: "https://{{ .Values.minikubeIp }}:{{ .Values.service.authKubePort }}/health"
+          - name: inventory_url
+            value: "http://{{ .Values.minikubeIp }}:9080/inventory/rest/inventory/stock"
+          - name: inventory_health
+            value: "http://{{ .Values.minikubeIp }}:9080/health"
+          - name: jwksUri
+            value: "https://{{ .Values.service.minikubeIp }}:{{ .Values.service.authKubePort }}/oidc/endpoint/OP/jwk"
+          - name: jwksIssuer
+            value: "https://{{ .Values.service.minikubeIp }}:9443/oidc/endpoint/OP"
+          - name: jwksUser
+            value: "user:https://{{ .Values.service.minikubeIp }}:9443/oidc/endpoint/OP/user"
+          - name: administratorRealm
+            value: "user:https://{{ .Values.service.minikubeIp }}:9443/oidc/endpoint/OP/user"
+          {{ else }}
+          - name: auth_health
+            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
+          - name: inventory_url
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inventory/stock"
+          - name: inventory_health
+            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/health"
           - name: jwksUri
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
@@ -78,16 +94,17 @@ spec:
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: administratorRealm
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
+          {{ end }}
+          - name: PORT
+            value: "{{ .Values.service.servicePort }}"
+          - name: RELEASE_NAME
+            value: "{{ .Release.Name }}"
+          - name: jwtid
+            value: "{{ .Values.jwt.id }}"
           - name: jdbcURL
             value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3307/ordersdb?useSSL=false"
-          - name: inventory_url
-            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/inventory/rest/inventory/stock"
-          - name: inventory_health
-            value: "http://{{ .Release.Name }}-{{ .Values.service.inventory }}:9080/health"
           - name: rabbit
             value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
-          - name: auth_health
-            value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
           - name: zipkinHost
             value: "{{ .Release.Name }}-{{ .Values.service.zipkinHost }}"
           - name: zipkinPort

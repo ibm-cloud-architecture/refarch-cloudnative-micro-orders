@@ -1,10 +1,17 @@
 sudo: required
 language: java
+env:
+  global:
+    - zipkinHost=localhost
+    - zipkinPort=9411
+    - jwtid=myMpJwt
+    - IMAGE_NAME=orders-mp
+    - TAG=travis
+    - RELEASE_NAME=orders
 jdk:
   - openjdk8
 stages:
   - local build and test
-  - docker build, deploy, and test
   - kubernetes build, deploy, and test
 jobs:
   include:
@@ -87,20 +94,20 @@ jobs:
       - mvn clean install
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
-      # Install Customer
-      # - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set service.authKubePort=$AUTH_NODE_PORT --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/customer/
-      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set service.authKubePort=$AUTH_NODE_PORT --name ${RELEASE_NAME} ./chart/customer/
-      # Wait for Customer to be ready
-      - kubectl get deployments ${RELEASE_NAME}-customer -o yaml
-      - READY=$(kubectl get deployments ${RELEASE_NAME}-customer -o yaml | grep "readyReplicas" | awk '{print $2}')
+      # Install Orders
+      # - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set service.authKubePort=$AUTH_NODE_PORT --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
+      - helm install --set travis=true --set service.minikubeIp=$,service.authKubePort=$AUTH_NODE_PORT,image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
+      # Wait for Orders to be ready
+      - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
+      - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
       - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-customer -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for customer to be ready"; sleep 10; done
-      # Wait for Cloudant to be ready
-      - READY=$(kubectl get deployments ${RELEASE_NAME}-cloudant -o yaml | grep "readyReplicas" | awk '{print $2}')
-      - echo $READY
-      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-cloudant -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for cloudant to be ready"; sleep 10; done
-      # Wait for cust deployment to start accepting connections
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for orders to be ready"; sleep 10; done
+      # Wait for orders deployment to start accepting connections
       - sleep 35
       # Run auth API Test
-      - CUST_NODE_PORT=$(kubectl get service ${RELEASE_NAME}-customer -o=jsonpath='{.spec.ports[1].nodePort}')
-      - bash scripts/api_tests.sh $MINIKUBE_IP $CUST_NODE_PORT $MINIKUBE_IP $AUTH_NODE_PORT
+      - ORDERS_NODE_PORT=$(kubectl get service orders-orders -o=jsonpath='{.spec.ports[1].nodePort}')
+      - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
+      - INV_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
+      - echo "Using these ports: $ORDERS_NODE_PORT $AUTH_NODE_PORT $INV_NODE_PORT"
+      - kubectl get services
+      - bash scripts/api_tests.sh $MINIKUBE_IP $ORDERS_NODE_PORT $MINIKUBE_IP $AUTH_NODE_PORT $MINIKUBE_IP $INV_NODE_PORT
