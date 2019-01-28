@@ -8,56 +8,56 @@ stages:
   - kubernetes build, deploy, and test
 jobs:
   include:
-    - stage: local build and test
-      services:
-      - mysql
-      env:
-        - jdbcURL=jdbc:mysql://localhost:9039/ordersdb?useSSL=false
-        - dbuser=root
-        - dbpassword=password
-        - auth_health=https://localhost:9443/health
-        - inventory_url=http://localhost:9081/inventory/rest/inventory/stock
-        - inventory_health=http://localhost:9081/health
-        - rabbit=localhost
-        - jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
-        - jwksIssuer=https://localhost:9443/oidc/endpoint/OP
-        - administratorRealm=https://localhost:9443/oidc/endpoint/OP
-        - zipkinHost=localhost
-        - zipkinPort=9411
-      before_script:
-      - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
-      # Start RabbitMQ
-      - docker pull rabbitmq
-      - docker run -p 5672:5672 -d rabbitmq
-      # Generate the Keystore
-      - bash scripts/keygen.sh
-      - sudo cp -r keystorevol /etc/
-      # Run Auth, put keystore in, and start it
-      - docker pull ibmcase/auth-mp:v3.0.0
-      - docker create --name auth -p 9443:9443 -p 9080:9080 ibmcase/auth-mp:v3.0.0
-      - docker cp keystorevol auth:/etc/
-      - docker start auth
-      # Pull and run inventorydb
-      - docker pull ibmcase/bc-inventorydb:v2.0.0
-      - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
-      # Run Inventory and start it w/ vars
-      - docker pull ibmcase/inventory-mp:v2.0.0
-      - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
-      - docker start inventory
-      # Build and run ordersdb
-      - cd mysql
-      - docker build -t ordersdb .
-      - docker run -p 9039:3306 -d --name ordersdb -e MYSQL_ROOT_PASSWORD=password ordersdb
-      - cd -
-      script:
-      # Maven Build
-      - mvn clean install
-      # Start Application
-      - mvn liberty:start-server -DtestServerHttpPort=9083 -DtestServerHttpsPort=9446
-      # Wait for the Orders container to start accepting connections
-      - sleep 25
-      # Run Orders API Test
-      - bash scripts/api_tests.sh
+    # - stage: local build and test
+    #   services:
+    #   - mysql
+    #   env:
+    #     - jdbcURL=jdbc:mysql://localhost:9039/ordersdb?useSSL=false
+    #     - dbuser=root
+    #     - dbpassword=password
+    #     - auth_health=https://localhost:9443/health
+    #     - inventory_url=http://localhost:9081/inventory/rest/inventory/stock
+    #     - inventory_health=http://localhost:9081/health
+    #     - rabbit=localhost
+    #     - jwksUri=https://localhost:9443/oidc/endpoint/OP/jwk
+    #     - jwksIssuer=https://localhost:9443/oidc/endpoint/OP
+    #     - administratorRealm=https://localhost:9443/oidc/endpoint/OP
+    #     - zipkinHost=localhost
+    #     - zipkinPort=9411
+    #   before_script:
+    #   - export GATEWAY=$(docker network inspect bridge | grep "Gateway" | awk '/"/{print $2}' | sed -e 's/^"//' -e 's/"$//')
+    #   # Start RabbitMQ
+    #   - docker pull rabbitmq
+    #   - docker run -p 5672:5672 -d rabbitmq
+    #   # Generate the Keystore
+    #   - bash scripts/keygen.sh
+    #   - sudo cp -r keystorevol /etc/
+    #   # Run Auth, put keystore in, and start it
+    #   - docker pull ibmcase/auth-mp:v3.0.0
+    #   - docker create --name auth -p 9443:9443 -p 9080:9080 ibmcase/auth-mp:v3.0.0
+    #   - docker cp keystorevol auth:/etc/
+    #   - docker start auth
+    #   # Pull and run inventorydb
+    #   - docker pull ibmcase/bc-inventorydb:v2.0.0
+    #   - docker run -p 9041:3306 -d --name inventorydb -e MYSQL_ROOT_PASSWORD=password ibmcase/bc-inventorydb:v2.0.0
+    #   # Run Inventory and start it w/ vars
+    #   - docker pull ibmcase/inventory-mp:v2.0.0
+    #   - docker create --name inventory -p 9444:9443 -p 9081:9080 -e zipkinHost=localhost -e zipkinPort=9411 -e jdbcURL=jdbc:mysql://${GATEWAY}:9041/inventorydb?useSSL=false -e dbuser=root -e dbpassword=password -e rabbit=${GATEWAY} ibmcase/inventory-mp:v2.0.0
+    #   - docker start inventory
+    #   # Build and run ordersdb
+    #   - cd mysql
+    #   - docker build -t ordersdb .
+    #   - docker run -p 9039:3306 -d --name ordersdb -e MYSQL_ROOT_PASSWORD=password ordersdb
+    #   - cd -
+    #   script:
+    #   # Maven Build
+    #   - mvn clean install
+    #   # Start Application
+    #   - mvn liberty:start-server -DtestServerHttpPort=9083 -DtestServerHttpsPort=9446
+    #   # Wait for the Orders container to start accepting connections
+    #   - sleep 25
+    #   # Run Orders API Test
+    #   - bash scripts/api_tests.sh
     - stage: kubernetes build, deploy, and test
       services:
       - docker
