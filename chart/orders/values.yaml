@@ -60,3 +60,4 @@ rabbitmq:
   managePort: 15672
 
 travis: false
+jdbcURL: jdbc:mysql://my-release-mysql:3306/ordersdb?useSSL=false

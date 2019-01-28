@@ -78,7 +78,11 @@ spec:
           - name: jwksUser
             value: "user:https://{{ .Values.service.minikubeIp }}:9443/oidc/endpoint/OP/user"
           - name: administratorRealm
-            value: "user:https://{{ .Values.service.minikubeIp }}:9443/oidc/endpoint/OP/user"
+            value: "user:https://{{ .Values.service.minikubeIp }}:9443/oidc/endpoint/OP/user"          
+          - name: jdbcURL
+            value: "{{ .Values.jdbcURL }}"          
+          - name: rabbit
+            value: "{{ .Values.service.minikubeIp }}"
           {{ else }}
           - name: auth_health
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
@@ -94,6 +98,10 @@ spec:
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: administratorRealm
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
+          - name: jdbcURL
+            value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3307/ordersdb?useSSL=false"
+          - name: rabbit
+            value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
           {{ end }}
           - name: PORT
             value: "{{ .Values.service.servicePort }}"
@@ -101,10 +109,6 @@ spec:
             value: "{{ .Release.Name }}"
           - name: jwtid
             value: "{{ .Values.jwt.id }}"
-          - name: jdbcURL
-            value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3307/ordersdb?useSSL=false"
-          - name: rabbit
-            value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
           - name: zipkinHost
             value: "{{ .Release.Name }}-{{ .Values.service.zipkinHost }}"
           - name: zipkinPort

@@ -83,10 +83,10 @@ jobs:
       - helm install --name auth services-bc-mp/auth
       - MINIKUBE_IP=$(minikube ip)
       - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
-      # Pull and run inventory db
+      # Run OrdersDB
       # - docker pull ibmcase/bc-inventorydb:v2.0.0
       # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb stable/mysql
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb stable/mysql
       # Run inventory
       - helm install --set travis=true --name inventory services-bc-mp/inventory
       script:
@@ -110,6 +110,5 @@ jobs:
       # Run auth API Test
       - ORDERS_NODE_PORT=$(kubectl get service orders-orders -o=jsonpath='{.spec.ports[1].nodePort}')
       - INV_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
-      - echo "Using these ports: $ORDERS_NODE_PORT $AUTH_NODE_PORT $INV_NODE_PORT"
       - kubectl get services
       - bash scripts/api_tests.sh $MINIKUBE_IP $ORDERS_NODE_PORT $MINIKUBE_IP $AUTH_NODE_PORT $MINIKUBE_IP $INV_NODE_PORT
