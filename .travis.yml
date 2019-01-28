@@ -84,9 +84,9 @@ jobs:
       - MINIKUBE_IP=$(minikube ip)
       - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
       # Run OrdersDB
-      # - docker pull ibmcase/bc-inventorydb:v2.0.0
-      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=inventorydb,image=ibmcase/bc-inventorydb,tag=v2.0.0 stable/mysql
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb stable/mysql
+      - docker pull ibmcase/bc-inventorydb:v2.0.0
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,tag=v2.0.0 stable/mysql
+      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb stable/mysql
       # Run inventory
       - helm install --set travis=true --name inventory services-bc-mp/inventory
       script:
