@@ -140,8 +140,8 @@ function get_order {
 
 # Setup
 parse_arguments $1 $2 $3 $4 $5 $6
-health_auth
-health_inv
+# health_auth
+# health_inv
 get_token
 
 # API Tests
