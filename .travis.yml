@@ -96,7 +96,7 @@ jobs:
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Install Orders
       # - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP --set service.authKubePort=$AUTH_NODE_PORT --set image.repository=${IMAGE_NAME} --set image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
-      - helm install --set travis=true --set service.minikubeIp=$,service.authKubePort=$AUTH_NODE_PORT,image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
+      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP,service.authKubePort=$AUTH_NODE_PORT,image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')

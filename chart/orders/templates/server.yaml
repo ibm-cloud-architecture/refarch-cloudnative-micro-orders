@@ -66,11 +66,11 @@ spec:
         env:
           {{ if .Values.travis }}
           - name: auth_health
-            value: "https://{{ .Values.minikubeIp }}:{{ .Values.service.authKubePort }}/health"
+            value: "https://{{ .Values.service.minikubeIp }}:{{ .Values.service.authKubePort }}/health"
           - name: inventory_url
-            value: "http://{{ .Values.minikubeIp }}:9080/inventory/rest/inventory/stock"
+            value: "http://{{ .Values.service.minikubeIp }}:9080/inventory/rest/inventory/stock"
           - name: inventory_health
-            value: "http://{{ .Values.minikubeIp }}:9080/health"
+            value: "http://{{ .Values.service.minikubeIp }}:9080/health"
           - name: jwksUri
             value: "https://{{ .Values.service.minikubeIp }}:{{ .Values.service.authKubePort }}/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
