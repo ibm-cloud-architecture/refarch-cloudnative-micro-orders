@@ -95,7 +95,7 @@ jobs:
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Install Orders
       - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
-      - helm install --set travis=true --set image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
+      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP,image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
       # - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP,service.authKubePort=$AUTH_NODE_PORT --name ${RELEASE_NAME} ./chart/orders/
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
