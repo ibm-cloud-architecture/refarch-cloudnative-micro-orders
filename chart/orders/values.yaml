@@ -24,7 +24,6 @@ service:
   zipkinHost: zipkin
   zipkinPort: 9411
   minikubeIp:
-  authKubePort:
 
 services:
 base:
