@@ -23,6 +23,7 @@ service:
   auth: auth
   zipkinHost: zipkin
   zipkinPort: 9411
+  minikubeIp:
 
 services:
 base:
@@ -56,3 +57,8 @@ jwt:
 rabbitmq:
   mainPort: 5672
   managePort: 15672
+
+travis: false
+jdbcURL: jdbc:mysql://my-release-mysql:3306/inventorydb?useSSL=false
+authRelease: auth
+inventoryRelease: inventory

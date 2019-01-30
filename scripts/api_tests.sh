@@ -92,6 +92,14 @@ function get_order_first {
 	CURL=$(curl -k --request GET --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Authorization: Bearer ${ACCESS_TOKEN}" --header "Content-Type: application/json")
 	# echo "Retrieved orders: ${CURL}"
 
+	ORDERS_POD=$(kubectl get pods | grep -v "orders-orders-job" | grep orders-orders | awk '{print $1}')
+
+  # kubectl describe pod $ORDERS_POD
+  # kubectl logs $ORDERS_POD
+	# AUTH_POD=$(kubectl get pods | grep auth-auth | awk '{print $1}')
+  # kubectl describe pod $AUTH_POD
+  # kubectl logs $AUTH_POD
+
 	# No orders have been made
 	if [ "$CURL" != "[]" ]; then
 		echo "get_order: ❌ did not get empty list";
@@ -106,6 +114,13 @@ function create_order {
 	# echo "curl -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer ${ACCESS_TOKEN}" -d '{"itemId":13401, "count":1}'"
 	CURL=$(curl -w %{http_code} -k -X POST --url https://${ORDERS_HOST}:${ORDERS_PORT}/orders/rest/orders --header "Content-Type: application/json" --header "Authorization: Bearer $ACCESS_TOKEN" -d "{\"itemId\":13401, \"count\":1}")
 	# echo $CURL
+
+	# ORDERS_POD=$(kubectl get pods | grep -v "orders-orders-job" | grep orders-orders | awk '{print $1}')
+  # kubectl describe pod $ORDERS_POD
+  # kubectl logs $ORDERS_POD
+	# AUTH_POD=$(kubectl get pods | grep auth-auth | awk '{print $1}')
+  # kubectl describe pod $AUTH_POD
+  # kubectl logs $AUTH_POD
 
 	# Check for 201 Status Code
 	if [ "$CURL" != "201" ]; then

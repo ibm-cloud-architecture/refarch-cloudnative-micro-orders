@@ -1,10 +1,17 @@
 sudo: required
 language: java
+env:
+  global:
+    - zipkinHost=localhost
+    - zipkinPort=9411
+    - jwtid=myMpJwt
+    - IMAGE_NAME=orders-mp
+    - TAG=travis
+    - RELEASE_NAME=orders
 jdk:
   - openjdk8
 stages:
   - local build and test
-  - docker build, deploy, and test
   - kubernetes build, deploy, and test
 jobs:
   include:
@@ -58,3 +65,45 @@ jobs:
       - sleep 25
       # Run Orders API Test
       - bash scripts/api_tests.sh
+    - stage: kubernetes build, deploy, and test
+      services:
+      - docker
+      env:
+      - CHANGE_MINIKUBE_NONE_USER=true
+      install:
+      - true
+      before_script:
+      # Install nsenter, which is needed for minikube to work
+      - bash scripts/install_minikube_and_helm.sh
+      # Define a local Keystore
+      - bash scripts/keygen.sh
+      - sudo cp -r keystorevol /etc/
+      # Run Kubernetes Job and run Auth
+      - helm install --name keystore services-bc-mp/keystore
+      - helm install --name auth services-bc-mp/auth
+      - MINIKUBE_IP=$(minikube ip)
+      # Run inventory
+      - helm install --set travis=true,minikubeIp=${RELEASE_NAME}-rabbitmq --name inventory services-bc-mp/inventory
+      # Run OrdersDB
+      - docker pull ibmcase/bc-ordersdb:v2.0.0
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
+      script:
+      # Maven Build
+      - mvn clean install
+      # Build Docker image
+      - docker build -t "${IMAGE_NAME}:${TAG}" .
+      # Install Orders
+      - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
+      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP,image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
+      # Wait for Orders to be ready
+      - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
+      - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')
+      - echo $READY
+      - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for orders to be ready"; sleep 10; done
+      # Wait for orders deployment to start accepting connections
+      - sleep 35
+      # Run auth API Test
+      - ORDERS_NODE_PORT=$(kubectl get service orders-orders -o=jsonpath='{.spec.ports[1].nodePort}')
+      - INV_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')
+      - kubectl get services
+      - bash scripts/api_tests.sh $MINIKUBE_IP $ORDERS_NODE_PORT $MINIKUBE_IP $AUTH_NODE_PORT $MINIKUBE_IP $INV_NODE_PORT
