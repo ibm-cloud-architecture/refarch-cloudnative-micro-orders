@@ -74,7 +74,7 @@ spec:
           - name: jwksUri
             value: "https://{{ .Values.authRelease }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/jwk"
           - name: jwksIssuer
-            value: "https://{{ .Values.authRelease }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP"
+            value: "https://{{ .Values.service.minikubeIp }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP"
           - name: jwksUser
             value: "user:https://{{ .Values.authRelease }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: administratorRealm
