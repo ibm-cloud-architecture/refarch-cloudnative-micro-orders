@@ -24,8 +24,8 @@
         <package.file>${project.build.directory}/${project.artifactId}-${project.version}.zip</package.file>
         <packaging.type>usr</packaging.type>
         <groupId.liberty-runtime>com.ibm.websphere.appserver.runtime</groupId.liberty-runtime>
-        <artifactId.liberty-runtime>wlp-webProfile7</artifactId.liberty-runtime>
-        <version.liberty-runtime>18.0.0.3</version.liberty-runtime>
+        <artifactId.liberty-runtime>wlp-webProfile8</artifactId.liberty-runtime>
+        <version.liberty-runtime>18.0.0.4</version.liberty-runtime>
     </properties>
 
     <dependencies>

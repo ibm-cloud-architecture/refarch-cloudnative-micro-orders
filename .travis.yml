@@ -71,35 +71,32 @@ jobs:
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
       install:
-        - true
+      - true
       before_script:
       # Install nsenter, which is needed for minikube to work
       - bash scripts/install_minikube_and_helm.sh
       # Define a local Keystore
       - bash scripts/keygen.sh
       - sudo cp -r keystorevol /etc/
-      # Run Kubernetes Job and run Auth (May not need keystore chart)
+      # Run Kubernetes Job and run Auth
       - helm install --name keystore services-bc-mp/keystore
       - helm install --name auth services-bc-mp/auth
       - MINIKUBE_IP=$(minikube ip)
-      - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
-      # Run OrdersDB
-      - docker pull ibmcase/bc-inventorydb:v2.0.0
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,tag=v2.0.0 stable/mysql
-      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb stable/mysql
       # Run inventory
-      - helm install --set travis=true --name inventory services-bc-mp/inventory
+      - helm install --set travis=true,minikubeIp=${RELEASE_NAME}-rabbitmq --name inventory services-bc-mp/inventory
+      # Run OrdersDB
+      - docker pull ibmcase/bc-ordersdb:v2.0.0
+      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
+      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb stable/mysql
       script:
       # Maven Build
       - mvn clean install
       # Build Docker image
       - docker build -t "${IMAGE_NAME}:${TAG}" .
       # Install Orders
-      - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP,service.authKubePort=$AUTH_NODE_PORT,image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
+      - AUTH_NODE_PORT=$(kubectl get service auth-auth -o=jsonpath='{.spec.ports[1].nodePort}')
+      - helm install --set travis=true --set image.repository=${IMAGE_NAME},image.tag=${TAG} --name ${RELEASE_NAME} ./chart/orders/
       # - helm install --set travis=true --set service.minikubeIp=$MINIKUBE_IP,service.authKubePort=$AUTH_NODE_PORT --name ${RELEASE_NAME} ./chart/orders/
-      - ORDERS_POD=$(kubectl get pods | grep -v "orders-orders-job" | grep orders-orders | awk '{print $1}')
-      - kubectl describe pod $ORDERS_POD
-      - kubectl logs $ORDERS_POD
       # Wait for Orders to be ready
       - kubectl get deployments ${RELEASE_NAME}-orders -o yaml
       - READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}')

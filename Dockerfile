@@ -5,17 +5,16 @@ MAINTAINER IBM Java engineering at IBM Cloud
 USER root
 # copy over the server
 COPY /target/liberty/wlp/usr/servers/defaultServer /config/
-# RUN chown 1001:0 /config/
 
 # copy over the opentracing extension
 COPY /target/liberty/wlp/usr/extension /opt/ibm/wlp/usr/extension
-# RUN chown 1001:0 opt/ibm/wlp/usr/extension
 
-RUN chown 1001:0 /output/resources/security/ltpa.keys
+# To read LTPA keys
+RUN chown 1001:0 /opt/ibm/wlp/usr/servers/defaultServer/resources/security/ltpa.keys
 USER 1001
 
 # Install required features if not present
-# RUN installUtility install --acceptLicense defaultServer
+RUN installUtility install --acceptLicense defaultServer
 
 CMD ["/opt/ibm/wlp/bin/server", "run", "defaultServer"]
 

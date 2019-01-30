@@ -23,8 +23,8 @@ service:
   auth: auth
   zipkinHost: zipkin
   zipkinPort: 9411
-  minikubeIp: 10.20.0.169 # Will likely change
-  authKubePort: 9443      # Will likely change
+  minikubeIp:
+  authKubePort:
 
 services:
 base:
@@ -60,4 +60,6 @@ rabbitmq:
   managePort: 15672
 
 travis: false
-jdbcURL: jdbc:mysql://my-release-mysql:3306/ordersdb?useSSL=false
+jdbcURL: jdbc:mysql://my-release-mysql:3306/inventorydb?useSSL=false
+authRelease: auth
+inventoryRelease: inventory
