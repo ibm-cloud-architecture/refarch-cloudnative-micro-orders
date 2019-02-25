@@ -34,9 +34,12 @@ spec:
           initialDelaySeconds: 35
           periodSeconds: 20
           failureThreshold: 6
+        securityContext:
+          runAsUser: 2000
+          allowPrivilegeEscalation: false
+        resources:
+{{ toYaml .Values.resources | indent 10 }}
         env:
         {{- include "orders.environmentvariables" . | indent 8 }}
         {{- include "orders.mariadb.environmentvariables" . | indent 8 }}
         {{- include "orders.hs256key.environmentvariables" . | indent 8 }}
-        resources:
-{{ toYaml .Values.resources | indent 10 }}
