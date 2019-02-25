@@ -3,7 +3,7 @@ FROM gradle:4.9.0-jdk8-alpine as builder
 
 # Create Working Directory
 ENV BUILD_DIR=/home/gradle/app/
-RUN mkdir -p $BUILD_DIR
+RUN mkdir $BUILD_DIR
 WORKDIR $BUILD_DIR
 
 # Download Dependencies
@@ -23,8 +23,8 @@ RUN apk --no-cache update \
  && update-ca-certificates
 
 # Create app directory
-ENV APP_HOME=/
-RUN mkdir -p $APP_HOME
+ENV APP_HOME=/app
+RUN mkdir $APP_HOME
 WORKDIR $APP_HOME
 
 # Copy jar file over from builder stage
@@ -33,6 +33,14 @@ RUN mv ./micro-orders-0.0.1.jar app.jar
 
 COPY startup.sh startup.sh
 COPY scripts scripts
+
+# Create User and Chown
+RUN addgroup -g 2000 blue \
+	&& adduser -u 2000 -G blue -s /bin/bash -D blue \
+	&& chown -R blue:blue $APP_HOME \
+	&& chmod -R 0775 $APP_HOME
+
+USER blue
 
 EXPOSE 8084 8094
 ENTRYPOINT ["./startup.sh"]
