@@ -24,7 +24,7 @@ RUN apk --no-cache update \
 
 # Create app directory
 ENV APP_HOME=/app
-RUN mkdir $APP_HOME
+RUN mkdir -p $APP_HOME/scripts
 WORKDIR $APP_HOME
 
 # Copy jar file over from builder stage
@@ -32,15 +32,14 @@ COPY --from=builder /home/gradle/app/build/libs/micro-orders-0.0.1.jar $APP_HOME
 RUN mv ./micro-orders-0.0.1.jar app.jar
 
 COPY startup.sh startup.sh
-COPY scripts scripts
+COPY scripts/max_heap.sh scripts
 
-# Create User and Chown
-RUN addgroup -g 2000 blue \
-	&& adduser -u 2000 -G blue -s /bin/bash -D blue \
-	&& chown -R blue:blue $APP_HOME \
-	&& chmod -R 0775 $APP_HOME
+# Create user, chown, and chmod
+RUN adduser -u 2000 -G root -D blue \
+	&& chown -R 2000:0 $APP_HOME \
+	&& chmod -R u+x $APP_HOME/app.jar
 
-USER blue
+USER 2000
 
 EXPOSE 8084 8094
 ENTRYPOINT ["./startup.sh"]
