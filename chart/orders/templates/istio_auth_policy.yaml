@@ -2,12 +2,12 @@
 apiVersion: "authentication.istio.io/v1alpha1"
 kind: "Policy"
 metadata:
-  name: {{ template "orders.fullname" . }}
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
 spec:
   targets:
-  - name: {{ template "orders.fullname" . }}
+  - name: {{ .Release.Name }}-{{ .Values.service.name }}
     ports:
-    - number: {{ .Values.service.externalPort }}
+    - number: {{ .Values.service.servicePortHttps }}
   peers:
   {{- if eq .Values.istio.mTLS "ISTIO_MUTUAL" }}
   - mtls: {}

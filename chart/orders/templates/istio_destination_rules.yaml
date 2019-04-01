@@ -2,15 +2,15 @@
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
-  name: {{ template "orders.fullname" . }}
+  name: {{ .Release.Name }}-{{ .Values.service.name }}
 spec:
-  host: {{ template "orders.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+  host: {{ .Release.Name }}-{{ .Values.service.name }}.{{ .Release.Namespace }}.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: {{ .Values.istio.loadBalancer }}
     portLevelSettings:
     - port:
-        number: {{ .Values.service.externalPort }}
+        number: {{ .Values.service.servicePortHttps }}
       tls:
         mode: {{ .Values.istio.mTLS }}
   subsets:

@@ -19,6 +19,6 @@ spec:
     - destination:
         host: {{ .Release.Name }}-{{ .Values.service.name }}.{{ .Release.Namespace }}.svc.cluster.local
         port:
-          number: {{ .Values.service.externalPort }}
+          number: {{ .Values.service.servicePortHttps }}
         subset: v1
 {{ end }}
