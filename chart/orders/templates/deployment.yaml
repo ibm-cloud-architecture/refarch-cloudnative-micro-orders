@@ -36,6 +36,8 @@ spec:
           failureThreshold: 6
         resources:
 {{ toYaml .Values.resources | indent 10 }}
+        securityContext:
+        {{- include "orders.securityContext" . | indent 10 }}
         env:
         {{- include "orders.environmentvariables" . | indent 8 }}
         {{- include "orders.mariadb.environmentvariables" . | indent 8 }}
