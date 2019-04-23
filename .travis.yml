@@ -1,4 +1,5 @@
 sudo: required
+dist: xenial
 language: java
 jdk:
   - openjdk8
@@ -82,7 +83,13 @@ jobs:
       install:
         - true
       env:
+      # Minikube variables
       - CHANGE_MINIKUBE_NONE_USER=true
+      - MINIKUBE_WANTUPDATENOTIFICATION=false
+      - MINIKUBE_WANTREPORTERRORPROMPT=false
+      - MINIKUBE_HOME=$HOME
+      - KUBECONFIG=$HOME/.kube/config
+      # Application variables
       - CHART_NAME=orders
       - MYSQL_ROOT_PASSWORD=admin123
       - MYSQL_PORT=3307
