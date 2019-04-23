@@ -96,8 +96,8 @@ jobs:
       - MYSQL_USER=dbuser
       - MYSQL_PASSWORD=password
       before_script:
-      # Install nsenter, which is needed for minikube to work
-      - bash scripts/install_minikube_and_helm.sh
+      # Install minikube and helm
+      - wget https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/spring/scripts/install_minikube_and_helm.sh && chmod +x install_minikube_and_helm.sh && bash install_minikube_and_helm.sh && rm install_minikube_and_helm.sh
       # Install MariaDB Chart
       - helm upgrade --install orders-mariadb --version 5.2.2 --set service.port=${MYSQL_PORT},nameOverride=${RELEASE_NAME}-mariadb,rootUser.password=${MYSQL_ROOT_PASSWORD},db.user=${MYSQL_USER},db.password=${MYSQL_PASSWORD},db.name=${MYSQL_DATABASE},replication.enabled=false,master.persistence.enabled=false,slave.replicas=1,slave.persistence.enabled=false stable/mariadb
       script:
