@@ -19,6 +19,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- define "orders.environmentvariables" }}
 - name: SERVICE_PORT
   value: {{ .Values.service.internalPort | quote }}
+- name: JAVA_TMP_DIR
+  value: /spring-tmp
 {{- end }}
 
 {{/* MySQL Init Container Template */}}
@@ -35,6 +37,10 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   {{- else }}
   - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -e status; do echo waiting for mariadb; sleep 1; done"
   {{- end }}
+  resources:
+{{ toYaml .Values.resources | indent 4 }}
+  securityContext:
+  {{- include "orders.securityContext" . | indent 4 }}
   env:
   {{- include "orders.mariadb.environmentvariables" . | indent 2 }}
 {{- end }}
@@ -97,6 +103,13 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- .Release.Name }}-{{ .Chart.Name }}-hs256key
   {{- end }}
 {{- end -}}
+
+{{/* Orders Security Context */}}
+{{- define "orders.securityContext" }}
+{{- range $key, $value := .Values.securityContext }}
+{{ $key }}: {{ $value }}
+{{- end }}
+{{- end }}
 
 {{/* Istio Gateway */}}
 {{- define "orders.istio.gateway" }}

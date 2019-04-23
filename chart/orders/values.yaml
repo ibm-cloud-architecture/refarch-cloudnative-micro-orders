@@ -62,6 +62,11 @@ labels:
   version: v1
   tier: backend
 
+securityContext:
+  runAsUser: 2000
+  readOnlyRootFilesystem: true
+  allowPrivilegeEscalation: false
+
 istio:
   enabled: false
   # ISTIO_MUTUAL, SIMPLE, DISABLE
