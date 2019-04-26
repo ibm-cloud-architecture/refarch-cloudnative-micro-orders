@@ -38,7 +38,7 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
   - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -e status; do echo waiting for mariadb; sleep 1; done"
   {{- end }}
   resources:
-{{ toYaml .Values.resources | indent 4 }}
+  {{- include "orders.resources" . | indent 4 }}
   securityContext:
   {{- include "orders.securityContext" . | indent 4 }}
   env:
@@ -103,6 +103,14 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
     {{- .Release.Name }}-{{ .Chart.Name }}-hs256key
   {{- end }}
 {{- end -}}
+
+{{/* Orders Resources */}}
+{{- define "orders.resources" }}
+limits:
+  memory: {{ .Values.resources.limits.memory }}
+requests:
+  memory: {{ .Values.resources.requests.memory }}
+{{- end }}
 
 {{/* Orders Security Context */}}
 {{- define "orders.securityContext" }}
