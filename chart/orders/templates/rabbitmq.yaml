@@ -12,16 +12,19 @@ spec:
   - name: main
     port: {{ .Values.rabbitmq.mainPort }}
   - name: management
-    port: {{ .Values.rabbitmq.managePort }
+    port: {{ .Values.rabbitmq.managePort }}
   - name: epmd
-    port: 4369
+    port: {{ .Values.rabbitmq.epmd }}
   - name: dist
-    port: 25672
+    port: {{ .Values.rabbitmq.dist }}
   selector:
     micro: orders
     service: chat
     release: {{ .Release.Name }}
     implementation: microprofile
+
+---
+
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
