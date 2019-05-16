@@ -57,6 +57,8 @@ jwt:
 rabbitmq:
   mainPort: 5672
   managePort: 15672
+  epmd: 4369
+  dist: 25672
 
 travis: false
 jdbcURL: jdbc:mysql://my-release-mysql:3306/inventorydb?useSSL=false
