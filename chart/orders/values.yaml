@@ -57,10 +57,16 @@ mariadb:
   master:
     persistence:
       enabled: false
+    annotations:
+    - key: sidecar.istio.io/inject
+      value: false
   slave:
     replicas: 1
     persistence:
       enabled: false
+    annotations:
+    - key: sidecar.istio.io/inject
+      value: false
   existingSecret:
   user: root
   password: password

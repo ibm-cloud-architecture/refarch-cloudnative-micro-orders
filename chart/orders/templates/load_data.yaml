@@ -14,6 +14,8 @@ spec:
         chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
         release: {{ .Release.Name }}
         implementation: microprofile
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       restartPolicy: Never
       initContainers:
