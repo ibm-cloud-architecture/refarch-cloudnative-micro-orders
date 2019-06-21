@@ -20,9 +20,9 @@
 - name: MYSQL_HOST
   value: {{ .Release.Name }}-{{ .Values.service.ordersdb }}
 - name: MYSQL_PORT
-  value: {{ .Values.mariadb.port | quote }}
+  value: {{ .Values.mariadb.service.port | quote }}
 - name: MYSQL_DATABASE
-  value: {{ .Values.mariadb.database | quote }}
+  value: {{ .Values.mariadb.db.name | quote }}
 - name: MYSQL_USER
   value: {{ .Values.mariadb.user | quote }}
 {{- if or .Values.mariadb.password .Values.mariadb.existingSecret }}

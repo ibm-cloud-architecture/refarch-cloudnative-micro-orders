@@ -44,12 +44,26 @@ mysql:
   imagePullPolicy: IfNotPresent
 
 mariadb:
-  host: bc-mariadb
-  port: 3307
+  service:
+    port: 3307
+  rootUser:
+    password: password
+  db:
+    name: ordersdb
+    user: dbuser
+    password: password
+  replication:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+  slave:
+    replicas: 1
+    persistence:
+      enabled: false
   existingSecret:
   user: root
   password: password
-  database: ordersdb
 
 jwt:
   id: myMpJwt
