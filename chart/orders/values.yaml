@@ -69,7 +69,6 @@ mariadb:
       value: false
   existingSecret:
   user: root
-  password: password
 
 jwt:
   id: myMpJwt

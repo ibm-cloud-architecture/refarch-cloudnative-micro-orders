@@ -6,7 +6,7 @@
   command:
   - "/bin/bash"
   - "-c"
-  {{- if .Values.mariadb.password }}
+  {{- if .Values.mariadb.db.password }}
   - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e status; do echo waiting for mariadb; sleep 1; done"
   {{- else }}
   - "until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -e status; do echo waiting for mariadb; sleep 1; done"
@@ -25,7 +25,7 @@
   value: {{ .Values.mariadb.db.name | quote }}
 - name: MYSQL_USER
   value: {{ .Values.mariadb.user | quote }}
-{{- if or .Values.mariadb.password .Values.mariadb.existingSecret }}
+{{- if or .Values.mariadb.db.password .Values.mariadb.existingSecret }}
 - name: MYSQL_PASSWORD
   valueFrom:
     secretKeyRef:
