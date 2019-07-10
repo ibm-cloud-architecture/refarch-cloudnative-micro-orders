@@ -83,3 +83,33 @@ travis: false
 jdbcURL: jdbc:mysql://my-release-mysql:3306/inventorydb?useSSL=false
 authRelease: auth
 inventoryRelease: inventory
+
+istio:
+  enabled: true
+  weight: 100
+  mTLS: SIMPLE
+  gateway:
+    enabled: false
+    name:
+    hosts:
+      - "orders.bluecompute.com"
+    TLS:
+      enabled: false
+      # SIMPLE, MUTUAL
+      mode: SIMPLE
+      httpsRedirect: false
+      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+      privateKey: /etc/istio/ingressgateway-certs/tls.key
+      caCertificates: /etc/istio/ingressgateway-ca-certs/ca-chain.cert.pem
+
+ingress:
+  enabled: false
+  hostname: #orders.bluecompute.com
+  path: /micro/orders
+  annotations:
+    ingress.bluemix.net/redirect-to-https: "True"
+  enableTLS: false
+  TLS:
+  - secretName: orders.bluecompute.com
+    hosts:
+      - orders.bluecompute.com
