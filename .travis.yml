@@ -1,4 +1,5 @@
 sudo: required
+dist: xenial
 language: java
 env:
   global:
@@ -73,15 +74,21 @@ jobs:
       install:
       - true
       before_script:
-      # Install nsenter, which is needed for minikube to work
-      - bash scripts/install_minikube_and_helm.sh
+      # Install minikube and helm
+      - curl -O https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/utility_scripts/install_minikube_and_helm.sh
+      - chmod +x install_minikube_and_helm.sh
+      - bash install_minikube_and_helm.sh
       # Define a local Keystore
       - bash scripts/keygen.sh
       - sudo cp -r keystorevol /etc/
+      # Add helm repos for bluecompute services
+      - helm repo add services-bc-mp https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/docs/charts/services-bc-mp
       # Run Kubernetes Job and run Auth
       - helm install --name keystore services-bc-mp/keystore
       - helm install --name auth services-bc-mp/auth
       - MINIKUBE_IP=$(minikube ip)
+      # Get Helm dependencies
+      - helm dependency update chart/orders
       # Run inventory
       - helm install --set travis=true,minikubeIp=${RELEASE_NAME}-rabbitmq --name inventory services-bc-mp/inventory
       # Run OrdersDB

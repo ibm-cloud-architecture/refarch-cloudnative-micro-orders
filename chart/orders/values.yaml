@@ -85,7 +85,7 @@ authRelease: auth
 inventoryRelease: inventory
 
 istio:
-  enabled: true
+  enabled: false
   weight: 100
   mTLS: SIMPLE
   gateway:
