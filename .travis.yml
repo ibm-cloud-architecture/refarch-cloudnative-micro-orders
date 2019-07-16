@@ -92,8 +92,8 @@ jobs:
       # Run inventory
       - helm install --set travis=true,minikubeIp=${RELEASE_NAME}-rabbitmq --name inventory services-bc-mp/inventory
       # Run OrdersDB
-      - docker pull ibmcase/bc-ordersdb:v2.0.0
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
+      # - docker pull ibmcase/bc-ordersdb:v2.0.0
+      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
       script:
       # Maven Build
       - mvn clean install
