@@ -90,7 +90,7 @@ jobs:
       # Get Helm dependencies
       - helm dependency update chart/orders
       # Run inventory
-      - helm install --set travis=true,minikubeIp=${RELEASE_NAME}-rabbitmq --name inventory services-bc-mp/inventory
+      - helm install --set travis.external=true,travis.releaseName=${RELEASE_NAME} --name inventory inventory-0.0.1.tgz
       # Run OrdersDB
       # - docker pull ibmcase/bc-ordersdb:v2.0.0
       # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
