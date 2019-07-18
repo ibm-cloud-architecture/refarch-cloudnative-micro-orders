@@ -103,6 +103,7 @@ function get_order_first {
 	# No orders have been made
 	if [ "$CURL" != "[]" ]; then
 		echo "get_order: ❌ did not get empty list";
+		echo $CURL
         exit 1;
     else
     	echo "get_order: ✅";

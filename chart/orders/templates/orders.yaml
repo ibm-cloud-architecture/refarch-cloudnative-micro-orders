@@ -79,8 +79,6 @@ spec:
             value: "user:https://{{ .Values.authRelease }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: administratorRealm
             value: "user:https://{{ .Values.authRelease }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"          
-          - name: jdbcURL
-            value: "{{ .Values.jdbcURL }}"          
           {{ else }}
           - name: auth_health
             value: "https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/health"
@@ -96,9 +94,9 @@ spec:
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
           - name: administratorRealm
             value: "user:https://{{ .Release.Name }}-{{ .Values.service.auth }}:9443/oidc/endpoint/OP/user"
+          {{ end }}
           - name: jdbcURL
             value: "jdbc:mysql://{{ .Release.Name }}-{{ .Values.service.ordersdb }}:3307/ordersdb?useSSL=false"
-          {{ end }}
           - name: rabbit
             value: "{{ .Release.Name }}-{{ .Values.service.rabbitmq }}"
           - name: PORT

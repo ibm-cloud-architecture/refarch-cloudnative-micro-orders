@@ -80,7 +80,6 @@ rabbitmq:
   dist: 25672
 
 travis: false
-jdbcURL: jdbc:mysql://my-release-mysql:3306/inventorydb?useSSL=false
 authRelease: auth
 inventoryRelease: inventory
 
