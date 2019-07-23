@@ -66,18 +66,18 @@ jobs:
       - sleep 25
       # Run Orders API Test
       - bash scripts/api_tests.sh
+      
     - stage: kubernetes build, deploy, and test
       services:
       - docker
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
       install:
-      - true
-      before_script:
       # Install minikube and helm
       - curl -O https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/utility_scripts/install_minikube_and_helm.sh
       - chmod +x install_minikube_and_helm.sh
       - bash install_minikube_and_helm.sh
+      before_script:
       # Define a local Keystore
       - bash scripts/keygen.sh
       - sudo cp -r keystorevol /etc/
@@ -91,9 +91,6 @@ jobs:
       - helm dependency update chart/orders
       # Run inventory
       - helm install --set travis.external=true,travis.releaseName=${RELEASE_NAME} --name inventory inventory-0.0.1.tgz
-      # Run OrdersDB
-      # - docker pull ibmcase/bc-ordersdb:v2.0.0
-      # - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
       script:
       # Maven Build
       - mvn clean install
