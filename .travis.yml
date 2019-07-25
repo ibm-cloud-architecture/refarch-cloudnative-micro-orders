@@ -83,6 +83,7 @@ jobs:
       - sudo cp -r keystorevol /etc/
       # Add helm repos for bluecompute services
       - helm repo add services-bc-mp https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/docs/charts/services-bc-mp
+      - helm repo add bc-inventory https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/microprofile/chart/release
       # Run Kubernetes Job and run Auth
       - helm install --name keystore services-bc-mp/keystore
       - helm install --name auth services-bc-mp/auth
@@ -90,7 +91,7 @@ jobs:
       # Get Helm dependencies
       - helm dependency update chart/orders
       # Run inventory
-      - helm install --set travis.external=true,travis.releaseName=${RELEASE_NAME} --name inventory inventory-0.0.1.tgz
+      - helm install --set travis.external=true,travis.releaseName=${RELEASE_NAME} --name inventory bc-inventory/inventory
       script:
       # Maven Build
       - mvn clean install

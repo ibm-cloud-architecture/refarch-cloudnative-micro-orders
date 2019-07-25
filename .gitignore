@@ -22,3 +22,5 @@ src/main/resources/localdev-config.json
 .gradle/
 build/
 .vscode
+
+chart/**/charts
