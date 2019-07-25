@@ -1,0 +1,15 @@
+apiVersion: v1
+entries:
+  orders:
+  - apiVersion: v1
+    created: "2019-07-24T10:23:52.249544-05:00"
+    description: BlueCompute Orders Microservice
+    digest: abac7c97d6b7818c17d14ece7b1f7fbd5ebba175de2422325a6d3aecd823f7ee
+    home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
+    name: orders
+    sources:
+    - https://github.com/ibm-cloud-architecture/refarch-cloudnative-micro-orders/tree/microprofile
+    urls:
+    - orders-0.0.1.tgz
+    version: 0.0.1
+generated: "2019-07-24T10:23:52.248166-05:00"
