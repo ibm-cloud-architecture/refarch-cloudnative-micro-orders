@@ -2,6 +2,12 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 
+labels:
+  app: orders
+  version: v1
+  tier: backend
+  implementation: microprofile
+
 image:
   #repository: registry.csplab.cloudns.cx/microprofile/orders-mp
   repository: ibmcase/orders-mp
@@ -9,6 +15,9 @@ image:
   tag: v4.0.0
   resources:
     requests:
+      cpu: 100m
+      memory: 64Mi
+    limits:
       cpu: 200m
       memory: 300Mi
 

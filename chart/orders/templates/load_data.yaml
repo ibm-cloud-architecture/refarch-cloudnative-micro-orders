@@ -3,17 +3,13 @@ kind: Job
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}-job
   labels:
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
 spec:
   template:
     metadata:
       name: {{ .Release.Name }}-{{ .Values.service.name }}-job
       labels:
-        chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-        release: {{ .Release.Name }}
-        implementation: microprofile
+        {{- include "orders.labels" . | indent 8 }}
       annotations:
         sidecar.istio.io/inject: "false"
     spec:

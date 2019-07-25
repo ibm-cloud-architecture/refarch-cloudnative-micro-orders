@@ -3,9 +3,7 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -14,35 +12,20 @@ spec:
   - name: https
     port: {{ .Values.service.servicePortHttps }}
   selector:
-    app: bluecompute
-    micro: orders
-    service: server
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}
   labels:
-    app: bluecompute
-    micro: orders
-    service: server
-    tier: backend
-    implementation: microprofile
-    release: {{ .Release.Name }}
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
+    {{- include "orders.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: bluecompute
-        micro: orders
-        service: server
-        tier: backend
-        release: {{ .Release.Name }}
-        implementation: microprofile
+        {{- include "orders.labels" . | indent 8 }}
     spec:
       containers:
       # Liberty Server Container
