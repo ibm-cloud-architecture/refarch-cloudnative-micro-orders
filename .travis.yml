@@ -12,11 +12,11 @@ env:
 jdk:
   - openjdk8
 stages:
-  - local build and test
+  - docker build and test
   - kubernetes build, deploy, and test
 jobs:
   include:
-    - stage: local build and test
+    - stage: docker build and test
       services:
       - mysql
       env:
