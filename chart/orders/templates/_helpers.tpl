@@ -12,6 +12,15 @@ helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{- end }}
 
+{{/* Orders Resources */}}
+{{- define "orders.resources" }}
+requests:
+  memory: {{ .Values.image.resources.requests.memory }}
+limits:
+  cpu: {{ .Values.image.resources.limits.cpu }}
+  memory: {{ .Values.image.resources.limits.memory }}
+{{- end }}
+
 {{/* MySQL Init Container Template */}}
 {{- define "orders.mariadb.initcontainer" }}
 - name: test-mariadb

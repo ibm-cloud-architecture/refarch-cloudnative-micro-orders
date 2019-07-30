@@ -94,9 +94,7 @@ spec:
             value: "{{ .Values.service.zipkinPort }}"
 
         resources:
-          requests:
-            cpu: "{{ .Values.image.resources.requests.cpu }}"
-            memory: "{{ .Values.image.resources.requests.memory }}"
+        {{- include "orders.resources" . | indent 10 }}
         volumeMounts:
         - name: keystorevol
           mountPath: "/etc/keystorevol"
