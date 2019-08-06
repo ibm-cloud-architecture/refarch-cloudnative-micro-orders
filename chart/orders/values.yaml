@@ -15,10 +15,8 @@ image:
   tag: v4.0.0
   resources:
     requests:
+      cpu: 150m
       memory: 64Mi
-    limits:
-      cpu: 200m
-      memory: 300Mi
 
 service:
   name: orders

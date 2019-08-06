@@ -15,10 +15,8 @@ chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
 {{/* Orders Resources */}}
 {{- define "orders.resources" }}
 requests:
+  cpu: {{ .Values.image.resources.requests.cpu }}
   memory: {{ .Values.image.resources.requests.memory }}
-limits:
-  cpu: {{ .Values.image.resources.limits.cpu }}
-  memory: {{ .Values.image.resources.limits.memory }}
 {{- end }}
 
 {{/* MySQL Init Container Template */}}
