@@ -25,7 +25,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVa
         containerTemplate(name: 'jdk', image: 'ibmcase/openjdk-bash:alpine', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'makisu', image: 'jkwong/makisu-alpine:v0.1.11', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'skopeo', image: 'jkwong/skopeo-jenkins:latest', ttyEnabled: true, command: 'cat')
-  ]) {
+    ]) {
     node(podLabel) {
         checkout scm
 
@@ -68,3 +68,4 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVa
             }
         }
     }
+}
