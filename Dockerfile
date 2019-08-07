@@ -28,8 +28,7 @@ RUN mkdir -p $APP_HOME/scripts
 WORKDIR $APP_HOME
 
 # Copy jar file over from builder stage
-COPY --from=builder /home/gradle/app/build/libs/micro-orders-0.0.1.jar $APP_HOME
-RUN mv ./micro-orders-0.0.1.jar app.jar
+COPY --from=builder /home/gradle/app/build/libs/micro-orders-0.0.1.jar $APP_HOME/app.jar
 
 COPY startup.sh startup.sh
 COPY scripts/max_heap.sh scripts/
