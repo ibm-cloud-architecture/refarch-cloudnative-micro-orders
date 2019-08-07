@@ -24,6 +24,7 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVa
     containers: [
         containerTemplate(name: 'jdk', image: 'ibmcase/openjdk-bash:alpine', ttyEnabled: true, command: 'cat'),
         containerTemplate(name: 'makisu', image: 'jkwong/makisu-alpine:v0.1.11', ttyEnabled: true, command: 'cat')
+        containerTemplate(name: 'skopeo', image: 'jkwong/skopeo-jenkins:latest', ttyEnabled: true, command: 'cat')
   ]) {
     node(podLabel) {
         checkout scm
@@ -38,17 +39,32 @@ podTemplate(label: podLabel, cloud: cloud, serviceAccount: serviceAccount, envVa
         }
 
         stage('Docker - Build Image') {
-                container(name:'makisu', shell:'/bin/sh') {
-                    withCredentials([usernamePassword(credentialsId: registryCredsID,
-                                    usernameVariable: 'USERNAME',
-                                    passwordVariable: 'PASSWORD')]) {
-                            sh """
-                            #!/bin/sh
-                            echo "{'${REGISTRY}':{'.*':{'security':{'basic':{'password':'${PASSWORD}','username':'${USERNAME}'},'tls':{'client':{'disabled':true}}}}}}" | tee registry-config.yaml
-                            /makisu-internal/makisu build --modifyfs --registry-config=registry-config.yaml --push ${REGISTRY} -t ${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER} `pwd`
-                            """
-                        }
-                    }
+            container(name:'makisu', shell:'/bin/sh') {
+                sh """
+                #!/bin/sh
+                /makisu-internal/makisu build \
+                  --modifyfs \
+                  --preserve-root \
+                  -t ${IMAGE_NAME}:${env.BUILD_NUMBER} \
+                  --dest `pwd`/image.tar \
+                  `pwd`
+                """
+            }
+        }
+        stage ('Docker - push image') {
+            container(name:'skopeo', shell:'/bin/sh') {
+                withCredentials([usernamePassword(credentialsId: registryCredsID,
+                                usernameVariable: 'USERNAME',
+                                passwordVariable: 'PASSWORD')]) {
+                    sh """
+                    #!/bin/sh
+                    /usr/bin/skopeo copy \
+                      --dest-creds ${USERNAME}:${PASSWORD} \
+                      --dest-tls-verify=false \
+                      docker-archive:`pwd`/image.tar \
+                      docker://${REGISTRY}/${IMAGE_NAME}:${env.BUILD_NUMBER}
+                    """
+                }
             }
         }
     }
