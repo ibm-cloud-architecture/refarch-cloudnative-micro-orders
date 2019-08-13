@@ -3,17 +3,15 @@ kind: Job
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}-job
   labels:
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
 spec:
   template:
     metadata:
       name: {{ .Release.Name }}-{{ .Values.service.name }}-job
       labels:
-        chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-        release: {{ .Release.Name }}
-        implementation: microprofile
+        {{- include "orders.labels" . | indent 8 }}
+      annotations:
+        sidecar.istio.io/inject: "false"
     spec:
       restartPolicy: Never
       initContainers:
@@ -27,7 +25,7 @@ spec:
           name: orders-data
           readOnly: false
         command: ["/bin/bash", "-c"]
-        {{- if or .Values.mariadb.password .Values.mariadb.existingSecret }}
+        {{- if or .Values.mariadb.db.password .Values.mariadb.existingSecret }}
         args: ["cp /orders-data/mysql_data.sql .; sed -i \"s/ordersdb/${MYSQL_DATABASE}/g\" mysql_data.sql; until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER} -p${MYSQL_PASSWORD} <mysql_data.sql; do echo \"waiting for mysql\"; sleep 1; done; echo \"Loaded data into database\";"]
         {{- else }}
         args: ["cp /orders-data/mysql_data.sql .; sed -i \"s/ordersdb/${MYSQL_DATABASE}/g\" mysql_data.sql; until mysql -h ${MYSQL_HOST} -P ${MYSQL_PORT} -u${MYSQL_USER}                     <mysql_data.sql; do echo \"waiting for mysql\"; sleep 1; done; echo \"Loaded data into database\";"]

@@ -1,4 +1,5 @@
 sudo: required
+dist: xenial
 language: java
 env:
   global:
@@ -11,11 +12,11 @@ env:
 jdk:
   - openjdk8
 stages:
-  - local build and test
+  - docker build and test
   - kubernetes build, deploy, and test
 jobs:
   include:
-    - stage: local build and test
+    - stage: docker build and test
       services:
       - mysql
       env:
@@ -65,28 +66,33 @@ jobs:
       - sleep 25
       # Run Orders API Test
       - bash scripts/api_tests.sh
+      
     - stage: kubernetes build, deploy, and test
       services:
       - docker
       env:
       - CHANGE_MINIKUBE_NONE_USER=true
       install:
-      - true
+      # Install minikube and helm
+      - curl -O https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/utility_scripts/install_minikube_and_helm.sh
+      - chmod +x install_minikube_and_helm.sh
+      - bash install_minikube_and_helm.sh
       before_script:
-      # Install nsenter, which is needed for minikube to work
-      - bash scripts/install_minikube_and_helm.sh
       # Define a local Keystore
       - bash scripts/keygen.sh
       - sudo cp -r keystorevol /etc/
+      # Add helm repos for bluecompute services
+      - helm repo add services-bc-mp https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/microprofile/docs/charts/services-bc-mp
+      - helm repo add bc-auth https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-auth/microprofile/chart/release
+      - helm repo add bc-inventory https://raw.githubusercontent.com/ibm-cloud-architecture/refarch-cloudnative-micro-inventory/microprofile/chart/release
       # Run Kubernetes Job and run Auth
       - helm install --name keystore services-bc-mp/keystore
-      - helm install --name auth services-bc-mp/auth
+      - helm install --name auth bc-auth/auth
       - MINIKUBE_IP=$(minikube ip)
+      # Get Helm dependencies
+      - helm dependency update chart/orders
       # Run inventory
-      - helm install --set travis=true,minikubeIp=${RELEASE_NAME}-rabbitmq --name inventory services-bc-mp/inventory
-      # Run OrdersDB
-      - docker pull ibmcase/bc-ordersdb:v2.0.0
-      - helm install --name my-release --set mysqlRootPassword=password,mysqlUser=dbuser,mysqlPassword=password,mysqlDatabase=ordersdb,image=ibmcase/bc-ordersdb,imageTag=v2.0.0 stable/mysql
+      - helm install --set travis.external=true,travis.releaseName=${RELEASE_NAME} --name inventory bc-inventory/inventory
       script:
       # Maven Build
       - mvn clean install
@@ -101,7 +107,9 @@ jobs:
       - echo $READY
       - until [ -n "$READY" ] && [ ${READY} -ge 1 ]; do READY=$(kubectl get deployments ${RELEASE_NAME}-orders -o yaml | grep "readyReplicas" | awk '{print $2}'); kubectl get deployments -o wide; echo "Waiting for orders to be ready"; sleep 10; done
       # Wait for orders deployment to start accepting connections
-      - sleep 35
+      - COMPLETION=$( kubectl get jobs -o json | jq '.items | .[] | select(.metadata.name=="orders-orders-job") | .status.succeeded' )
+      - echo $COMPLETION
+      - until [ -n "$COMPLETION" ] && [ $COMPLETION -ge 1 ]; do COMPLETION=$( kubectl get jobs -o json | jq '.items | .[] | select(.metadata.name=="orders-orders-job") | .status.succeeded' ); kubectl get pods -o wide; echo "Waiting for orders populate job to be completed"; sleep 10; done
       # Run auth API Test
       - ORDERS_NODE_PORT=$(kubectl get service orders-orders -o=jsonpath='{.spec.ports[1].nodePort}')
       - INV_NODE_PORT=$(kubectl get service inventory-inventory -o=jsonpath='{.spec.ports[0].nodePort}')

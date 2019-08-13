@@ -3,9 +3,8 @@ kind: Service
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.rabbitmq }}
   labels:
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
+    app.kubernetes.io/name: {{ .Release.Name }}-rabbitmq
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -18,10 +17,8 @@ spec:
   - name: dist
     port: {{ .Values.rabbitmq.dist }}
   selector:
-    micro: orders
-    service: chat
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
+    app.kubernetes.io/name: {{ .Release.Name }}-rabbitmq
 
 ---
 
@@ -30,24 +27,15 @@ kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.rabbitmq }}
   labels:
-    app: bluecompute
-    micro: orders
-    service: chat
-    tier: backend
-    chart: '{{ .Release.Name }}-{{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}'
-    release: {{ .Release.Name }}
-    implementation: microprofile
+    {{- include "orders.labels" . | indent 4 }}
+    app.kubernetes.io/name: {{ .Release.Name }}-rabbitmq
 spec:
   replicas: {{ .Values.replicaCount }}
   template:
     metadata:
       labels:
-        app: bluecompute
-        micro: orders
-        service: chat
-        tier: backend
-        release: {{ .Release.Name }}
-        implementation: microprofile
+        {{- include "orders.labels" . | indent 8 }}
+        app.kubernetes.io/name: {{ .Release.Name }}-rabbitmq
     spec:
       containers:
       - name: "rabbitmq"

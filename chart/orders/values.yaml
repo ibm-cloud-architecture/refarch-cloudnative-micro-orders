@@ -2,6 +2,12 @@
 # Declare variables to be passed into your templates.
 replicaCount: 1
 
+labels:
+  app: orders
+  version: v1
+  tier: backend
+  implementation: microprofile
+
 image:
   #repository: registry.csplab.cloudns.cx/microprofile/orders-mp
   repository: ibmcase/orders-mp
@@ -9,8 +15,8 @@ image:
   tag: v4.0.0
   resources:
     requests:
-      cpu: 200m
-      memory: 300Mi
+      cpu: 150m
+      memory: 64Mi
 
 service:
   name: orders
@@ -44,12 +50,31 @@ mysql:
   imagePullPolicy: IfNotPresent
 
 mariadb:
-  host: bc-mariadb
-  port: 3307
+  service:
+    port: 3307
+  rootUser:
+    password: password
+  db:
+    name: ordersdb
+    user: dbuser
+    password: password
+  replication:
+    enabled: false
+  master:
+    persistence:
+      enabled: false
+    annotations:
+    - key: sidecar.istio.io/inject
+      value: false
+  slave:
+    replicas: 1
+    persistence:
+      enabled: false
+    annotations:
+    - key: sidecar.istio.io/inject
+      value: false
   existingSecret:
   user: root
-  password: password
-  database: ordersdb
 
 jwt:
   id: myMpJwt
@@ -61,6 +86,35 @@ rabbitmq:
   dist: 25672
 
 travis: false
-jdbcURL: jdbc:mysql://my-release-mysql:3306/inventorydb?useSSL=false
 authRelease: auth
 inventoryRelease: inventory
+
+istio:
+  enabled: false
+  weight: 100
+  mTLS: SIMPLE
+  gateway:
+    enabled: false
+    name:
+    hosts:
+      - "orders.bluecompute.com"
+    TLS:
+      enabled: false
+      # SIMPLE, MUTUAL
+      mode: SIMPLE
+      httpsRedirect: false
+      serverCertificate: /etc/istio/ingressgateway-certs/tls.crt
+      privateKey: /etc/istio/ingressgateway-certs/tls.key
+      caCertificates: /etc/istio/ingressgateway-ca-certs/ca-chain.cert.pem
+
+ingress:
+  enabled: false
+  hostname: #orders.bluecompute.com
+  path: /micro/orders
+  annotations:
+    ingress.bluemix.net/redirect-to-https: "True"
+  enableTLS: false
+  TLS:
+  - secretName: orders.bluecompute.com
+    hosts:
+      - orders.bluecompute.com

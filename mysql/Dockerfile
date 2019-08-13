@@ -1,4 +1,4 @@
-FROM mysql:5.7.14
+FROM mariadb:10.4.6
 
 ADD scripts/create_orders_table.sql /docker-entrypoint-initdb.d/
 
