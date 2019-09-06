@@ -2,13 +2,14 @@
 
 ## Table of Contents
 
-* [Building the app](#building-the-app)
+* [Building Orders using Maven](#building-orders-using-maven)
 * [Setting up MySQL](#setting-up-mysql)
 * [Setting up RabbitMQ](#setting-up-rabbitmq) 
 * [Setting up Zipkin](#setting-up-zipkin) (Optional)
-* [Running the app and stopping it](#running-the-app-and-stopping-it)
+* [Running Orders and stopping it](#running-orders-and-stopping-it)
+* [Deploying Orders using Helm charts](#deploying-orders-using-helm-charts)
 
-### Building the app
+## Building Orders using Maven
 
 To build the application, we used Maven. Maven is a project management tool that is based on the Project Object Model (POM). 
 Typically, people use Maven for project builds, dependencies, and documentation. Maven simplifies the project build. 
@@ -87,7 +88,7 @@ By default, the application runs on [WebSphere Liberty with Web Profile](https:/
 
 **NOTE:** We will not setup RabbitMQ as that service is used to speak with other services, such as inventory.
 
-### Setting up MySQL
+## Setting up MySQL
 
 To set up MySQL, the database used in this service, in a local environment, we will need to run it in a docker container. 
 You need [Docker](https://www.docker.com/) as a prerequisite.
@@ -117,7 +118,7 @@ You need [Docker](https://www.docker.com/) as a prerequisite.
     cd ..
     ```
 
-### Setting up RabbitMQ
+## Setting up RabbitMQ
 
 RabbitMQ is an open source messaging client used in our application to communicate between MicroServices. That said,
 you only need to setup RabbitMQ if deploying multiple services locally, such as Inventory and Orders.
@@ -137,7 +138,7 @@ RabbitMQ will also need to run in a docker container. Fortunately, we can simply
     ```
 
 
-### Setting up Zipkin 
+## Setting up Zipkin 
 
 This is an optional step.
 
@@ -148,7 +149,7 @@ You can find the instructions and more details
 [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/blob/microprofile/Zipkin/README.md).
 
 
-### Running the app and stopping it
+## Running Orders and stopping it
 
 A few steps must be done before Orders can operate with full features which are described in steps 1 and 2.
 
@@ -279,3 +280,19 @@ must be running and the keystore must be set up. Please refer to the link for fu
     [INFO] Final Memory: 13M/245M
     [INFO] ------------------------------------------------------------------------
     ```
+
+## Deploying Orders using Helm Charts
+
+The most convenient solution to start the Orders service uses [Kubernetes](https://kubernetes.io/), as a container orchestration tool, and [Helm](https://helm.sh/), to deploy the necessary containers with the correct configuration. 
+
+The Orders service has a required dependency, MariaDB, which first must be obtained with:
+
+```
+helm dependency update chart/orders
+```
+
+Then run the Orders service standalone with:
+
+```
+helm install chart/orders
+```
