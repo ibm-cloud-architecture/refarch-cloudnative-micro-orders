@@ -17,10 +17,10 @@ This repository contains the **MicroProfile** implementation of the **Orders Ser
 * [Implementation](#implementation)
     * [Microprofile](#microprofile)
 * [Features and App details](#features)
-* [Deploying the App](#deploying-the-app)
+* [Deploying the Bluecompute App](#deploying-the-bluecompute-app)
     + [IBM Cloud Private](#ibm-cloud-private)
     + [Minikube](#minikube)
-    + [Run Orders Service locally](#run-orders-service-locally)
+* [Run Orders Service locally](#run-orders-service-locally)
 * [References](#references)
 
 ### Introduction
@@ -181,7 +181,7 @@ Used to help monitor essential system parameters and the performance of well-kno
     
     In our sample application, we use @Timed, @Counted, @Metered.
 
-## Deploying the App
+## Deploying the Bluecompute App
 
 To build and run the entire BlueCompute demo application, each MicroService must be spun up together. This is due to how we
 set up our Helm charts structure and how we dynamically produce our endpoints and URLs.  
@@ -199,9 +199,9 @@ To deploy it on IBM Cloud Private, please follow the instructions provided
 To deploy it on Minikube, please follow the instructions provided 
 [here](https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile#locally-in-minikube).
 
-### Run Orders Service locally
+## Run Orders Service locally
 
-To deploy the app locally and test the individual service, please follow the instructions provided 
+To deploy the Orders app locally using Maven or Helm and test the individual service, please follow the instructions provided 
 [here](etc/building-locally.md).
 
 
