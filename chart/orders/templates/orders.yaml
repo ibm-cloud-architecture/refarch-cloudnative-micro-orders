@@ -22,6 +22,9 @@ metadata:
     {{- include "orders.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "orders.labels" . | indent 6 }}
   template:
     metadata:
       labels:

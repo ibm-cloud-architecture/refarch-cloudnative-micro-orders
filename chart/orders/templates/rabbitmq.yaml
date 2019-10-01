@@ -31,6 +31,10 @@ metadata:
     app.kubernetes.io/name: {{ .Release.Name }}-rabbitmq
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "orders.labels" . | indent 6 }}
+      app.kubernetes.io/name: {{ .Release.Name }}-rabbitmq
   template:
     metadata:
       labels:
