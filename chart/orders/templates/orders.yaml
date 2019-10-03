@@ -14,7 +14,7 @@ spec:
   selector:
     {{- include "orders.labels" . | indent 4 }}
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Release.Name }}-{{ .Values.service.name }}
@@ -22,6 +22,9 @@ metadata:
     {{- include "orders.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "orders.labels" . | indent 6 }}
   template:
     metadata:
       labels:
