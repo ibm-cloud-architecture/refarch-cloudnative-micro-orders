@@ -30,6 +30,7 @@ import javax.ws.rs.core.UriBuilder;
 import org.eclipse.microprofile.config.Config;
 import org.eclipse.microprofile.config.ConfigProvider;
 import org.eclipse.microprofile.faulttolerance.Fallback;
+import org.eclipse.microprofile.faulttolerance.Retry;
 import org.eclipse.microprofile.faulttolerance.Timeout;
 import org.eclipse.microprofile.jwt.JsonWebToken;
 import org.eclipse.microprofile.metrics.annotation.Counted;
@@ -88,6 +89,7 @@ public class OrderService {
     }
 
     @Timeout(value = 2, unit = ChronoUnit.SECONDS)
+    @Retry(maxRetries = 2, maxDuration = 5000)
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Fallback(fallbackMethod = "returnDummyOrder")
