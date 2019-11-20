@@ -62,7 +62,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: {{ .Release.Name }}-{{ .Values.service.name }}-config
+  name: {{ .Release.Name }}-{{ .Values.service.name }}-mpft-config
 data:
   MP_Fault_Tolerance_NonFallback_Enabled: "false"
 

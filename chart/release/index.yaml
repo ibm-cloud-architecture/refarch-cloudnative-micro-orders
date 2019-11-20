@@ -2,9 +2,9 @@ apiVersion: v1
 entries:
   orders:
   - apiVersion: v1
-    created: "2019-11-20T10:44:23.892413-06:00"
+    created: "2019-11-20T14:27:06.011286-06:00"
     description: BlueCompute Orders Microservice
-    digest: 0c2421b232e15896c50e07ea5cc5066e3fc0409c478fa1c997b0880ce11b5d1c
+    digest: cc955922386b1f2a6c71205ccd4d3a4c54c4b6013b14da3c48e964e47da13758
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
     name: orders
     sources:
@@ -13,7 +13,7 @@ entries:
     - orders-0.1.2.tgz
     version: 0.1.2
   - apiVersion: v1
-    created: "2019-11-20T10:44:23.891232-06:00"
+    created: "2019-11-20T14:27:06.009752-06:00"
     description: BlueCompute Orders Microservice
     digest: a0b96197e3637ba98cd46e1accd81e098fbd00c2e2c487581456465bdf75e36e
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -24,7 +24,7 @@ entries:
     - orders-0.1.1.tgz
     version: 0.1.1
   - apiVersion: v1
-    created: "2019-11-20T10:44:23.888652-06:00"
+    created: "2019-11-20T14:27:06.007637-06:00"
     description: BlueCompute Orders Microservice
     digest: c25abc811ea536f251ad8606aca2e1ebf95bd1d38d50e7a215daa2b99d6e79b7
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -35,7 +35,7 @@ entries:
     - orders-0.1.0.tgz
     version: 0.1.0
   - apiVersion: v1
-    created: "2019-11-20T10:44:23.88742-06:00"
+    created: "2019-11-20T14:27:06.005882-06:00"
     description: BlueCompute Orders Microservice
     digest: abac7c97d6b7818c17d14ece7b1f7fbd5ebba175de2422325a6d3aecd823f7ee
     home: https://github.com/ibm-cloud-architecture/refarch-cloudnative-kubernetes/tree/microprofile
@@ -45,4 +45,4 @@ entries:
     urls:
     - orders-0.0.1.tgz
     version: 0.0.1
-generated: "2019-11-20T10:44:23.88671-06:00"
+generated: "2019-11-20T14:27:06.004964-06:00"
