@@ -95,7 +95,7 @@ helm upgrade --install orders-mariadb \
 cd chart/orders
 
 # Deploy Orders to Kubernetes cluster
-helm upgrade --install orders --set service.type=NodePort .
+helm upgrade --install orders --set mariadb.host=orders-mariadb-orders-mariadb --set service.type=NodePort .
 ```
 
 The last command will give you instructions on how to access/test the Orders application. Please note that before the Orders application starts, the MySQL deployment must be fully up and running, which normally takes a couple of minutes. With Kubernetes [Init Containers](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/), the Orders Deployment polls for MySQL readiness status so that Orders can start once MySQL is ready, or error out if MySQL fails to start.

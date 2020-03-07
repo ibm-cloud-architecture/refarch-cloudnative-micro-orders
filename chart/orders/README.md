@@ -67,5 +67,5 @@ git clone -b spring --single-branch https://github.com/ibm-cloud-architecture/re
 cd refarch-cloudnative-micro-orders/chart/orders
 
 # Deploy Orders to Kubernetes cluster
-helm upgrade --install orders --set service.type=NodePort .
+helm upgrade --install orders --set mariadb.host=orders-mariadb-orders-mariadb --set service.type=NodePort .
 ```

@@ -25,7 +25,7 @@ ingress:
       - orders.bluecompute.com
 
 mariadb:
-  host: orders-mariadb-orders-mariadb
+  host:
   port: 3307
   existingSecret:
   user: dbuser
